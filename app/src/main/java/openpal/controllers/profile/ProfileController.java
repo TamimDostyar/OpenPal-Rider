@@ -1,4 +1,4 @@
-package openpal.services.profile;
+package openpal.controllers.profile;
 
 import java.util.Date;
 import java.util.Random;
@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
-public class Profile {
+public class ProfileController {
     private String name;
     private Date dob;
     private String school;
@@ -18,7 +18,7 @@ public class Profile {
     private String cwd = System.getProperty("user.dir");
     private Path path = Paths.get(cwd).toAbsolutePath().resolve("../../../../../../../").normalize();
 
-    Profile(String name, Date dob, String school, Integer schoolYear){
+    ProfileController(String name, Date dob, String school, Integer schoolYear){
         this.name = name;
         this.dob = dob;
         this.school = school;
