@@ -33,5 +33,5 @@ java {
 }
 
 application {
-    mainClass = 'openpal.manager.App'
+    mainClass = 'openpal.App'
 }
