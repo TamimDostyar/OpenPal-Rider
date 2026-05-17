@@ -8,8 +8,17 @@
 
 plugins {
     id 'application'
+    id 'eclipse'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
+}
+
+// Put Gradle build output and Eclipse/VS Code bin/ outside the app/ module
+layout.buildDirectory = file("$rootDir/build/app")
+eclipse {
+    classpath {
+        defaultOutputDir = file("$rootDir/bin/app")
+    }
 }
 
 repositories {

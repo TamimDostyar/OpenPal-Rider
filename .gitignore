@@ -1,12 +1,14 @@
 # Gradle
 .gradle/
 build/
+/build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-# Compiled output
+# Compiled output (Eclipse/VS Code put output in bin/)
 bin/
+/bin/
 out/
 *.class
 
