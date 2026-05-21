@@ -10,8 +10,9 @@ import java.util.Map;
 import openpal.controllers.profile.CreateProfile;
 import openpal.controllers.profile.ProfileController;
 import openpal.controllers.profile.Utils;
-import openpal.database.systems.CreateProfileDB;
-import openpal.database.systems.ProfileRepository;
+import openpal.database.account_mgt.CreateProfileDB;
+import openpal.database.account_mgt.ProfileRepository;
+import openpal.database.account_mgt.PasswordHasher;
 
 
 @RestController
@@ -37,15 +38,24 @@ public class ProfileService {
             response.put("error", "email is required");
             return ResponseEntity.badRequest().body(response);
         }
-        if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()){
+        if (request.getPhoneNumber() == null){
             response.put("error", "phone number required");
             return ResponseEntity.badRequest().body(response);
         }
-
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            response.put("error", "password is required");
+            return ResponseEntity.badRequest().body(response);
+        }
 
         if (!Utils.isSchoolValid(request.getSchool())) {
             response.put("error", "school is not a recognized US university");
             return ResponseEntity.badRequest().body(response);
+        }
+
+        // reject duplicate signups so emails stay unique
+        if (profileRepository.existsByEmail(request.getEmail().trim())) {
+            response.put("error", "an account with this email already exists");
+            return ResponseEntity.status(409).body(response);
         }
 
         // server-assigned identifier for the new profile
@@ -58,7 +68,8 @@ public class ProfileService {
             request.getDob(),
             request.getSchool().trim(),
             request.getGraduationDate(),
-            request.getPhoneNumber()
+            request.getPhoneNumber(),
+            PasswordHasher.hash(request.getPassword())
         );
         CreateProfileDB saved = profileRepository.save(profile);
 

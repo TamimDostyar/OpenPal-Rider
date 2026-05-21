@@ -14,23 +14,33 @@ public class CreateProfileDB {
 
     private String name;
     private Integer userSpecialNumber;
+
+    @Column(unique = true)
     private String email;
+
     private LocalDate dob;
     private String school;
     private LocalDate graduationDate;
+    private Integer phoneNumber;
+
+    // BCrypt hash of the user's password — never the raw password
+    private String password;
 
     // required by JPA
     protected CreateProfileDB() {
     }
 
     public CreateProfileDB(String name, Integer userSpecialNumber, String email,
-                           LocalDate dob, String school, LocalDate graduationDate) {
+                           LocalDate dob, String school, LocalDate graduationDate,
+                           Integer phoneNumber, String password) {
         this.name = name;
         this.userSpecialNumber = userSpecialNumber;
         this.email = email;
         this.dob = dob;
         this.school = school;
         this.graduationDate = graduationDate;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
     // getters and setters
@@ -72,5 +82,17 @@ public class CreateProfileDB {
     }
     public void setGraduationDate(LocalDate graduationDate) {
         this.graduationDate = graduationDate;
+    }
+    public Integer getPhoneNumber() {
+        return this.phoneNumber;
+    }
+    public void setPhoneNumber(Integer phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    public String getPassword() {
+        return this.password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

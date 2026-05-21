@@ -16,6 +16,7 @@ public class CreateProfile {
 
     private String school;
     private Integer phoneNumber;
+    private String password;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate graduationDate;
@@ -70,7 +71,14 @@ public class CreateProfile {
     public Integer getPhoneNumber(){
         return this.phoneNumber;
     }
-    public void setPhoneNumber(Iteger phoneNumber){
+    public void setPhoneNumber(Integer phoneNumber){
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword(){
+        return this.password;
+    }
+    public void setPassword(String password){
+        this.password = password;
     }
 }
