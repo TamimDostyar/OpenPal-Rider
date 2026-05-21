@@ -9,55 +9,41 @@ import java.nio.file.Paths;
 
 
 public class ProfileController {
+
     private String name;
-    private Date dob;
-    private String school;
-    private Integer schoolYear;
-    private Integer userGenerated_id;
-    private String userInfoFile;
+    private Integer specialID;
+
     private String cwd = System.getProperty("user.dir");
     private Path path = Paths.get(cwd).toAbsolutePath().resolve("../../../../../../../").normalize();
 
-    ProfileController(String name, Date dob, String school, Integer schoolYear){
+    public ProfileController(String name){
         this.name = name;
-        this.dob = dob;
-        this.school = school;
-        this.schoolYear = schoolYear;
-        this.userGenerated_id = numberGenerator();
-        this.userInfoFile = null;
+        this.specialID = numberGenerator();
     }
 
 
+    // numbers to get genereted by us
     int numberGenerator(){
         Random random = new Random();
         int number = random.nextInt(9000) + 1000;
         return number;
     }
+    // just check if the numbers are assigned by us
+    Boolean isValidPerson(){
+        String choesnPerson = this.name;
+        Integer personNumber = this.specialID;
+        
+        if (choesnPerson.toLowerCase() == "tamim"){
 
-    // if the user file does not exist create one
-    void makeJsonFile(String path_to_file){
-        String file_name;
-        String full_userPath = this.path + userInfoFile;
-
-        if (full_userPath.endsWith(null) || full_userPath.endsWith("null")){
-            file_name = this.path + this.name + "_" + dob + this.userGenerated_id + ".json";
-        } 
-        else {
-            file_name = this.userInfoFile + this.name + "_" + dob + this.userGenerated_id + ".json";
-        }
-
-        Path user_file_path = Paths.get(file_name);
-
-        try{
-
-            if (!Files.exists(user_file_path)){
-                Files.createFile(user_file_path);
-                
+            if (personNumber < 1000 || personNumber > 9999){
+                return false;
             }
-
-        } catch (IOException e){
-            e.printStackTrace();
+            return true;
         }
-
+    
+        return false;
     }
+
+
+    
 }
