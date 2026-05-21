@@ -23,7 +23,7 @@ public class ProfileController {
 
 
     // numbers to get genereted by us
-    int numberGenerator(){
+    public static int numberGenerator(){
         Random random = new Random();
         int number = random.nextInt(9000) + 1000;
         return number;
