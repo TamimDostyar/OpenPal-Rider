@@ -69,3 +69,4 @@ Desktop.ini
 # Test output
 /test-results/
 /coverage/
+app/src/main/resources/application.properties
