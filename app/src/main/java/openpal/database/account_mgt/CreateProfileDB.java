@@ -1,4 +1,4 @@
-package openpal.database.systems;
+package openpal.database.account_mgt;
 import jakarta.persistence.*;
 import java.util.UUID;
 import java.time.LocalDate;

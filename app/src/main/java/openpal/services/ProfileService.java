@@ -37,6 +37,12 @@ public class ProfileService {
             response.put("error", "email is required");
             return ResponseEntity.badRequest().body(response);
         }
+        if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()){
+            response.put("error", "phone number required");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+
         if (!Utils.isSchoolValid(request.getSchool())) {
             response.put("error", "school is not a recognized US university");
             return ResponseEntity.badRequest().body(response);
@@ -51,7 +57,8 @@ public class ProfileService {
             request.getEmail().trim(),
             request.getDob(),
             request.getSchool().trim(),
-            request.getGraduationDate()
+            request.getGraduationDate(),
+            request.getPhoneNumber()
         );
         CreateProfileDB saved = profileRepository.save(profile);
 
@@ -62,6 +69,7 @@ public class ProfileService {
         response.put("dob", saved.getDob());
         response.put("school", saved.getSchool());
         response.put("graduationDate", saved.getGraduationDate());
+        response.put("PhoneNumber", saved.getPhoneNumber());
         return ResponseEntity.status(201).body(response);
     }
 }
