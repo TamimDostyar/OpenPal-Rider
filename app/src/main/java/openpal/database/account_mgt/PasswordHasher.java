@@ -2,7 +2,7 @@ package openpal.database.account_mgt;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-// Hashes and verifies passwords with BCrypt. Never store raw passwords.
+// Hashes and verifies passwords with BCrypt.
 public final class PasswordHasher {
 
     private static final BCryptPasswordEncoder ENCODER = new BCryptPasswordEncoder();
