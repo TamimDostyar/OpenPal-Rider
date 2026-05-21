@@ -8,7 +8,6 @@ public class CreateProfile {
     private String school;
     private Date graduationDate;
 
-
     CreateProfile(String name, Date dob, String school, Date graduationDate){
         this.name = name;
         this.dob = dob;
