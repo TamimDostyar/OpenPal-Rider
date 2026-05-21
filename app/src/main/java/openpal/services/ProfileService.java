@@ -25,7 +25,7 @@ public class ProfileService {
         this.profileRepository = profileRepository;
     }
 
-    @PostMapping("/create-profile")
+    @PostMapping("/create-user")
     public ResponseEntity<Map<String, Object>> createProfile(@RequestBody CreateProfile request) {
         Map<String, Object> response = new HashMap<>();
 
