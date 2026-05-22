@@ -15,10 +15,6 @@ public class Utils {
     // lazily loaded, normalized (lowercase) set of valid US university names
     private static volatile Set<String> schools;
 
-    /**
-     * Checks whether the given school name matches a known US university
-     * listed in resources/data/us_universities.csv.
-     */
     public static boolean isSchoolValid(String name) {
         if (name == null || name.isBlank()) {
             return false;
