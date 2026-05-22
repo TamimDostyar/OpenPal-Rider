@@ -1,5 +1,7 @@
 # OpenPal Rider Backend
 
+![OpenPal UI icon](mobile-ui/asset/app-icon.png)
+
 Backend service for OpenPal — an app that helps university students find and share rides with other students on campus.
 
 ## Tech Stack
