@@ -58,9 +58,34 @@ npm run dev
 
 ```mermaid
 flowchart LR
-	Mobile[Mobile App (Expo)] -->|Auth + onboarding API calls| API[Backend API (Spring Boot)]
-	Web[Marketing Website (Vite)] -->|Static content| Browser[User Browser]
-	API -->|Data| DB[(Database)]
+	%% Client layer
+	User((Student)) --> MobileUI[Mobile App UI (Expo)]
+	User --> WebUI[Marketing Website (Vite)]
+
+	%% Mobile request path
+	MobileUI -->|HTTPS request| ApiClient[API Client (mobile-ui/src/api/client.ts)]
+	ApiClient -->|POST /login-user| AuthCtrl[Auth Controller]
+	AuthCtrl --> AuthSvc[Auth Service]
+	AuthSvc --> UserRepo[User Repository]
+	UserRepo --> DB[(Database)]
+	AuthSvc -->|Create JWT + refresh| JwtIssuer[JWT Issuer]
+	JwtIssuer -->|200 OK: access + refresh + user| ApiClient
+	ApiClient -->|Store tokens| SecureStore[Expo Secure Store]
+	ApiClient -->|Return response| MobileUI
+
+	%% Subsequent authenticated calls
+	MobileUI -->|HTTPS request| ApiClient
+	ApiClient -->|Authorization: Bearer <JWT>| ApiGateway[Spring Security Filter]
+	ApiGateway -->|Validate JWT| JwtValidator[JWT Validator]
+	ApiGateway --> ApiCtrl[API Controllers]
+	ApiCtrl --> ApiSvc[Business Services]
+	ApiSvc --> DataRepo[Repositories]
+	DataRepo --> DB
+	ApiCtrl -->|200 OK / error JSON| ApiClient
+	ApiClient -->|Render UI state| MobileUI
+
+	%% Website path
+	WebUI -->|Static assets| Browser[User Browser]
 ```
 
 ## Project Structure
