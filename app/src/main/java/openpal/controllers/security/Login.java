@@ -1,43 +1,45 @@
 package openpal.controllers.security;
 
-
-public class Login extends Signup{
+/**
+ * Request payload for POST /login-user. Deserialized from the request body,
+ * so it needs a no-arg constructor and public accessors for Jackson.
+ */
+public class Login {
     private String username;
     private String email;
-    private String pwd;
+    private String password;
 
+    // required for JSON deserialization
+    public Login() {
+    }
 
-    Login(String username, String email, String pwd){
+    public Login(String username, String email, String password) {
         this.username = username;
         this.email = email;
-        this.pwd = pwd;
+        this.password = password;
     }
 
-    public boolean isLoginDataValid(){
-        if (this.username == null || this.email == null || this.pwd == null){
-            return false;
-        }
-
-        // initial checking for the data is valid
-        if (!this.username.matches(".*[^a-zA-Z0-9].*") && email.endsWith(".edu")){
-            return true;
-        }
-
-        return false;
-    }
-
-
-    public String getUsername(){
+    public String getUsername() {
         return this.username;
     }
-    public void setUsername(String username){
+
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getPassword(){
-        return this.pwd;
+    public String getEmail() {
+        return this.email;
     }
-    public void setPassword(String pw){
-        this.pwd = pw;
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
