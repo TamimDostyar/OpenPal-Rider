@@ -82,3 +82,4 @@ mobile-ui/goal/
 /test-results/
 /coverage/
 app/src/main/resources/application.properties
+mobile-ui/goal
