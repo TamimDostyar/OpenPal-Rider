@@ -28,7 +28,6 @@ public class EmailService {
     /** Emails the verification code to the given address. */
     public void sendVerificationCode(String toEmail, String code) {
         if (fromAddress == null || fromAddress.isBlank()) {
-            // no mail account configured — fall back to logging for dev
             System.out.println("[EmailService] verification code for " + toEmail + ": " + code);
             return;
         }

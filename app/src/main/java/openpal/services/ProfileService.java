@@ -110,7 +110,6 @@ public class ProfileService {
     }
 
     /**
-     * Step 2 of signup: confirm the 4-digit code. Only on a correct,
      * unexpired code is the account actually created in the database.
      * A wrong code creates nothing — the user can retry until it expires.
      */
@@ -141,12 +140,10 @@ public class ProfileService {
             return ResponseEntity.status(400).body(response);
         }
         if (!registration.matches(code.trim())) {
-            // wrong code — account is NOT created; pending signup is kept for retry
             response.put("error", "incorrect verification code");
             return ResponseEntity.status(400).body(response);
         }
 
-        // someone may have registered this email while the code was outstanding
         if (profileRepository.existsByEmail(registration.getEmail())) {
             pending.remove(key);
             response.put("error", "an account with this email already exists");
@@ -184,7 +181,7 @@ public class ProfileService {
     }
 
     /**
-     * Re-sends a fresh 4-digit code for a pending signup, e.g. when the
+     * code is pending
      * previous code expired.
      */
     @PostMapping("/resend-code")
@@ -204,7 +201,6 @@ public class ProfileService {
             return ResponseEntity.status(404).body(response);
         }
 
-        // issue a new code, carrying over all the already-validated signup data
         String code = GoogleStep.generateCode();
         PendingRegistration refreshed = new PendingRegistration(
             existing.getName(),

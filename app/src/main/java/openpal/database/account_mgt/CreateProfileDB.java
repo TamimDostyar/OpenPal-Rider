@@ -37,8 +37,6 @@ public class CreateProfileDB {
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
-    // true once the user confirmed the 4-digit code emailed at signup.
-    // DB default lets the NOT NULL column be added to a table with existing rows.
     @ColumnDefault("false")
     private boolean emailVerified = false;
 

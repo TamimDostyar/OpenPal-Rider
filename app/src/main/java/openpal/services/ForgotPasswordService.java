@@ -56,8 +56,6 @@ public class ForgotPasswordService {
             user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(TOKEN_VALID_MINUTES));
             profileRepository.save(user);
 
-            // TODO: email this token to the user instead of returning it.
-            // Returned here only because no mail service is wired up yet.
             response.put("resetToken", token);
         }
 
@@ -96,7 +94,6 @@ public class ForgotPasswordService {
         }
 
         user.setPassword(PasswordHasher.hash(request.getNewPassword()));
-        // consume the token so it can't be reused
         user.setResetToken(null);
         user.setResetTokenExpiry(null);
         profileRepository.save(user);

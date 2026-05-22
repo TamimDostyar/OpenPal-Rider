@@ -16,7 +16,6 @@ public class Utils {
 
     private static final String UNIVERSITIES_CSV = "data/us_universities.csv";
 
-    // lazily loaded, normalized (lowercase) set of valid US university names
     private static volatile Set<String> schools;
 
     // lazily loaded, ordered list of universities (name + url) from the CSV

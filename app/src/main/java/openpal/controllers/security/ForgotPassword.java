@@ -1,7 +1,6 @@
 package openpal.controllers.security;
 
 /**
- * Request payload for POST /forgot-password. Deserialized from the request body,
  * so it needs a no-arg constructor and public accessors for Jackson.
  */
 public class ForgotPassword {

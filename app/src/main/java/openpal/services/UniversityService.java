@@ -12,7 +12,6 @@ import openpal.controllers.profile.Utils;
 @RequestMapping("api/universities")
 public class UniversityService {
 
-    // returns every US university from the bundled CSV (name + url)
     @GetMapping
     public ResponseEntity<Map<String, Object>> listUniversities() {
         List<Map<String, String>> universities = Utils.getUniversities();

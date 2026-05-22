@@ -13,7 +13,6 @@ public class GoogleStep {
     private GoogleStep() {
     }
 
-    // a fresh 4-digit code, always padded to 4 chars (e.g. "0427")
     public static String generateCode() {
         return String.format("%04d", RANDOM.nextInt(10000));
     }
