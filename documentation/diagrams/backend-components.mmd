@@ -1,0 +1,28 @@
+flowchart TB
+  subgraph Backend[OpenPal Backend API]
+    Routes[Routes\nGET /api/]
+    Profile[ProfileService\nPOST /api/user/*]
+    Login[LoginServices\nPOST /login-user]
+    Forgot[ForgotPasswordService\nPOST /forgot-password, /reset-password]
+    Univ[UniversityService\nGET /api/universities]
+
+    Repo[ProfileRepository]
+    Entity[CreateProfileDB\nprofiles table]
+    Pending[PendingRegistration\nin-memory]
+    Email[EmailService]
+    JWT[JsonTokenWeb\nJWT issue/parse]
+    Utils[Utils\nCSV loader]
+  end
+
+  Profile --> Pending
+  Profile --> Repo
+  Profile --> Email
+  Login --> Repo
+  Login --> JWT
+  Forgot --> Repo
+  Univ --> Utils
+  Repo --> Entity
+
+  Repo --> DB[(PostgreSQL)]
+  Email --> SMTP[Email Provider\nGmail SMTP]
+  Utils --> CSV[(us_universities.csv)]

@@ -1,0 +1,16 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+actor "Client Apps\nweb/mobile\nexternal or unknown" as Client
+component "OpenPal Backend API\nSpring Boot" as API
+queue "Email Provider\nGmail SMTP" as SMTP
+database "PostgreSQL" as DB
+artifact "us_universities.csv" as CSV
+
+Client --> API : HTTPS JSON
+API --> DB : JPA
+API --> SMTP : SMTP
+API --> CSV : reads CSV
+
+@enduml

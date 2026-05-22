@@ -1,0 +1,9 @@
+flowchart LR
+  Client[Client Apps\nweb/mobile\nexternal or unknown] -->|HTTPS JSON| API[OpenPal Backend API\nSpring Boot]
+  API -->|JPA| DB[(PostgreSQL)]
+  API -->|SMTP| SMTP[Email Provider\nGmail SMTP]
+  API -->|reads CSV| CSV[(us_universities.csv)]
+
+  subgraph Backend
+    API
+  end

@@ -1,0 +1,33 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+package "OpenPal Backend API" {
+  component "Routes\nGET /api/" as Routes
+  component "ProfileService\nPOST /api/user/*" as Profile
+  component "LoginServices\nPOST /login-user" as Login
+  component "ForgotPasswordService\nPOST /forgot-password, /reset-password" as Forgot
+  component "UniversityService\nGET /api/universities" as Univ
+
+  component "ProfileRepository" as Repo
+  component "CreateProfileDB\nprofiles table" as Entity
+  component "PendingRegistration\nin-memory" as Pending
+  component "EmailService" as Email
+  component "JsonTokenWeb\nJWT issue/parse" as JWT
+  component "Utils\nCSV loader" as Utils
+}
+
+Profile --> Pending
+Profile --> Repo
+Profile --> Email
+Login --> Repo
+Login --> JWT
+Forgot --> Repo
+Univ --> Utils
+Repo --> Entity
+
+Repo --> database "PostgreSQL" as DB
+Email --> queue "Email Provider\nGmail SMTP" as SMTP
+Utils --> artifact "us_universities.csv" as CSV
+
+@enduml
