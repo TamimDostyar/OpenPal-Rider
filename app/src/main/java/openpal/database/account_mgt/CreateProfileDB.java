@@ -1,5 +1,6 @@
 package openpal.database.account_mgt;
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +36,11 @@ public class CreateProfileDB {
     @Column(unique = true)
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
+
+    // true once the user confirmed the 4-digit code emailed at signup.
+    // DB default lets the NOT NULL column be added to a table with existing rows.
+    @ColumnDefault("false")
+    private boolean emailVerified = false;
 
     // required by JPA
     protected CreateProfileDB() {
@@ -123,5 +129,11 @@ public class CreateProfileDB {
     }
     public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
         this.resetTokenExpiry = resetTokenExpiry;
+    }
+    public boolean isEmailVerified() {
+        return this.emailVerified;
+    }
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 }
