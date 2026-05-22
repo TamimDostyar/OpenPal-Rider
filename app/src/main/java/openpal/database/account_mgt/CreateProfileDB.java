@@ -2,6 +2,7 @@ package openpal.database.account_mgt;
 import jakarta.persistence.*;
 import java.util.UUID;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -15,6 +16,10 @@ public class CreateProfileDB {
     private String name;
     private Integer userSpecialNumber;
 
+    // server-generated handle: first 3 letters of name + birth month + special number
+    @Column(unique = true)
+    private String username;
+
     @Column(unique = true)
     private String email;
 
@@ -26,15 +31,21 @@ public class CreateProfileDB {
     // BCrypt hash of the user's password — never the raw password
     private String password;
 
+    // one-time password-reset token and its expiry; null when no reset is pending
+    @Column(unique = true)
+    private String resetToken;
+    private LocalDateTime resetTokenExpiry;
+
     // required by JPA
     protected CreateProfileDB() {
     }
 
-    public CreateProfileDB(String name, Integer userSpecialNumber, String email,
+    public CreateProfileDB(String name, Integer userSpecialNumber, String username, String email,
                            LocalDate dob, String school, LocalDate graduationDate,
                            Integer phoneNumber, String password) {
         this.name = name;
         this.userSpecialNumber = userSpecialNumber;
+        this.username = username;
         this.email = email;
         this.dob = dob;
         this.school = school;
@@ -58,6 +69,12 @@ public class CreateProfileDB {
     }
     public void setUserSpecialNumber(Integer userSpecialNumber) {
         this.userSpecialNumber = userSpecialNumber;
+    }
+    public String getUsername() {
+        return this.username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
     public String getEmail() {
         return this.email;
@@ -94,5 +111,17 @@ public class CreateProfileDB {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getResetToken() {
+        return this.resetToken;
+    }
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+    public LocalDateTime getResetTokenExpiry() {
+        return this.resetTokenExpiry;
+    }
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
     }
 }

@@ -14,4 +14,7 @@ public interface ProfileRepository extends JpaRepository<CreateProfileDB, UUID> 
 
     // fetches the profile for this email, if any — used for login verification
     Optional<CreateProfileDB> findByEmail(String email);
+
+    // fetches the profile holding this password-reset token, if any
+    Optional<CreateProfileDB> findByResetToken(String resetToken);
 }

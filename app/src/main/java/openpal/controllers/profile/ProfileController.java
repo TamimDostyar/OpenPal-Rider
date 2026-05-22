@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 
 public class ProfileController {
@@ -28,6 +29,18 @@ public class ProfileController {
         int number = random.nextInt(9000) + 1000;
         return number;
     }
+    /**
+     * Builds a server-assigned username: first 3 letters of the user's name,
+     * the two-digit month they were born, and their special number.
+     * e.g. name "Tamim", born in May, number 1234  ->  "tam051234"
+     */
+    public static String generateUsername(String name, LocalDate dob, Integer specialNumber) {
+        String letters = name == null ? "" : name.trim().toLowerCase().replaceAll("[^a-z]", "");
+        String prefix = letters.length() >= 3 ? letters.substring(0, 3) : letters;
+        String month = dob == null ? "00" : String.format("%02d", dob.getMonthValue());
+        return prefix + month + specialNumber;
+    }
+
     // just check if the numbers are assigned by us
     Boolean isValidPerson(){
         String choesnPerson = this.name;

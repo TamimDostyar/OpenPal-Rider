@@ -61,9 +61,14 @@ public class ProfileService {
         // server-assigned identifier for the new profile
         Integer specialNumber = ProfileController.numberGenerator();
 
+        // server-generated username: first 3 letters of name + birth month + special number
+        String username = ProfileController.generateUsername(
+            request.getName(), request.getDob(), specialNumber);
+
         CreateProfileDB profile = new CreateProfileDB(
             request.getName().trim(),
             specialNumber,
+            username,
             request.getEmail().trim(),
             request.getDob(),
             request.getSchool().trim(),
@@ -76,6 +81,7 @@ public class ProfileService {
         response.put("id", saved.getId());
         response.put("name", saved.getName());
         response.put("userSpecialNumber", saved.getUserSpecialNumber());
+        response.put("username", saved.getUsername());
         response.put("email", saved.getEmail());
         response.put("dob", saved.getDob());
         response.put("school", saved.getSchool());
