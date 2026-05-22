@@ -28,9 +28,9 @@ class LoginDBTest {
     private ProfileRepository repo;
 
     private CreateProfileDB profileWithPassword(String email, String rawPassword) {
-        return new CreateProfileDB("Test User", 1234, email,
+        return new CreateProfileDB("Test User", 1234, "tes011234", email,
                 LocalDate.of(2000, 1, 1), "Adelphi University",
-                LocalDate.of(2026, 5, 1), 1234567, PasswordHasher.hash(rawPassword));
+                LocalDate.of(2026, 5, 1), 5551234567L, PasswordHasher.hash(rawPassword));
     }
 
     @Test

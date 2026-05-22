@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 /**
- * Request payload for creating a profile. Deserialized from the
  * POST /api/user/create-profile request body.
  */
 public class CreateProfile {
@@ -15,7 +14,8 @@ public class CreateProfile {
     private LocalDate dob;
 
     private String school;
-    private Integer phoneNumber;
+    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
+    private Long phoneNumber;
     private String password;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -27,7 +27,7 @@ public class CreateProfile {
 
     public CreateProfile(String name, String email, LocalDate dob,
                          String school, LocalDate graduationDate,
-                        Integer phoneNumber) {
+                        Long phoneNumber) {
         this.name = name;
         this.email = email;
         this.dob = dob;
@@ -68,10 +68,10 @@ public class CreateProfile {
         this.graduationDate = graduationDate;
     }
 
-    public Integer getPhoneNumber(){
+    public Long getPhoneNumber(){
         return this.phoneNumber;
     }
-    public void setPhoneNumber(Integer phoneNumber){
+    public void setPhoneNumber(Long phoneNumber){
         this.phoneNumber = phoneNumber;
     }
 

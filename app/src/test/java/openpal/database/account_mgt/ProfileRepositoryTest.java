@@ -26,9 +26,9 @@ class ProfileRepositoryTest {
 
     private CreateProfileDB sampleProfile(String email) {
         return new CreateProfileDB(
-                "Jane Doe", 4242, email,
+                "Jane Doe", 4242, "jan034242", email,
                 LocalDate.of(2002, 3, 14), "Adelphi University",
-                LocalDate.of(2026, 6, 1), 1234567,
+                LocalDate.of(2026, 6, 1), 5551234567L,
                 PasswordHasher.hash("SuperSecret9!"));
     }
 
@@ -51,7 +51,7 @@ class ProfileRepositoryTest {
         assertEquals(LocalDate.of(2002, 3, 14), loaded.getDob());
         assertEquals("Adelphi University", loaded.getSchool());
         assertEquals(LocalDate.of(2026, 6, 1), loaded.getGraduationDate());
-        assertEquals(1234567, loaded.getPhoneNumber());
+        assertEquals(5551234567L, loaded.getPhoneNumber());
         assertTrue(PasswordHasher.matches("SuperSecret9!", loaded.getPassword()),
                 "the stored password must remain a verifiable BCrypt hash");
     }
@@ -103,12 +103,17 @@ class ProfileRepositoryTest {
     }
 
     @Test
-    @DisplayName("RISK: phoneNumber is an Integer column and cannot hold a real 10-digit number")
-    void bugPhoneNumberFieldIsTooNarrow() {
-        // A US number like 5551234567 is 5,551,234,567 > Integer.MAX_VALUE
-        // (2,147,483,647). The schema simply cannot store most phone numbers;
-        // phoneNumber should be a String (or Long at minimum).
-        assertTrue(5_551_234_567L > Integer.MAX_VALUE,
-                "real phone numbers overflow the Integer phoneNumber column");
+    @DisplayName("phoneNumber is a Long column and round-trips a real 10-digit number")
+    void phoneNumberHoldsRealTenDigitNumber() {
+        // A US number like 5,551,234,567 exceeds Integer.MAX_VALUE (2,147,483,647);
+        // the Long column must store and return it without truncation.
+        long realNumber = 5_551_234_567L;
+        CreateProfileDB profile = sampleProfile("phone@adelphi.edu");
+        profile.setPhoneNumber(realNumber);
+
+        CreateProfileDB saved = repo.saveAndFlush(profile);
+        CreateProfileDB loaded = repo.findById(saved.getId()).orElseThrow();
+        assertEquals(realNumber, loaded.getPhoneNumber(),
+                "a real 10-digit phone number must survive the database round-trip");
     }
 }

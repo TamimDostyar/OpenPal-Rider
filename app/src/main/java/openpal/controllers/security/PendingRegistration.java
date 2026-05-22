@@ -1,4 +1,4 @@
-package openpal.services;
+package openpal.controllers.security;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +17,8 @@ public class PendingRegistration {
     private final LocalDate dob;
     private final String school;
     private final LocalDate graduationDate;
-    private final Integer phoneNumber;
+    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
+    private final Long phoneNumber;
     private final String passwordHash;
 
     private final String code;
@@ -25,7 +26,7 @@ public class PendingRegistration {
 
     public PendingRegistration(String name, Integer specialNumber, String username, String email,
                                LocalDate dob, String school, LocalDate graduationDate,
-                               Integer phoneNumber, String passwordHash,
+                               Long phoneNumber, String passwordHash,
                                String code, LocalDateTime codeExpiry) {
         this.name = name;
         this.specialNumber = specialNumber;
@@ -55,7 +56,7 @@ public class PendingRegistration {
     public LocalDate getDob() { return this.dob; }
     public String getSchool() { return this.school; }
     public LocalDate getGraduationDate() { return this.graduationDate; }
-    public Integer getPhoneNumber() { return this.phoneNumber; }
+    public Long getPhoneNumber() { return this.phoneNumber; }
     public String getPasswordHash() { return this.passwordHash; }
     public String getCode() { return this.code; }
     public LocalDateTime getCodeExpiry() { return this.codeExpiry; }

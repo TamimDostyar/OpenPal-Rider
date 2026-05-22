@@ -27,7 +27,8 @@ public class CreateProfileDB {
     private LocalDate dob;
     private String school;
     private LocalDate graduationDate;
-    private Integer phoneNumber;
+    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
+    private Long phoneNumber;
 
     // BCrypt hash of the user's password — never the raw password
     private String password;
@@ -40,13 +41,17 @@ public class CreateProfileDB {
     @ColumnDefault("false")
     private boolean emailVerified = false;
 
+    // bumped on logout to invalidate every token issued before the bump
+    @ColumnDefault("0")
+    private int tokenVersion = 0;
+
     // required by JPA
     protected CreateProfileDB() {
     }
 
     public CreateProfileDB(String name, Integer userSpecialNumber, String username, String email,
                            LocalDate dob, String school, LocalDate graduationDate,
-                           Integer phoneNumber, String password) {
+                           Long phoneNumber, String password) {
         this.name = name;
         this.userSpecialNumber = userSpecialNumber;
         this.username = username;
@@ -104,10 +109,10 @@ public class CreateProfileDB {
     public void setGraduationDate(LocalDate graduationDate) {
         this.graduationDate = graduationDate;
     }
-    public Integer getPhoneNumber() {
+    public Long getPhoneNumber() {
         return this.phoneNumber;
     }
-    public void setPhoneNumber(Integer phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
     public String getPassword() {
@@ -133,5 +138,11 @@ public class CreateProfileDB {
     }
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+    public int getTokenVersion() {
+        return this.tokenVersion;
+    }
+    public void setTokenVersion(int tokenVersion) {
+        this.tokenVersion = tokenVersion;
     }
 }

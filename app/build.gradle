@@ -54,7 +54,6 @@ application {
     mainClass = 'openpal.App'
 }
 
-// run from the repo root so spring-dotenv finds the .env file there
 tasks.named('bootRun') {
     workingDir = rootDir
 }

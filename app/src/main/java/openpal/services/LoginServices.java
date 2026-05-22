@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import openpal.controllers.security.JsonTokenWeb;
 import openpal.controllers.security.Login;
+import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.LoginDB;
 import openpal.database.account_mgt.ProfileRepository;
 
@@ -18,11 +19,12 @@ import openpal.database.account_mgt.ProfileRepository;
 public class LoginServices {
 
     private final ProfileRepository profileRepository;
-    private final JsonTokenWeb jsonTokenWeb = new JsonTokenWeb();
+    private final JsonTokenWeb jsonTokenWeb;
 
     @Autowired
-    public LoginServices(ProfileRepository profileRepository) {
+    public LoginServices(ProfileRepository profileRepository, JsonTokenWeb jsonTokenWeb) {
         this.profileRepository = profileRepository;
+        this.jsonTokenWeb = jsonTokenWeb;
     }
 
     @PostMapping("/login-user")
@@ -47,7 +49,8 @@ public class LoginServices {
             return ResponseEntity.status(401).body(response);
         }
 
-        String token = jsonTokenWeb.issueToken(email);
+        CreateProfileDB profile = profileRepository.findByEmail(email).orElseThrow();
+        String token = jsonTokenWeb.issueToken(email, profile.getTokenVersion());
         response.put("token", token);
         return ResponseEntity.ok(response);
     }

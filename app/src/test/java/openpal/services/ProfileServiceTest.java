@@ -13,15 +13,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import openpal.controllers.security.SignupVerification;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.PasswordHasher;
 import openpal.database.account_mgt.ProfileRepository;
+import openpal.services.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,6 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * behaviour and flag where it is unsafe.
  */
 @WebMvcTest(ProfileService.class)
+@Import(SignupVerification.class)
 class ProfileServiceTest {
 
     @Autowired
@@ -41,7 +45,11 @@ class ProfileServiceTest {
     @MockBean
     private ProfileRepository repo;
 
+    @MockBean
+    private EmailService emailService;
+
     private static final String URL = "/api/user/create-user";
+    private static final String VERIFY_URL = "/api/user/verify-email";
 
     /** A fully valid request body; individual tests override one field at a time. */
     private static String body(String name, String email, String phone,
@@ -72,14 +80,37 @@ class ProfileServiceTest {
         when(repo.save(any(CreateProfileDB.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
+    private String startSignupAndGetCode(String requestBody) throws Exception {
+        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
+
+        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+                .andExpect(status().isAccepted());
+
+        verify(emailService).sendVerificationCode(emailCaptor.capture(), codeCaptor.capture());
+        return codeCaptor.getValue();
+    }
+
+    private String verifyEmailBody(String email, String code) {
+        return """
+            {
+              "email": %s,
+              "code": %s
+            }
+            """.formatted(json(email), json(code));
+    }
+
     // ---- happy path -------------------------------------------------------
 
     @Test
     @DisplayName("a valid request creates the profile and returns 201")
     void validRequestReturns201() throws Exception {
         stubSaveEchoesEntity();
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(validBody()))
-                .andExpect(status().isCreated())
+        String code = startSignupAndGetCode(validBody());
+
+        mvc.perform(post(VERIFY_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("jane@adelphi.edu", code)))
+            .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Jane Doe"))
                 .andExpect(jsonPath("$.email").value("jane@adelphi.edu"));
     }
@@ -88,9 +119,11 @@ class ProfileServiceTest {
     @DisplayName("the response never echoes the password (hashed or raw)")
     void responseDoesNotLeakPassword() throws Exception {
         stubSaveEchoesEntity();
-        String response = mvc.perform(post(URL)
-                        .contentType(MediaType.APPLICATION_JSON).content(validBody()))
-                .andExpect(status().isCreated())
+        String code = startSignupAndGetCode(validBody());
+        String response = mvc.perform(post(VERIFY_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("jane@adelphi.edu", code)))
+            .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         assertFalse(response.toLowerCase().contains("password"), "response leaked a password field");
         assertFalse(response.contains("Str0ngPass!"), "response leaked the raw password");
@@ -100,8 +133,10 @@ class ProfileServiceTest {
     @DisplayName("the password is BCrypt-hashed before it is persisted")
     void passwordIsHashedBeforeSave() throws Exception {
         stubSaveEchoesEntity();
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(validBody()))
-                .andExpect(status().isCreated());
+        String code = startSignupAndGetCode(validBody());
+        mvc.perform(post(VERIFY_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("jane@adelphi.edu", code)))
+            .andExpect(status().isCreated());
 
         ArgumentCaptor<CreateProfileDB> captor = ArgumentCaptor.forClass(CreateProfileDB.class);
         verify(repo).save(captor.capture());
@@ -114,10 +149,11 @@ class ProfileServiceTest {
     @DisplayName("leading/trailing whitespace in name, email and school is trimmed")
     void fieldsAreTrimmedBeforeSave() throws Exception {
         stubSaveEchoesEntity();
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
-                        .content(body("  Jane Doe  ", "  jane@adelphi.edu  ",
-                                "1234567", "Str0ngPass!", "Adelphi University")))
-                .andExpect(status().isCreated());
+        String code = startSignupAndGetCode(body("  Jane Doe  ", "  jane@adelphi.edu  ",
+            "1234567", "Str0ngPass!", "Adelphi University"));
+        mvc.perform(post(VERIFY_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("  jane@adelphi.edu  ", code)))
+            .andExpect(status().isCreated());
 
         ArgumentCaptor<CreateProfileDB> captor = ArgumentCaptor.forClass(CreateProfileDB.class);
         verify(repo).save(captor.capture());
@@ -233,10 +269,11 @@ class ProfileServiceTest {
     void sqlInjectionNameStoredAsLiteral() throws Exception {
         stubSaveEchoesEntity();
         String payload = "Robert'); DROP TABLE profiles;--";
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
-                        .content(body(payload, "bobby@adelphi.edu", "1234567",
-                                "Str0ngPass!", "Adelphi University")))
-                .andExpect(status().isCreated());
+        String code = startSignupAndGetCode(body(payload, "bobby@adelphi.edu", "1234567",
+            "Str0ngPass!", "Adelphi University"));
+        mvc.perform(post(VERIFY_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("bobby@adelphi.edu", code)))
+            .andExpect(status().isCreated());
 
         ArgumentCaptor<CreateProfileDB> captor = ArgumentCaptor.forClass(CreateProfileDB.class);
         verify(repo).save(captor.capture());
@@ -245,15 +282,15 @@ class ProfileServiceTest {
     }
 
     @Test
-    @DisplayName("BUG: a phone number larger than Integer.MAX_VALUE cannot be submitted")
-    void bugRealPhoneNumberOverflowsInteger() throws Exception {
+    @DisplayName("a real 10-digit phone number is accepted (phoneNumber is a Long)")
+    void realPhoneNumberIsAccepted() throws Exception {
         stubSaveEchoesEntity();
-        // 5551234567 is a normal US number but overflows the Integer phoneNumber
-        // field, so Jackson fails to deserialize and the request 400s.
+        // 5551234567 is a normal US number; it exceeds Integer.MAX_VALUE but fits
+        // the Long phoneNumber field, so the request succeeds.
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
                         .content(body("Jane", "jane@adelphi.edu", "5551234567",
                                 "Str0ngPass!", "Adelphi University")))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -263,10 +300,11 @@ class ProfileServiceTest {
         // 'JANE@ADELPHI.EDU' is the same address as 'jane@adelphi.edu', but the
         // service stores it as-is. existsByEmail is case-sensitive, so the
         // duplicate check is bypassed and a second account is created.
-        mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
-                        .content(body("Jane", "JANE@ADELPHI.EDU", "1234567",
-                                "Str0ngPass!", "Adelphi University")))
-                .andExpect(status().isCreated());
+        String code = startSignupAndGetCode(body("Jane", "JANE@ADELPHI.EDU", "1234567",
+            "Str0ngPass!", "Adelphi University"));
+        mvc.perform(post(VERIFY_URL).contentType(MediaType.APPLICATION_JSON)
+                .content(verifyEmailBody("JANE@ADELPHI.EDU", code)))
+            .andExpect(status().isCreated());
 
         ArgumentCaptor<CreateProfileDB> captor = ArgumentCaptor.forClass(CreateProfileDB.class);
         verify(repo).save(captor.capture());
@@ -281,7 +319,7 @@ class ProfileServiceTest {
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
                         .content(body("Jane", "not-an-email", "1234567",
                                 "Str0ngPass!", "Adelphi University")))
-                .andExpect(status().isCreated());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -291,7 +329,7 @@ class ProfileServiceTest {
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON)
                         .content(body("Jane", "jane@adelphi.edu", "1234567",
                                 "x", "Adelphi University")))
-                .andExpect(status().isCreated());
+                .andExpect(status().isAccepted());
     }
 
     @Test
@@ -310,6 +348,6 @@ class ProfileServiceTest {
             }
             """;
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(futureDob))
-                .andExpect(status().isCreated());
+                                .andExpect(status().isAccepted());
     }
 }

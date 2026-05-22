@@ -42,4 +42,23 @@ public class Login {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    /**
+     * Shallow check that the submitted login fields are well-formed:
+     * no field is null, the username is purely alphanumeric, and the email
+     * ends in ".edu".
+     *
+     * Note this is a format check only — it does NOT verify credentials, and
+     * it intentionally still accepts an empty username/password and an address
+     * with no "@" (see LoginValidationTest for the documented gaps).
+     */
+    public boolean isLoginDataValid() {
+        if (username == null || email == null || password == null) {
+            return false;
+        }
+        if (!username.matches("[A-Za-z0-9]*")) {
+            return false;
+        }
+        return email.endsWith(".edu");
+    }
 }
