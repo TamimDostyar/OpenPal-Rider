@@ -44,7 +44,7 @@ npm install
 npm start
 ```
 
-The backend base URL is set in `mobile-ui/src/api/client.ts` and defaults to `http://localhost:8000`.
+The backend base URL is set in `mobile-ui/src/api/client.ts` and defaults to `http://localhost:8080`.
 
 ### 3) Website
 
@@ -56,37 +56,102 @@ npm run dev
 
 ## Architecture
 
-```mermaid
-flowchart LR
-	%% Client layer
-	User((Student)) --> MobileUI[Mobile App UI (Expo)]
-	User --> WebUI[Marketing Website (Vite)]
-
-	%% Mobile request path
-	MobileUI -->|HTTPS request| ApiClient[API Client (mobile-ui/src/api/client.ts)]
-	ApiClient -->|POST /login-user| AuthCtrl[Auth Controller]
-	AuthCtrl --> AuthSvc[Auth Service]
-	AuthSvc --> UserRepo[User Repository]
-	UserRepo --> DB[(Database)]
-	AuthSvc -->|Create JWT + refresh| JwtIssuer[JWT Issuer]
-	JwtIssuer -->|200 OK: access + refresh + user| ApiClient
-	ApiClient -->|Store tokens| SecureStore[Expo Secure Store]
-	ApiClient -->|Return response| MobileUI
-
-	%% Subsequent authenticated calls
-	MobileUI -->|HTTPS request| ApiClient
-	ApiClient -->|Authorization: Bearer <JWT>| ApiGateway[Spring Security Filter]
-	ApiGateway -->|Validate JWT| JwtValidator[JWT Validator]
-	ApiGateway --> ApiCtrl[API Controllers]
-	ApiCtrl --> ApiSvc[Business Services]
-	ApiSvc --> DataRepo[Repositories]
-	DataRepo --> DB
-	ApiCtrl -->|200 OK / error JSON| ApiClient
-	ApiClient -->|Render UI state| MobileUI
-
-	%% Website path
-	WebUI -->|Static assets| Browser[User Browser]
 ```
+  Student
+    │
+    │  taps: "Log in" or "Sign up"
+    │  enters: email + password
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Mobile App (Expo)                         │
+│          screens + UI state in React Native                  │
+└──────────────────────────┬──────────────────────────────────┘
+                           │  HTTPS request
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  API Client (mobile-ui)                      │
+│             builds requests + parses responses               │
+└──────────────────────────┬──────────────────────────────────┘
+                           │  POST /login-user
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Backend API (Spring Boot)                    │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │                Controllers (REST)                     │  │
+│  └─────────────────────────┬─────────────────────────────┘  │
+│                            │                                │
+│  ┌─────────────────────────┼─────────────────────────────┐  │
+│  │                 Services (Logic)                      │  │
+│  │  - validate credentials                               │  │
+│  │  - load user                                          │  │
+│  │  - issue JWT token                                    │  │
+│  └─────────────────────────┬─────────────────────────────┘  │
+│                            │                                │
+│  ┌─────────────────────────┼─────────────────────────────┐  │
+│  │              Repositories (Data)                      │  │
+│  └─────────────────────────┬─────────────────────────────┘  │
+└───────────────────────────┼────────────────────────────────┘
+                            │
+                            ▼
+                     Database (users)
+
+                           ▲
+                           │  200 OK: { token }
+                           │  OR error JSON
+┌──────────────────────────┴──────────────────────────────────┐
+│                  API Client (mobile-ui)                      │
+│  - stores JWT in Expo Secure Store                            │
+│  - returns result to UI                                       │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Mobile App (Expo)                         │
+│  - renders success or error                                   │
+│  - uses JWT on future requests                                │
+└─────────────────────────────────────────────────────────────┘
+
+  Marketing Website (Vite)
+    │
+    ▼
+  Static assets -> Browser
+```
+
+## How it works (step-by-step)
+
+### Signup + email verification
+
+1. Mobile app validates the signup form (basic format checks).
+2. `POST /api/user/create-user` is sent with profile data.
+3. Backend validates fields, checks the school list, and ensures the email is unused.
+4. Backend generates a username, hashes the password, and stores a pending signup in memory.
+5. A 4-digit code is emailed to the user.
+6. User submits the code to `POST /api/user/verify-email`.
+7. Backend verifies the code and persists the user in the database.
+
+### Login + JWT
+
+1. Mobile app submits email + password to `POST /login-user`.
+2. Backend verifies the password hash and issues a JWT token.
+3. Mobile app stores the token in `expo-secure-store` and moves to Home.
+
+### Forgot password + reset
+
+1. Mobile app submits email to `POST /forgot-password`.
+2. If the email exists, backend generates a one-time reset token and stores it with an expiry.
+3. User submits token + new password to `POST /reset-password`.
+4. Backend validates token/expiry, updates the password hash, and clears the reset token.
+
+### Universities list
+
+1. Signup screen calls `GET /api/universities`.
+2. Backend reads the CSV and returns `{ count, universities }`.
+
+### Health check
+
+1. Home screen calls `GET /api/`.
+2. Backend responds with a simple JSON payload.
 
 ## Project Structure
 
