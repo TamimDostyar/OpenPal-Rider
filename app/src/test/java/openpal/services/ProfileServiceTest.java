@@ -100,7 +100,6 @@ class ProfileServiceTest {
             """.formatted(json(email), json(code));
     }
 
-    // ---- happy path -------------------------------------------------------
 
     @Test
     @DisplayName("a valid request creates the profile and returns 201")
@@ -161,7 +160,6 @@ class ProfileServiceTest {
         assertEquals("jane@adelphi.edu", captor.getValue().getEmail());
     }
 
-    // ---- required-field validation ---------------------------------------
 
     @Test
     @DisplayName("a missing name is rejected with 400")

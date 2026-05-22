@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BuddyRide — Campus Rideshare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  html, body { margin: 0; padding: 0; background: #E8E2D4; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  body { min-height: 100vh; }
+  @keyframes br-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  /* Section header chrome */
+  .br-section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px; font-weight: 400; letter-spacing: -0.02em;
+    color: #1A1815;
+  }
+  /* iOS title cleanup — we use our own */
+  body button { font-family: inherit; }
+  input { font-family: inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="atoms.jsx"></script>
+<script type="text/babel" src="screens-onboarding.jsx"></script>
+<script type="text/babel" src="screens-home.jsx"></script>
+<script type="text/babel" src="screens-ride.jsx"></script>
+<script type="text/babel" src="screens-social.jsx"></script>
+<script type="text/babel" src="prototype.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+// Components live on window from their respective script files.
+const W = window;
+
+// Width/height of each phone frame on the canvas
+const PW = 390;
+const PH = 800;
+
+// A wrapper that shows a phone frame with a screen inside (no JS state)
+function Phone({ children, dark = false }) {
+  return (
+    <W.IOSDevice width={PW} height={PH} dark={dark}>
+      {children}
+    </W.IOSDevice>
+  );
+}
+
+// Static screen factories that don't crash when handlers are stubbed
+const noop = () => {};
+
+function App() {
+  return (
+    <W.DesignCanvas>
+      {/* === Hero: Interactive Prototype === */}
+      <W.DCSection id="proto" title="Interactive Prototype"
+        subtitle="Tap through the full BuddyRide flow — verified .edu signup, browse rides, request, chat. Start anywhere.">
+        <W.DCArtboard id="p-flow" label="01 · Full flow · start at Welcome" width={PW} height={PH}>
+          <Phone><W.Prototype startAt="welcome" /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="p-home" label="02 · Start in-app · Browse rides" width={PW} height={PH}>
+          <Phone><W.Prototype startAt="home" /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="p-detail" label="03 · Open a ride · request seat" width={PW} height={PH}>
+          <Phone><W.Prototype startAt="ride" /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="p-chat" label="04 · Inbox & live chat" width={PW} height={PH}>
+          <Phone><W.Prototype startAt="messages" /></Phone>
+        </W.DCArtboard>
+      </W.DCSection>
+
+      {/* === Onboarding screens === */}
+      <W.DCSection id="onboarding" title="Onboarding"
+        subtitle="Three steps from cold-open to first ride: students-only positioning → .edu verification → profile + role.">
+        <W.DCArtboard id="o-welcome" label="Welcome" width={PW} height={PH}>
+          <Phone><W.WelcomeScreen onContinue={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="o-signup" label=".edu email" width={PW} height={PH}>
+          <Phone><W.SignupScreen onBack={noop} onSubmit={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="o-verify" label="6-digit code" width={PW} height={PH}>
+          <Phone><W.VerifyScreen onBack={noop} onSubmit={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="o-profile" label="Profile + role" width={PW} height={PH}>
+          <Phone><W.ProfileSetupScreen onBack={noop} onSubmit={noop} /></Phone>
+        </W.DCArtboard>
+      </W.DCSection>
+
+      {/* === Core app === */}
+      <W.DCSection id="core" title="Core app"
+        subtitle="Browse → ride detail → message. Trust signals (verified shield, .edu, friends-in-common) live on every surface.">
+        <W.DCArtboard id="c-home" label="Home · Browse" width={PW} height={PH}>
+          <Phone><W.HomeScreen onOpenRide={noop} onTab={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="c-detail" label="Ride detail" width={PW} height={PH}>
+          <Phone><W.RideDetailScreen ride={W.RIDES[0]} onBack={noop} onRequest={noop} onMessage={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="c-detail-req" label="Requested state" width={PW} height={PH}>
+          <Phone><W.RideDetailScreen ride={W.RIDES[2]} requested onBack={noop} onRequest={noop} onMessage={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="c-create" label="Post a trip" width={PW} height={PH}>
+          <Phone><W.CreateRideScreen onBack={noop} onPost={noop} onTab={noop} /></Phone>
+        </W.DCArtboard>
+      </W.DCSection>
+
+      {/* === Social: messages, chat, profile === */}
+      <W.DCSection id="social" title="Trust, messaging & profile"
+        subtitle="Closed-loop chat with ride context. Profile shows verification progress, activity, and reviews — the network IS the moat.">
+        <W.DCArtboard id="s-inbox" label="Inbox" width={PW} height={PH}>
+          <Phone><W.MessagesScreen onOpenChat={noop} onTab={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="s-chat" label="Chat with driver" width={PW} height={PH}>
+          <Phone><W.ChatScreen thread={W.THREADS[0]} onBack={noop} /></Phone>
+        </W.DCArtboard>
+        <W.DCArtboard id="s-profile" label="Profile · trust score" width={PW} height={PH}>
+          <Phone><W.ProfileScreen onTab={noop} /></Phone>
+        </W.DCArtboard>
+      </W.DCSection>
+
+      {/* === Notes === */}
+      <W.DCSection id="notes" title="Design notes"
+        subtitle="Direction, system, and what to push on next.">
+        <W.DCArtboard id="n-direction" label="Direction" width={420} height={540}>
+          <div style={{
+            background: '#FAF6EF', height: '100%', padding: 28,
+            fontFamily: 'Plus Jakarta Sans', color: '#1A1815',
+            display: 'flex', flexDirection: 'column', gap: 14,
+          }}>
+            <W.Logo size={22} />
+            <div className="br-section-title" style={{ marginTop: 4 }}>
+              The trust dividend.
+            </div>
+            <div style={{ fontSize: 14, lineHeight: 1.55, color: '#3A352E' }}>
+              BuddyRide is rideshare with the door <i>closed</i>. Strangers don't get in. The .edu wall is the brand — every screen reinforces it (the green shield, verified tags, friends-in-common, trust score).
+            </div>
+            <div style={{ height: 1, background: '#E6DFD2', margin: '4px 0' }} />
+            <div style={{ fontSize: 12, color: '#8A8378', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: 'JetBrains Mono' }}>
+              Tone
+            </div>
+            <div style={{ fontSize: 13.5, lineHeight: 1.55, color: '#3A352E' }}>
+              <b>Community, not commodity.</b> Editorial serif for warm beats, mono for data, a single confident coral for action. No corporate gradients, no neon, no map-app blue.
+            </div>
+            <div style={{ fontSize: 12, color: '#8A8378', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: 'JetBrains Mono', marginTop: 4 }}>
+              Anti-patterns
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.55, color: '#3A352E' }}>
+              <li>No surge pricing language anywhere</li>
+              <li>No "drivers vs riders" — same person, both modes</li>
+              <li>No payment surfaces in MVP (gas split is a suggestion)</li>
+            </ul>
+          </div>
+        </W.DCArtboard>
+
+        <W.DCArtboard id="n-system" label="System" width={420} height={540}>
+          <div style={{
+            background: '#FAF6EF', height: '100%', padding: 28,
+            fontFamily: 'Plus Jakarta Sans', color: '#1A1815',
+            display: 'flex', flexDirection: 'column', gap: 18,
+          }}>
+            <div className="br-section-title">System</div>
+
+            <div>
+              <div style={{ fontSize: 11, color: '#8A8378', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: 'JetBrains Mono', marginBottom: 8 }}>
+                Type
+              </div>
+              <div style={{ fontFamily: 'Instrument Serif', fontSize: 28, lineHeight: 1, letterSpacing: '-0.02em' }}>Instrument Serif</div>
+              <div style={{ fontSize: 11, color: '#8A8378', marginTop: 2 }}>Headings, moments</div>
+              <div style={{ fontSize: 17, fontWeight: 700, marginTop: 10 }}>Plus Jakarta Sans</div>
+              <div style={{ fontSize: 11, color: '#8A8378', marginTop: 2 }}>UI, body</div>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 13, marginTop: 10 }}>JetBrains Mono</div>
+              <div style={{ fontSize: 11, color: '#8A8378', marginTop: 2 }}>Data, labels, codes</div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 11, color: '#8A8378', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: 'JetBrains Mono', marginBottom: 8 }}>
+                Palette
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6 }}>
+                {[
+                  ['#FAF6EF', 'cream'], ['#1A1815', 'ink'],
+                  ['#FF5B43', 'coral'], ['#2C4A3E', 'sage'],
+                  ['#F5D27A', 'sun'], ['#BFD8E6', 'sky'],
+                ].map(([c, l]) => (
+                  <div key={c}>
+                    <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: 8, background: c, border: '1px solid #E6DFD2' }} />
+                    <div style={{ fontSize: 10, marginTop: 4, fontFamily: 'JetBrains Mono', color: '#3A352E' }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 11, color: '#8A8378', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: 'JetBrains Mono', marginBottom: 8 }}>
+                Trust shield
+              </div>
+              <div style={{ fontSize: 13, lineHeight: 1.5, color: '#3A352E' }}>
+                The sage-green shield is the most reused mark. Every verified entity gets it: ride cards, driver headers, profile, chat bubble.
+              </div>
+            </div>
+          </div>
+        </W.DCArtboard>
+
+        <W.DCPostIt color="#F5D27A" x={0} y={0}>
+          <b>Drag</b> any artboard to reorder. Double-click labels to rename. Click ⤢ to view fullscreen.
+        </W.DCPostIt>
+      </W.DCSection>
+    </W.DesignCanvas>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>

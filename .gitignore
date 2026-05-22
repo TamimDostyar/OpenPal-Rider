@@ -66,6 +66,17 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+# Frontend / mobile UI
+node_modules/
+**/node_modules/
+.expo/
+**/.expo/
+web-build/
+**/web-build/
+dist/
+**/dist/
+*.log
+
 # Test output
 /test-results/
 /coverage/
