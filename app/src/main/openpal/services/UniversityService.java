@@ -8,6 +8,10 @@ import java.util.Map;
 
 import openpal.controllers.profile.Utils;
 
+/**
+ * HTTP endpoint that exposes the list of supported US universities.
+ * Returns the count alongside the name/url entries loaded from the CSV.
+ */
 @RestController
 @RequestMapping("api/universities")
 public class UniversityService {

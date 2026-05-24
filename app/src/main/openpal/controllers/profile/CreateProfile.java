@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 /**
- * POST /api/user/create-profile request body.
+ * Request body for the user signup endpoint. Carries the fields a new user
+ * submits before email verification and account creation.
  */
 public class CreateProfile {
     private String name;
@@ -14,14 +15,12 @@ public class CreateProfile {
     private LocalDate dob;
 
     private String school;
-    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
     private Long phoneNumber;
     private String password;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate graduationDate;
 
-    // required for JSON deserialization
     public CreateProfile() {
     }
 

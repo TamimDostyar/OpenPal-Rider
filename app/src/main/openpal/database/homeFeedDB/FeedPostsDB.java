@@ -7,6 +7,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * JPA entity for a feed/ride post in the "feeds" table. Stores poster
+ * identity, ride details, and audit timestamps maintained on insert/update.
+ */
 @Entity
 @Table(
     name = "feeds",
@@ -22,38 +26,29 @@ public class FeedPostsDB {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // poster's handle — matches profiles.username
     @Column(nullable = false)
     private String username;
 
-    // poster's email — matches profiles.email (the JWT subject)
     @Column(nullable = false)
     private String email;
 
-    // ride start, e.g. "MSP"
     @Column(nullable = false)
     private String origin;
 
-    // ride end, e.g. "Colorado"
     @Column(nullable = false)
     private String destination;
 
-    // seat price in USD
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    // seats the driver is offering
     @Column(nullable = false)
     private Integer seats;
 
-    // when the ride leaves
     @Column(nullable = false)
     private LocalDateTime departureTime;
 
-    // free-text vehicle description: "Silver Toyota Camry"
     private String vehicleInfo;
 
-    // optional caption from the poster
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -65,7 +60,6 @@ public class FeedPostsDB {
     @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
-    // required by JPA
     protected FeedPostsDB() {
     }
 

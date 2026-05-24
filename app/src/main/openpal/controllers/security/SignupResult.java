@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The outcome of a signup-flow step: an HTTP status and the response body to
- * send with it. Lets {@link SignupVerification} stay free of HTTP types.
+ * Result of a signup-flow step: an HTTP status paired with a response body.
+ * Lets {@link SignupVerification} return outcomes without depending on HTTP types.
  */
 public class SignupResult {
 

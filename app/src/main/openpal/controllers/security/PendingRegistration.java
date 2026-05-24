@@ -4,9 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * A signup that has been validated but NOT yet written to the database.
- * It is held in memory only until the user confirms the 4-digit code we
- * emailed them — if the code is wrong or expires, no account is ever created.
+ * A validated signup held in memory while awaiting email-code confirmation.
+ * No account is written to the database until the user confirms the code.
  */
 public class PendingRegistration {
 
@@ -17,7 +16,6 @@ public class PendingRegistration {
     private final LocalDate dob;
     private final String school;
     private final LocalDate graduationDate;
-    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
     private final Long phoneNumber;
     private final String passwordHash;
 

@@ -1,12 +1,12 @@
 package openpal.controllers.security;
 
 /**
- * so it needs a no-arg constructor and public accessors for Jackson.
+ * Request payload for POST /forgot-password. Carries the email address of
+ * the account the user wants to reset.
  */
 public class ForgotPassword {
     private String email;
 
-    // required for JSON deserialization
     public ForgotPassword() {
     }
 

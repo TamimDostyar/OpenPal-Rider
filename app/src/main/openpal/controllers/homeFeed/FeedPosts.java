@@ -4,9 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Request body for POST /api/feed/create-post. Identity (username, email) is
- * pulled from the caller's JWT, not from this DTO, so we don't expose those
- * fields here.
+ * Request body for the create-post feed endpoint. Identity fields are taken
+ * from the caller's JWT, so this DTO carries only the ride details.
  */
 public class FeedPosts {
     private String origin;

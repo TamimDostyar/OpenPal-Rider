@@ -2,6 +2,10 @@ package openpal.database.account_mgt;
 
 import java.util.Optional;
 
+/**
+ * Login-attempt helper that checks submitted credentials against the profiles
+ * table. Confirms the account exists and the password matches the stored hash.
+ */
 public class LoginDB {
     private String userName;
     private String email;
@@ -21,7 +25,6 @@ public class LoginDB {
         return profileRepository.existsByEmail(this.email);
     }
 
-    // true only if the email exists AND the password matches the stored hash
     public boolean verifyLogin(ProfileRepository profileRepository) {
         if (this.email == null || this.email.isBlank() || this.password == null) {
             return false;

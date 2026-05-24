@@ -14,8 +14,8 @@ import openpal.controllers.security.SignupResult;
 import openpal.controllers.security.SignupVerification;
 
 /**
- * HTTP endpoints for the user signup flow. Wires URLs to the signup logic in
- * {@link SignupVerification} — all the actual work lives there.
+ * HTTP endpoints for the user signup flow. Delegates all logic to
+ * {@link SignupVerification}.
  */
 @RestController
 @RequestMapping("api/user")

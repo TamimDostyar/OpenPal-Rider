@@ -15,6 +15,10 @@ import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.LoginDB;
 import openpal.database.account_mgt.ProfileRepository;
 
+/**
+ * HTTP endpoint for user login. Verifies credentials and issues a JWT
+ * stamped with the account's current token version.
+ */
 @RestController
 public class LoginServices {
 
@@ -43,7 +47,6 @@ public class LoginServices {
         String email = request.getEmail().trim();
         LoginDB loginDB = new LoginDB(request.getUsername(), email, request.getPassword());
 
-        // verifyLogin checks the email exists AND the password matches the stored hash
         if (!loginDB.verifyLogin(profileRepository)) {
             response.put("error", "invalid email or password");
             return ResponseEntity.status(401).body(response);

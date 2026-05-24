@@ -7,9 +7,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 /**
- * Sends the 4-digit step-verification code to the email a user provided.
- * If no SMTP credentials are configured the code is logged instead, so the
- * signup flow still works in local development.
+ * Sends the 4-digit verification code to a user's email address. Falls back
+ * to logging the code when no SMTP from-address is configured.
  */
 @Service
 public class EmailService {
@@ -19,13 +18,11 @@ public class EmailService {
     @Value("${openpal.mail.from:}")
     private String fromAddress;
 
-    // mailSender is optional: spring only wires it when SMTP is configured
     @Autowired
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    /** Emails the verification code to the given address. */
     public void sendVerificationCode(String toEmail, String code) {
         if (fromAddress == null || fromAddress.isBlank()) {
             System.out.println("[EmailService] verification code for " + toEmail + ": " + code);
@@ -44,7 +41,6 @@ public class EmailService {
         try {
             mailSender.send(message);
         } catch (Exception e) {
-            // don't fail signup if the email can't be delivered
             System.err.println("[EmailService] failed to send code to " + toEmail
                 + ": " + e.getMessage());
         }

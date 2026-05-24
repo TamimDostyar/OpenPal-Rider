@@ -17,9 +17,8 @@ import openpal.database.account_mgt.ProfileRepository;
 import openpal.services.EmailService;
 
 /**
- * The two-step signup flow: validate a signup, email a 4-digit code, and only
- * create the account once the user confirms that code. The HTTP endpoints in
- * {@code ProfileService} delegate here.
+ * Two-step signup flow: validate a signup, email a 4-digit code, and persist
+ * the account only once the user confirms that code.
  */
 @Component
 public class SignupVerification {
@@ -29,8 +28,6 @@ public class SignupVerification {
     private final ProfileRepository profileRepository;
     private final EmailService emailService;
 
-    // signups awaiting code verification, keyed by lowercased email — held in
-    // memory only, so a wrong or expired code means no account is ever created.
     private final Map<String, PendingRegistration> pending = new ConcurrentHashMap<>();
 
     @Autowired
@@ -39,7 +36,6 @@ public class SignupVerification {
         this.emailService = emailService;
     }
 
-    /** Step 1: validate the request and email a 4-digit code. */
     public SignupResult startSignup(CreateProfile request) {
         if (request.getName() == null || request.getName().isBlank()) {
             return SignupResult.error(400, "name is required");
@@ -90,7 +86,6 @@ public class SignupVerification {
         return SignupResult.ok(202, response);
     }
 
-    /** Step 2: confirm the emailed code; only here is the account persisted. */
     public SignupResult verifyEmail(String email, String code) {
         if (email == null || email.isBlank()) {
             return SignupResult.error(400, "email is required");
@@ -148,7 +143,6 @@ public class SignupVerification {
         return SignupResult.ok(201, response);
     }
 
-    /** Re-issues a fresh code for a signup that is still pending. */
     public SignupResult resendCode(String email) {
         if (email == null || email.isBlank()) {
             return SignupResult.error(400, "email is required");

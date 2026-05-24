@@ -12,13 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Loads and caches the US-universities list from the bundled CSV. Provides
+ * lookup by name as well as the full ordered list with names and URLs.
+ */
 public class Utils {
 
     private static final String UNIVERSITIES_CSV = "data/us_universities.csv";
 
     private static volatile Set<String> schools;
 
-    // lazily loaded, ordered list of universities (name + url) from the CSV
     private static volatile List<Map<String, String>> universities;
 
     public static boolean isSchoolValid(String name) {
@@ -28,7 +31,6 @@ public class Utils {
         return getSchools().contains(name.trim().toLowerCase());
     }
 
-    // full list of universities with their name and url, in CSV order
     public static List<Map<String, String>> getUniversities() {
         List<Map<String, String>> local = universities;
         if (local == null) {
@@ -51,7 +53,7 @@ public class Utils {
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(in, StandardCharsets.UTF_8))) {
-                reader.readLine(); // skip header: name,url
+                reader.readLine();
                 String line;
                 while ((line = reader.readLine()) != null) {
                     int comma = line.indexOf(',');
@@ -93,7 +95,7 @@ public class Utils {
             }
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(in, StandardCharsets.UTF_8))) {
-                reader.readLine(); // skip header: name,url
+                reader.readLine();
                 String line;
                 while ((line = reader.readLine()) != null) {
                     int comma = line.indexOf(',');

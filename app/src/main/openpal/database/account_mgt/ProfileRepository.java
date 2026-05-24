@@ -6,15 +6,16 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Spring Data repository for user profiles. Exposes lookups by email and by
+ * one-time password-reset token used during the login and reset flows.
+ */
 @Repository
 public interface ProfileRepository extends JpaRepository<CreateProfileDB, UUID> {
 
-    // true if a profile row with this email exists
     boolean existsByEmail(String email);
 
-    // fetches the profile for this email, if any — used for login verification
     Optional<CreateProfileDB> findByEmail(String email);
 
-    // fetches the profile holding this password-reset token, if any
     Optional<CreateProfileDB> findByResetToken(String resetToken);
 }

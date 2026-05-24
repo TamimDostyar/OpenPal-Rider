@@ -6,6 +6,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
+/**
+ * JPA entity for a user profile in the "profiles" table. Holds identity,
+ * credentials, email-verification status, and reset/token-version state.
+ */
 @Entity
 @Table(name = "profiles")
 public class CreateProfileDB {
@@ -17,7 +21,6 @@ public class CreateProfileDB {
     private String name;
     private Integer userSpecialNumber;
 
-    // server-generated handle: first 3 letters of name + birth month + special number
     @Column(unique = true)
     private String username;
 
@@ -27,13 +30,10 @@ public class CreateProfileDB {
     private LocalDate dob;
     private String school;
     private LocalDate graduationDate;
-    // Long, not Integer: a 10-digit phone number overflows a 32-bit int.
     private Long phoneNumber;
 
-    // BCrypt hash of the user's password — never the raw password
     private String password;
 
-    // one-time password-reset token and its expiry; null when no reset is pending
     @Column(unique = true)
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
@@ -41,11 +41,9 @@ public class CreateProfileDB {
     @ColumnDefault("false")
     private boolean emailVerified = false;
 
-    // bumped on logout to invalidate every token issued before the bump
     @ColumnDefault("0")
     private int tokenVersion = 0;
 
-    // required by JPA
     protected CreateProfileDB() {
     }
 
@@ -63,7 +61,6 @@ public class CreateProfileDB {
         this.password = password;
     }
 
-    // getters and setters
     public UUID getId() {
         return this.id;
     }

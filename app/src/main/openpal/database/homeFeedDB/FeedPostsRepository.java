@@ -6,15 +6,15 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Spring Data repository for feed posts. Adds domain-scoped queries that
+ * filter posts by the poster's email suffix to enforce school scoping.
+ */
 @Repository
 public interface FeedPostsRepository extends JpaRepository<FeedPostsDB, UUID> {
 
-    // home feed scoped to a school: every post whose poster email ends with
-    // "@<domain>" (case-insensitive), newest first. Pass the suffix WITH the
-    // "@" so "harvard.edu" doesn't accidentally match "notharvard.edu".
     List<FeedPostsDB> findByEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(String emailSuffix);
 
-    // one user's posts, but only if they share the caller's school domain
     List<FeedPostsDB> findByUsernameAndEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(
             String username, String emailSuffix);
 }

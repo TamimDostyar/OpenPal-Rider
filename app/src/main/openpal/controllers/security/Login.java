@@ -1,15 +1,14 @@
 package openpal.controllers.security;
 
 /**
- * Request payload for POST /login-user. Deserialized from the request body,
- * so it needs a no-arg constructor and public accessors for Jackson.
+ * Request payload for POST /login-user. Also provides a shallow format check
+ * on the submitted fields (alphanumeric username, .edu email).
  */
 public class Login {
     private String username;
     private String email;
     private String password;
 
-    // required for JSON deserialization
     public Login() {
     }
 
@@ -43,15 +42,6 @@ public class Login {
         this.password = password;
     }
 
-    /**
-     * Shallow check that the submitted login fields are well-formed:
-     * no field is null, the username is purely alphanumeric, and the email
-     * ends in ".edu".
-     *
-     * Note this is a format check only — it does NOT verify credentials, and
-     * it intentionally still accepts an empty username/password and an address
-     * with no "@" (see LoginValidationTest for the documented gaps).
-     */
     public boolean isLoginDataValid() {
         if (username == null || email == null || password == null) {
             return false;

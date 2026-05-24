@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 
 
-
+/**
+ * Default API routes mounted under /api. Returns simple status payloads
+ * used as health/landing endpoints.
+ */
 @RestController
 @RequestMapping("api")
 public class Routes {
@@ -23,7 +26,7 @@ public class Routes {
     public HashMap<String, String> altRoute(){
         HashMap<String, String> data = new HashMap<String, String>();
         data.put("success", "alt routes");
-        
-        return data;        
+
+        return data;
     }
 }

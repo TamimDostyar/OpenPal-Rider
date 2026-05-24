@@ -19,10 +19,13 @@ import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.PasswordHasher;
 import openpal.database.account_mgt.ProfileRepository;
 
+/**
+ * HTTP endpoints for the password-reset flow. Issues one-time reset tokens
+ * and consumes them to set a new password hash on the account.
+ */
 @RestController
 public class ForgotPasswordService {
 
-    // how long a reset token stays valid after it is issued
     private static final long TOKEN_VALID_MINUTES = 30;
 
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -34,11 +37,6 @@ public class ForgotPasswordService {
         this.profileRepository = profileRepository;
     }
 
-    /**
-     * Step 1: the user asks for a reset by email. We always return the same
-     * generic message so the endpoint can't be used to discover which emails
-     * have accounts. When the email does exist, a one-time token is stored.
-     */
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody ForgotPassword request) {
         Map<String, String> response = new HashMap<>();
@@ -63,10 +61,6 @@ public class ForgotPasswordService {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Step 2: the user redeems the token with a new password. The token must
-     * exist and not be expired; it is cleared once consumed.
-     */
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@RequestBody ResetPassword request) {
         Map<String, String> response = new HashMap<>();
@@ -102,7 +96,6 @@ public class ForgotPasswordService {
         return ResponseEntity.ok(response);
     }
 
-    // url-safe random token used as the one-time reset secret
     private static String generateToken() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);

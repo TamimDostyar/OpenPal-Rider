@@ -3,8 +3,8 @@ package openpal.controllers.security;
 import java.security.SecureRandom;
 
 /**
- * Google-style step verification: generates the 4-digit authentication code
- * that gets emailed to the address a user signed up with.
+ * Generates 4-digit step-verification codes for emailed signup confirmation.
+ * Uses {@link SecureRandom} to produce the code.
  */
 public class GoogleStep {
 

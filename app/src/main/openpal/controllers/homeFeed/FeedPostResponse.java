@@ -8,20 +8,17 @@ import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.homeFeedDB.FeedPostsDB;
 
 /**
- * Feed payload returned to the client. Combines a feed row with the matching
- * profile row (joined on email) so the frontend can render a full social-style
- * card in a single request.
+ * Feed payload returned to the client, combining a feed row with the matching
+ * profile fields. Lets the frontend render a complete card from a single response.
  */
 public class FeedPostResponse {
     private UUID id;
 
-    // poster identity + profile info (joined from profiles table)
     private String username;
     private String email;
     private String name;
     private String school;
 
-    // ride info
     private String origin;
     private String destination;
     private BigDecimal price;
@@ -35,7 +32,6 @@ public class FeedPostResponse {
     public FeedPostResponse() {
     }
 
-    /** Builds a response when the matching profile is available. */
     public static FeedPostResponse from(FeedPostsDB post, CreateProfileDB profile) {
         FeedPostResponse r = new FeedPostResponse();
         r.id = post.getId();

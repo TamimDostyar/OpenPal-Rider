@@ -1,14 +1,13 @@
 package openpal.controllers.security;
 
 /**
- * Request payload for POST /reset-password. Deserialized from the request body,
- * so it needs a no-arg constructor and public accessors for Jackson.
+ * Request payload for POST /reset-password. Carries the one-time reset
+ * token and the new password the user wants to set.
  */
 public class ResetPassword {
     private String token;
     private String newPassword;
 
-    // required for JSON deserialization
     public ResetPassword() {
     }
 

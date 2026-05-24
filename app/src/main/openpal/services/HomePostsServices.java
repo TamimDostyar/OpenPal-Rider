@@ -18,9 +18,8 @@ import openpal.controllers.homeFeed.FeedPosts;
 import openpal.controllers.homeFeed.FeedPostsManager;
 
 /**
- * HTTP endpoints for the home feed. Every endpoint requires a Bearer JWT —
- * the feed is school-scoped by the caller's verified email domain, so we
- * always need to know who's asking. All real work lives in {@link FeedPostsManager}.
+ * HTTP endpoints for the home feed under /api/feed. All endpoints require
+ * a Bearer JWT and delegate to {@link FeedPostsManager}.
  */
 @RestController
 @RequestMapping("api/feed")
