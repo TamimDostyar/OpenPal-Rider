@@ -1,6 +1,7 @@
 /**
- * Thin fetch wrapper that talks to the OpenPal backend. Resolves the dev host
- * automatically and exposes typed helpers for every endpoint the app uses.
+ * Thin fetch wrapper that talks to the OpenPal backend. Base URL comes from
+ * EXPO_PUBLIC_API_URL (see .env). When unset, falls back to the Expo dev host
+ * so a fresh checkout still works against a locally running Gradle backend.
  */
 import Constants from "expo-constants";
 import { Platform } from "react-native";
@@ -23,13 +24,19 @@ import type {
   VerifyEmailResponse,
 } from "./types";
 
-const BACKEND_PORT = 8080;
-const devHost = Constants.expoConfig?.hostUri?.split(":")[0];
-export const BASE_URL = devHost
-  ? `http://${devHost}:${BACKEND_PORT}`
-  : Platform.OS === "android"
-    ? `http://10.0.2.2:${BACKEND_PORT}`
-    : `http://localhost:${BACKEND_PORT}`;
+function resolveBaseUrl(): string {
+  const fromEnv = process.env.EXPO_PUBLIC_API_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/+$/, "");
+
+  const devHost = Constants.expoConfig?.hostUri?.split(":")[0];
+  const port = 8080;
+  if (devHost) return `http://${devHost}:${port}`;
+  return Platform.OS === "android"
+    ? `http://10.0.2.2:${port}`
+    : `http://localhost:${port}`;
+}
+
+export const BASE_URL = resolveBaseUrl();
 export class ApiError extends Error {
   readonly status: number;
 
