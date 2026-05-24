@@ -1,3 +1,7 @@
+/**
+ * Authenticated home feed listing rides from the caller's school. Supports
+ * pull-to-refresh, owner-only delete, navigation to create-post, and sign-out.
+ */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";

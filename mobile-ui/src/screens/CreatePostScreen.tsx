@@ -1,3 +1,7 @@
+/**
+ * Modal form for composing a new ride post. Validates inputs locally and
+ * delegates submission to the useCreatePost hook.
+ */
 import React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
