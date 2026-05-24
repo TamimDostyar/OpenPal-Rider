@@ -1,3 +1,7 @@
+/**
+ * Card view of a single feed post: poster identity, route, departure time,
+ * price, seats, and an owner-only delete action.
+ */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 

@@ -1,3 +1,7 @@
+/**
+ * Inline error banner shown above form fields. Renders nothing when the
+ * message is null so callers can pass through unconditionally.
+ */
 import React from "react";
 import { Text, View } from "react-native";
 

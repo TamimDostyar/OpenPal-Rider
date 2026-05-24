@@ -1,3 +1,7 @@
+/**
+ * Combined date and time picker that emits a zoneless ISO LocalDateTime string.
+ * Splits into separate date-then-time prompts on Android and one inline picker on iOS.
+ */
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -6,7 +10,6 @@ import { Modal, Platform, Pressable, Text, View } from "react-native";
 
 interface DateTimeFieldProps {
   label: string;
-  // ISO LocalDateTime: YYYY-MM-DDTHH:mm:ss (no zone — backend stores wall-clock)
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
@@ -53,7 +56,6 @@ export function DateTimeField({
 }: DateTimeFieldProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Date>(() => toDate(value));
-  // Android shows date first, then time. iOS uses one combined picker.
   const [androidStage, setAndroidStage] = useState<"date" | "time">("date");
 
   const openPicker = () => {
