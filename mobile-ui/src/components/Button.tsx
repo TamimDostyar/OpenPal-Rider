@@ -1,3 +1,7 @@
+/**
+ * Reusable pill button with ink/coral/sage/ghost variants. Renders a spinner
+ * when loading and dims itself while disabled.
+ */
 import React from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 

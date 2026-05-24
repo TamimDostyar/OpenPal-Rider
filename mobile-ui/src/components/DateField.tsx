@@ -1,3 +1,7 @@
+/**
+ * Calendar date picker rendered inline on Android and inside a bottom-sheet
+ * modal on iOS. Stores the selected value as a YYYY-MM-DD string.
+ */
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";

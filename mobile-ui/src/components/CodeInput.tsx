@@ -1,3 +1,7 @@
+/**
+ * Four-cell numeric input used for email-verification codes. Auto-advances
+ * focus forward on entry and backwards on backspace.
+ */
 import React, { useRef } from "react";
 import { TextInput, View } from "react-native";
 
