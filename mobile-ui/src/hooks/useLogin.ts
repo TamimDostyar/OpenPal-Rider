@@ -1,3 +1,7 @@
+/**
+ * Form state and submission logic for the login screen. On success it stores
+ * the returned JWT through the auth context, switching the navigator to Home.
+ */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";

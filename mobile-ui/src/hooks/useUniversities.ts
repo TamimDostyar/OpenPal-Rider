@@ -1,3 +1,7 @@
+/**
+ * Loads the supported-universities list once and exposes a filtered view
+ * driven by a search query. Used by the signup school picker.
+ */
 import { useEffect, useMemo, useState } from "react";
 
 import { ApiError, api } from "@/api/client";

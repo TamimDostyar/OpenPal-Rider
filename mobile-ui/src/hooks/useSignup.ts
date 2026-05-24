@@ -1,3 +1,7 @@
+/**
+ * Form state and submission logic for the signup screen. Validates required
+ * fields locally before calling the backend and routing to email verification.
+ */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";

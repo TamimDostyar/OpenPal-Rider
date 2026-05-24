@@ -1,3 +1,7 @@
+/**
+ * Form state and submission logic for the create-post screen. Validates the
+ * ride fields locally and signs the user out if the backend reports the token is stale.
+ */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";
@@ -16,7 +20,7 @@ export function useCreatePost() {
   const [destination, setDestination] = useState("");
   const [price, setPrice] = useState("");
   const [seats, setSeats] = useState("1");
-  const [departureTime, setDepartureTime] = useState(""); // ISO LocalDateTime
+  const [departureTime, setDepartureTime] = useState("");
   const [vehicleInfo, setVehicleInfo] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);

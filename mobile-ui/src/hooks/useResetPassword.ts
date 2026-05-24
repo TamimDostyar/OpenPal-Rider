@@ -1,3 +1,7 @@
+/**
+ * Form state and submission logic for the reset-password screen. Pre-fills
+ * the token from route params and routes back to Login once the reset succeeds.
+ */
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";

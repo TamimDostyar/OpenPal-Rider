@@ -1,3 +1,7 @@
+/**
+ * Brand mark composed of two overlapping circles and the buddyride wordmark.
+ * Accepts an ink or cream tone for use on light and dark backgrounds.
+ */
 import React from "react";
 import { Text, View } from "react-native";
 

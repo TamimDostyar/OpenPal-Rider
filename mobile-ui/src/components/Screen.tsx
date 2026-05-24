@@ -1,3 +1,7 @@
+/**
+ * Shared screen shell that applies the cream background, safe-area insets,
+ * and keyboard-avoiding behavior used by every authenticated and auth screen.
+ */
 import React from "react";
 import { KeyboardAvoidingView, Platform, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

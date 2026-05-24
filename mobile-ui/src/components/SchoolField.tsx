@@ -1,3 +1,7 @@
+/**
+ * School picker that opens a full-screen modal with a searchable university list.
+ * Delegates fetching and filtering to the caller via the schools/query props.
+ */
 import React, { useState } from "react";
 import {
   ActivityIndicator,
