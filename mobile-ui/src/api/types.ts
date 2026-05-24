@@ -69,3 +69,39 @@ export interface UniversitiesResponse {
   count: number;
   universities: University[];
 }
+
+// LocalDateTime serialized by Spring as "YYYY-MM-DDTHH:mm:ss"
+export interface CreateFeedPostRequest {
+  origin: string;
+  destination: string;
+  price: number;
+  seats: number;
+  departureTime: string;
+  vehicleInfo?: string;
+  description?: string;
+}
+
+export interface FeedPostResponse {
+  id: string;
+  username: string;
+  email: string;
+  name: string | null;
+  school: string | null;
+  origin: string;
+  destination: string;
+  price: number;
+  seats: number;
+  departureTime: string;
+  vehicleInfo: string | null;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface CreatePostEnvelope {
+  message: string;
+  post: FeedPostResponse;
+}
+
+export interface DeletePostResponse {
+  message: string;
+}

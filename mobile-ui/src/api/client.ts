@@ -2,8 +2,12 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 import type {
+  CreateFeedPostRequest,
+  CreatePostEnvelope,
   CreateUserRequest,
   CreateUserResponse,
+  DeletePostResponse,
+  FeedPostResponse,
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
@@ -35,15 +39,24 @@ export class ApiError extends Error {
 interface ErrorPayload {
   error?: string;
 }
-async function request<T>(
-  path: string,
-  options: { method?: string; body?: unknown } = {},
-): Promise<T> {
+
+interface RequestOptions {
+  method?: string;
+  body?: unknown;
+  token?: string;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (options.token) {
+    headers.Authorization = `Bearer ${options.token}`;
+  }
+
   let response: Response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method: options.method ?? "GET",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     });
   } catch {
@@ -101,4 +114,28 @@ export const api = {
     }),
 
   universities: () => request<UniversitiesResponse>("/api/universities"),
+
+  feed: {
+    list: (token: string) =>
+      request<FeedPostResponse[]>("/api/feed/posts", { token }),
+
+    listByUsername: (token: string, username: string) =>
+      request<FeedPostResponse[]>(
+        `/api/feed/posts/user/${encodeURIComponent(username)}`,
+        { token },
+      ),
+
+    create: (token: string, payload: CreateFeedPostRequest) =>
+      request<CreatePostEnvelope>("/api/feed/create-post", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    delete: (token: string, id: string) =>
+      request<DeletePostResponse>(`/api/feed/posts/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        token,
+      }),
+  },
 };

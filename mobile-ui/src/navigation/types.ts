@@ -6,4 +6,5 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { resetToken?: string };
   Home: undefined;
+  CreatePost: undefined;
 };

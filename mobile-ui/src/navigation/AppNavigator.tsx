@@ -3,6 +3,7 @@ import React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useAuth } from "@/auth/AuthContext";
+import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
 import { HomeScreen } from "@/screens/HomeScreen";
 import { LoginScreen } from "@/screens/LoginScreen";
@@ -34,7 +35,14 @@ export function AppNavigator() {
       }}
     >
       {token ? (
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="CreatePost"
+            component={CreatePostScreen}
+            options={{ presentation: "modal" }}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen name="Welcome" component={WelcomeScreen} />

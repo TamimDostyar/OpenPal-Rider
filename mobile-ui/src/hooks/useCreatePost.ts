@@ -1,0 +1,93 @@
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useState } from "react";
+
+import { ApiError, api } from "@/api/client";
+import { useAuth } from "@/auth/AuthContext";
+import type { RootStackParamList } from "@/navigation/types";
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+export function useCreatePost() {
+  const navigation = useNavigation<Nav>();
+  const { token, signOut } = useAuth();
+
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [price, setPrice] = useState("");
+  const [seats, setSeats] = useState("1");
+  const [departureTime, setDepartureTime] = useState(""); // ISO LocalDateTime
+  const [vehicleInfo, setVehicleInfo] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async () => {
+    if (!token) {
+      setError("You're signed out — log in to post.");
+      return;
+    }
+    if (!origin.trim()) return setError("Where are you leaving from?");
+    if (!destination.trim()) return setError("Where are you going?");
+
+    const priceNum = Number(price);
+    if (!Number.isFinite(priceNum) || priceNum < 0) {
+      return setError("Enter a valid price (e.g. 25 or 25.50).");
+    }
+    const seatsNum = Number.parseInt(seats, 10);
+    if (!Number.isFinite(seatsNum) || seatsNum < 1) {
+      return setError("Seats must be at least 1.");
+    }
+    if (!departureTime) {
+      return setError("Pick when the ride leaves.");
+    }
+
+    setError(null);
+    setSubmitting(true);
+    try {
+      await api.feed.create(token, {
+        origin: origin.trim(),
+        destination: destination.trim(),
+        price: priceNum,
+        seats: seatsNum,
+        departureTime,
+        vehicleInfo: vehicleInfo.trim() || undefined,
+        description: description.trim() || undefined,
+      });
+      navigation.goBack();
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        if (err.status === 401 || err.status === 403) {
+          await signOut();
+          return;
+        }
+        setError(err.message);
+      } else {
+        setError("Couldn't create the post.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return {
+    origin,
+    setOrigin,
+    destination,
+    setDestination,
+    price,
+    setPrice,
+    seats,
+    setSeats,
+    departureTime,
+    setDepartureTime,
+    vehicleInfo,
+    setVehicleInfo,
+    description,
+    setDescription,
+    error,
+    submitting,
+    submit,
+    cancel: () => navigation.goBack(),
+  };
+}
