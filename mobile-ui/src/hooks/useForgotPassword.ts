@@ -1,3 +1,7 @@
+/**
+ * Form state and submission logic for the forgot-password screen. Asks the
+ * backend to issue a reset token and surfaces the resulting message to the UI.
+ */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";

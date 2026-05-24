@@ -1,3 +1,7 @@
+/**
+ * Drives the home-feed screen: loads, refreshes, and optimistically deletes
+ * posts, and signs the user out on 401/403 responses from the backend.
+ */
 import { useCallback, useEffect, useState } from "react";
 
 import { ApiError, api } from "@/api/client";
@@ -14,13 +18,10 @@ interface UseFeedResult {
   deletePost: (id: string) => Promise<void>;
 }
 
-// JWT subject is the user's email. Backend signed it, so we trust the claim
-// for "is this my post" comparisons in the UI. Server still re-verifies on delete.
 function emailFromToken(token: string): string | null {
   const parts = token.split(".");
   if (parts.length < 2) return null;
   try {
-    // base64url → base64
     const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
     const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
     const decoded = globalThis.atob ? globalThis.atob(padded) : "";
@@ -41,8 +42,6 @@ export function useFeed(): UseFeedResult {
 
   const myEmail = token ? emailFromToken(token) : null;
 
-  // Token revoked or unverified → bounce to the auth flow. The navigator
-  // re-routes automatically once signOut clears the stored token.
   const handleAuthFailure = useCallback(
     async (err: ApiError) => {
       if (err.status === 401 || err.status === 403) {
@@ -87,7 +86,6 @@ export function useFeed(): UseFeedResult {
   const deletePost = useCallback(
     async (id: string) => {
       if (!token) return;
-      // optimistic remove; rollback if the server rejects
       const previous = posts;
       setPosts((curr) => curr.filter((p) => p.id !== id));
       try {

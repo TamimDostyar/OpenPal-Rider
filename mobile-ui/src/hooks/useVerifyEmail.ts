@@ -1,3 +1,7 @@
+/**
+ * Drives the email-verification screen: tracks the 4-digit code, submits it
+ * for verification, and exposes a resend helper that requests a fresh code.
+ */
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";
