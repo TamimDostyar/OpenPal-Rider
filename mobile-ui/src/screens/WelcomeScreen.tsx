@@ -1,3 +1,7 @@
+/**
+ * Landing screen shown to signed-out users. Pitches the product and routes
+ * them into the signup or login flow.
+ */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

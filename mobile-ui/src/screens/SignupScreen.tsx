@@ -1,3 +1,7 @@
+/**
+ * Step 1 of the signup flow: collects user profile fields and sends them to
+ * the backend, which responds by emailing a verification code.
+ */
 import React from "react";
 import { ScrollView, Text, View } from "react-native";
 

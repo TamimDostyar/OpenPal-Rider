@@ -1,3 +1,7 @@
+/**
+ * Entry point to the password-reset flow. Asks for an email and requests a
+ * one-time reset token from the backend.
+ */
 import React from "react";
 import { Text, View } from "react-native";
 

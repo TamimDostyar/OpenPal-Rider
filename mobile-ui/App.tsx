@@ -1,3 +1,7 @@
+/**
+ * Root component for the OpenPal Rider app. Wires up safe-area, auth, and
+ * the navigation container that drives every screen.
+ */
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React from "react";

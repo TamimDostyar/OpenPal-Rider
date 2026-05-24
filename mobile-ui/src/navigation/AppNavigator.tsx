@@ -1,3 +1,7 @@
+/**
+ * Top-level navigator that chooses between the authenticated and unauthenticated
+ * stacks based on the stored JWT. Shows a loading spinner while the token loads.
+ */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";

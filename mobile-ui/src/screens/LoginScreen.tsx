@@ -1,3 +1,7 @@
+/**
+ * Email/password login form. Submits to the backend and stores the returned
+ * JWT through the auth context on success.
+ */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 

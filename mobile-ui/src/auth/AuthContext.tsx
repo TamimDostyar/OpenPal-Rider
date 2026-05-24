@@ -1,3 +1,7 @@
+/**
+ * React context that holds the authenticated user's JWT and persists it in
+ * SecureStore. Exposes signIn/signOut helpers and a useAuth hook for consumers.
+ */
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useContext, useEffect, useState } from "react";
 

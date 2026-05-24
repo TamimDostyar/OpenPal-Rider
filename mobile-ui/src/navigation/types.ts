@@ -1,3 +1,7 @@
+/**
+ * Route parameter map for the root navigation stack. Used to type-check
+ * navigation calls and route params across every screen.
+ */
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;

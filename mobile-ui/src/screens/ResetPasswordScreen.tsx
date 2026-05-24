@@ -1,3 +1,7 @@
+/**
+ * Second step of the password-reset flow: accepts the reset token and a new
+ * password, then routes the user back to login on success.
+ */
 import React from "react";
 import { Text, View } from "react-native";
 

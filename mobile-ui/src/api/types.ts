@@ -1,9 +1,13 @@
+/**
+ * Request and response payload types for the backend REST API. Mirrors the
+ * Java DTOs so the client can call endpoints with full type safety.
+ */
 export interface CreateUserRequest {
   name: string;
   email: string;
-  dob: string; // YYYY-MM-DD
-  school: string; // must be a recognized US university
-  graduationDate: string; // YYYY-MM-DD
+  dob: string;
+  school: string;
+  graduationDate: string;
   phoneNumber: number;
   password: string;
 }
@@ -15,7 +19,7 @@ export interface CreateUserResponse {
 
 export interface VerifyEmailRequest {
   email: string;
-  code: string; // 4-digit code
+  code: string;
 }
 
 export interface VerifyEmailResponse {
@@ -27,7 +31,7 @@ export interface VerifyEmailResponse {
   dob: string;
   school: string;
   graduationDate: string;
-  PhoneNumber: number; // backend returns this key with a capital P
+  PhoneNumber: number;
   emailVerified: boolean;
   message: string;
 }
@@ -39,16 +43,16 @@ export interface ResendCodeResponse {
 export interface LoginRequest {
   email: string;
   password: string;
-  username?: string; // accepted by the backend but ignored
+  username?: string;
 }
 
 export interface LoginResponse {
-  token: string; // JWT, expires in 1 hour
+  token: string;
 }
 
 export interface ForgotPasswordResponse {
   message: string;
-  resetToken?: string; // returned only when an account exists (dev behaviour)
+  resetToken?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -70,7 +74,6 @@ export interface UniversitiesResponse {
   universities: University[];
 }
 
-// LocalDateTime serialized by Spring as "YYYY-MM-DDTHH:mm:ss"
 export interface CreateFeedPostRequest {
   origin: string;
   destination: string;

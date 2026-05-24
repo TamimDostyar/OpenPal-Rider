@@ -1,3 +1,7 @@
+/**
+ * Step 2 of the signup flow: prompts for the 4-digit code emailed to the user
+ * and finalizes account creation when verified.
+ */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 

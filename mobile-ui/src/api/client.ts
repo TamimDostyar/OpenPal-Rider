@@ -1,3 +1,7 @@
+/**
+ * Thin fetch wrapper that talks to the OpenPal backend. Resolves the dev host
+ * automatically and exposes typed helpers for every endpoint the app uses.
+ */
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
