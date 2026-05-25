@@ -48,5 +48,8 @@ export function useAuth(): AuthState {
   if (!ctx) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  return ctx;
+  else{
+    return ctx;
+  }
+  // return ctx;
 }
