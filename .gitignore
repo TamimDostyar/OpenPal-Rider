@@ -81,5 +81,4 @@ mobile-ui/goal/
 # Test output
 /test-results/
 /coverage/
-app/src/main/resources/application.properties
 mobile-ui/goal
