@@ -45,4 +45,4 @@ COPY --from=build /workspace/app.jar app.jar
 ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "echo \"[boot] DB_URL set: $([ -n \\\"$DB_URL\\\" ] && echo YES || echo NO) | DB_USERNAME set: $([ -n \\\"$DB_USERNAME\\\" ] && echo YES || echo NO) | JWT_SECRET set: $([ -n \\\"$JWT_SECRET\\\" ] && echo YES || echo NO) | PORT=$PORT\"; java -Dserver.port=${PORT} -jar /app/app.jar"]
