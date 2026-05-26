@@ -18,6 +18,7 @@ export function useCreatePost() {
 
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [postType, setPostType] = useState<"DRIVER" | "PASSENGER">("DRIVER");
   const [price, setPrice] = useState("");
   const [seats, setSeats] = useState("1");
   const [departureTime, setDepartureTime] = useState("");
@@ -50,6 +51,7 @@ export function useCreatePost() {
     setSubmitting(true);
     try {
       await api.feed.create(token, {
+        postType,
         origin: origin.trim(),
         destination: destination.trim(),
         price: priceNum,
@@ -79,6 +81,8 @@ export function useCreatePost() {
     setOrigin,
     destination,
     setDestination,
+    postType,
+    setPostType,
     price,
     setPrice,
     seats,

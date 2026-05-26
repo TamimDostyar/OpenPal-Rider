@@ -119,7 +119,7 @@ export function HomeScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#1A1815" />
+          <ActivityIndicator color="#120C0A" />
         </View>
       ) : (
         <FlatList
@@ -137,7 +137,7 @@ export function HomeScreen() {
               />
               {booking === item.id ? (
                 <View className="absolute inset-0 items-center justify-center rounded-3xl bg-cream/70">
-                  <ActivityIndicator color="#1A1815" />
+                  <ActivityIndicator color="#120C0A" />
                 </View>
               ) : null}
             </View>
@@ -149,7 +149,7 @@ export function HomeScreen() {
           }}
           ItemSeparatorComponent={() => <View className="h-0" />}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#1A1815" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#120C0A" />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

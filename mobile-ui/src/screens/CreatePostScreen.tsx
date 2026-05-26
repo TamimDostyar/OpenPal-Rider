@@ -18,6 +18,8 @@ export function CreatePostScreen() {
     setOrigin,
     destination,
     setDestination,
+    postType,
+    setPostType,
     price,
     setPrice,
     seats,
@@ -50,6 +52,42 @@ export function CreatePostScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <FormError message={error} />
+
+        <View className="gap-2">
+          <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+            Looking for
+          </Text>
+          <View className="flex-row rounded-full bg-cream-2 p-1">
+            <Pressable
+              onPress={() => setPostType("DRIVER")}
+              className={`flex-1 items-center rounded-full py-2 ${
+                postType === "DRIVER" ? "bg-driver" : ""
+              }`}
+            >
+              <Text
+                className={`text-xs font-semibold ${
+                  postType === "DRIVER" ? "text-white" : "text-muted"
+                }`}
+              >
+                Passengers
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setPostType("PASSENGER")}
+              className={`flex-1 items-center rounded-full py-2 ${
+                postType === "PASSENGER" ? "bg-passenger" : ""
+              }`}
+            >
+              <Text
+                className={`text-xs font-semibold ${
+                  postType === "PASSENGER" ? "text-white" : "text-muted"
+                }`}
+              >
+                Ride
+              </Text>
+            </Pressable>
+          </View>
+        </View>
 
         <TextField
           label="From"

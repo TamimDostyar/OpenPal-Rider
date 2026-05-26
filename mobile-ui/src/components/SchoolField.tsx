@@ -87,13 +87,13 @@ export function SchoolField({
               value={query}
               onChangeText={onQueryChange}
               placeholder="Search universities"
-              placeholderTextColor="#8A8378"
+              placeholderTextColor="#7A6A5E"
               autoCapitalize="words"
               className="h-12 rounded-2xl border border-line bg-white px-4 text-base text-ink"
             />
 
             {loading ? (
-              <ActivityIndicator className="mt-8" color="#1A1815" />
+              <ActivityIndicator className="mt-8" color="#120C0A" />
             ) : error ? (
               <Text className="mt-8 text-center text-sm text-coral-dk">
                 {error}

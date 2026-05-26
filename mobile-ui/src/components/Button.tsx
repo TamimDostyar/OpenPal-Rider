@@ -46,7 +46,7 @@ export function Button({
       }`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "ghost" ? "#1A1815" : "#FAF6EF"} />
+        <ActivityIndicator color={variant === "ghost" ? "#120C0A" : "#F7F1EB"} />
       ) : (
         <Text className={`text-base font-semibold ${TEXT[variant]}`}>{label}</Text>
       )}

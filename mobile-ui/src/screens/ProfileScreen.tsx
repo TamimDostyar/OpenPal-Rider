@@ -1,7 +1,15 @@
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
 import { ApiError, api } from "@/api/client";
 import type { FeedPostResponse, UserRatingsResponse } from "@/api/types";
@@ -37,11 +45,13 @@ export function ProfileScreen() {
   const [myRides, setMyRides] = useState<FeedPostResponse[]>([]);
   const [ratings, setRatings] = useState<UserRatingsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const email = decodeClaims(token)?.sub ?? null;
 
   const load = useCallback(async () => {
     if (!token) return;
+    setLoading(true);
     try {
       const rides = await api.feed.myRides(token);
       setMyRides(rides);
@@ -57,12 +67,34 @@ export function ProfileScreen() {
       if (err instanceof ApiError) {
         setError(err.message);
       }
+    } finally {
+      setLoading(false);
     }
   }, [token]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load]),
+  );
+
+  const primaryRide = myRides[0] ?? null;
+  const username =
+    primaryRide?.username ?? email?.split("@")[0] ?? "you";
+  const displayName = primaryRide?.name ?? primaryRide?.username ?? "Your profile";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const bio = primaryRide?.school
+    ? `Student at ${primaryRide.school}`
+    : "No bio yet.";
 
   const openBugReport = async () => {
     try {
@@ -88,6 +120,148 @@ export function ProfileScreen() {
         </View>
 
         {error ? <FormError message={error} /> : null}
+
+        <View className="gap-4 rounded-3xl border border-line bg-white p-5">
+          <View className="flex-row items-center gap-4">
+            <View className="h-16 w-16 items-center justify-center rounded-full bg-cream-2">
+              <Text className="text-xl font-semibold text-ink">
+                {initials || "?"}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-lg font-semibold text-ink" numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text className="text-xs text-muted">@{username}</Text>
+              <Text className="text-xs text-ink-2" numberOfLines={2}>
+                {bio}
+              </Text>
+            </View>
+          </View>
+
+          <View className="flex-row items-center justify-between rounded-2xl bg-cream-2 px-4 py-3">
+            <View className="items-center">
+              <Text className="text-base font-semibold text-ink">{myRides.length}</Text>
+              <Text className="text-[10px] uppercase tracking-wider text-muted">
+                Posts
+              </Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-base font-semibold text-ink">
+                {ratings ? ratings.average.toFixed(1) : "--"}
+              </Text>
+              <Text className="text-[10px] uppercase tracking-wider text-muted">
+                Rating
+              </Text>
+            </View>
+            <View className="items-center">
+              <Text className="text-base font-semibold text-ink">
+                {ratings ? ratings.count : 0}
+              </Text>
+              <Text className="text-[10px] uppercase tracking-wider text-muted">
+                Reviews
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View className="gap-2 rounded-3xl border border-line bg-white p-5">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-base font-semibold text-ink">Ratings</Text>
+            {ratings ? (
+              <Text className="text-xs text-muted">
+                {ratings.count} review{ratings.count === 1 ? "" : "s"}
+              </Text>
+            ) : null}
+          </View>
+          {ratings ? (
+            <>
+              <Text className="text-3xl font-semibold text-ink">
+                {ratings.average.toFixed(1)}
+              </Text>
+              {ratings.ratings.slice(0, 3).map((r) => (
+                <View key={r.id} className="border-t border-line pt-2">
+                  <Text className="text-xs text-muted">
+                    @{r.raterUsername} · {"★".repeat(r.stars)}
+                  </Text>
+                  {r.text ? (
+                    <Text className="text-sm text-ink-2">{r.text}</Text>
+                  ) : null}
+                </View>
+              ))}
+            </>
+          ) : (
+            <Text className="text-sm text-muted">No ratings yet.</Text>
+          )}
+        </View>
+
+        <View className="gap-3 rounded-3xl border border-line bg-white p-5">
+          <Text className="text-base font-semibold text-ink">My posts</Text>
+          {loading ? (
+            <View className="items-center py-6">
+              <ActivityIndicator color="#120C0A" />
+            </View>
+          ) : myRides.length === 0 ? (
+            <Text className="text-sm text-muted">No rides posted yet.</Text>
+          ) : (
+            myRides.map((r) => {
+              const postType = r.postType ?? "DRIVER";
+              const isPassenger = postType === "PASSENGER";
+              const cardTone = isPassenger
+                ? "border-passenger-border bg-passenger-bg"
+                : "border-driver-border bg-driver-bg";
+              const badgeTone = isPassenger ? "bg-passenger" : "bg-driver";
+              const badgeLabel = isPassenger
+                ? "Looking for rides"
+                : "Looking for passengers";
+              return (
+                <View key={r.id} className={`gap-2 rounded-2xl border p-4 ${cardTone}`}>
+                <View className="flex-row items-start justify-between gap-3">
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-ink">
+                      {r.origin} → {r.destination}
+                    </Text>
+                    <Text className="text-xs text-muted">
+                      {new Date(r.departureTime).toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => navigation.navigate("UpdatePost", { post: r })}
+                    className="rounded-full border border-line bg-white px-3 py-1"
+                  >
+                    <Text className="text-xs font-semibold text-ink">Update</Text>
+                  </Pressable>
+                </View>
+                <View className={`self-start rounded-full px-2.5 py-1 ${badgeTone}`}>
+                  <Text className="text-[10px] font-semibold text-white">
+                    {badgeLabel}
+                  </Text>
+                </View>
+                <View className="flex-row flex-wrap items-center gap-2">
+                  <Text className="text-xs text-ink-2">
+                    {r.seats} seat{r.seats === 1 ? "" : "s"}
+                  </Text>
+                  <Text className="text-xs text-muted">·</Text>
+                  <Text className="text-xs text-ink-2">${r.price.toFixed(2)}</Text>
+                  {r.vehicleInfo ? (
+                    <>
+                      <Text className="text-xs text-muted">·</Text>
+                      <Text className="text-xs text-muted" numberOfLines={1}>
+                        {r.vehicleInfo}
+                      </Text>
+                    </>
+                  ) : null}
+                </View>
+                </View>
+              );
+            })
+          )}
+        </View>
 
         <View className="gap-3 rounded-3xl border border-line bg-white p-5">
           <View className="flex-row items-center justify-between">
@@ -117,52 +291,6 @@ export function ProfileScreen() {
               {vehicle?.make ? "Edit vehicle" : "Add vehicle"}
             </Text>
           </Pressable>
-        </View>
-
-        {ratings ? (
-          <View className="gap-2 rounded-3xl border border-line bg-white p-5">
-            <Text className="text-base font-semibold text-ink">Ratings</Text>
-            <Text className="text-3xl font-semibold text-ink">
-              {ratings.average.toFixed(1)}{" "}
-              <Text className="text-base font-normal text-muted">
-                · {ratings.count} review{ratings.count === 1 ? "" : "s"}
-              </Text>
-            </Text>
-            {ratings.ratings.slice(0, 3).map((r) => (
-              <View key={r.id} className="border-t border-line pt-2">
-                <Text className="text-xs text-muted">
-                  @{r.raterUsername} · {"★".repeat(r.stars)}
-                </Text>
-                {r.text ? (
-                  <Text className="text-sm text-ink-2">{r.text}</Text>
-                ) : null}
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        <View className="gap-2 rounded-3xl border border-line bg-white p-5">
-          <Text className="text-base font-semibold text-ink">My posted rides</Text>
-          {myRides.length === 0 ? (
-            <Text className="text-sm text-muted">No rides posted yet.</Text>
-          ) : (
-            myRides.slice(0, 5).map((r) => (
-              <View key={r.id} className="border-t border-line pt-2">
-                <Text className="text-sm font-semibold text-ink">
-                  {r.origin} → {r.destination}
-                </Text>
-                <Text className="text-xs text-muted">
-                  {new Date(r.departureTime).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}{" "}
-                  · {r.seats} seat{r.seats === 1 ? "" : "s"} left
-                </Text>
-              </View>
-            ))
-          )}
         </View>
 
         <View className="gap-2 rounded-3xl border border-line bg-white p-5">

@@ -17,7 +17,7 @@ export function TextField({ label, hint, ...inputProps }: TextFieldProps) {
         {label}
       </Text>
       <TextInput
-        placeholderTextColor="#8A8378"
+        placeholderTextColor="#7A6A5E"
         className="h-14 rounded-2xl border border-line bg-white px-4 text-base text-ink"
         {...inputProps}
       />

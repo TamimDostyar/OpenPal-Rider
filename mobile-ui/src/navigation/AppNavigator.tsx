@@ -13,6 +13,7 @@ import { ReportScreen } from "@/screens/ReportScreen";
 import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
 import { SearchScreen } from "@/screens/SearchScreen";
 import { SignupScreen } from "@/screens/SignupScreen";
+import { UpdatePostScreen } from "@/screens/UpdatePostScreen";
 import { VehicleScreen } from "@/screens/VehicleScreen";
 import { VerifyEmailScreen } from "@/screens/VerifyEmailScreen";
 import { WelcomeScreen } from "@/screens/WelcomeScreen";
@@ -27,7 +28,7 @@ export function AppNavigator() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator color="#1A1815" />
+        <ActivityIndicator color="#120C0A" />
       </View>
     );
   }
@@ -36,7 +37,7 @@ export function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#FAF6EF" },
+        contentStyle: { backgroundColor: "#F7F1EB" },
       }}
     >
       {token ? (
@@ -45,6 +46,11 @@ export function AppNavigator() {
           <Stack.Screen
             name="CreatePost"
             component={CreatePostScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="UpdatePost"
+            component={UpdatePostScreen}
             options={{ presentation: "modal" }}
           />
           <Stack.Screen

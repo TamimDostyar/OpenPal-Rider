@@ -24,6 +24,8 @@ public class FeedPosts {
     private String vehicleInfo;
     private String description;
     private String recurringDays;
+    private String postType;
+
 
     public FeedPosts() {
     }
@@ -69,4 +71,11 @@ public class FeedPosts {
 
     public String getDescription() { return this.description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getPostType(){
+        return this.postType;
+    }
+    public void setPostType(String newPostType){
+        this.postType = newPostType;
+    }
 }

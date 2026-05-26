@@ -32,6 +32,8 @@ public class FeedPostResponse {
     private String vehicleInfo;
     private String description;
     private String recurringDays;
+    private String postType;
+
 
     private LocalDateTime createdAt;
 
@@ -63,6 +65,7 @@ public class FeedPostResponse {
             r.school = profile.getSchool();
             r.driverVerified = profile.isDriverVerified();
         }
+        r.postType = post.getPostType();
         return r;
     }
 
@@ -87,4 +90,5 @@ public class FeedPostResponse {
     public String getDescription() { return this.description; }
     public String getRecurringDays() { return this.recurringDays; }
     public LocalDateTime getCreatedAt() { return this.createdAt; }
+    public String getPostType(){return this.postType;}
 }

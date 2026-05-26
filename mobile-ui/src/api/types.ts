@@ -71,6 +71,7 @@ export interface UniversitiesResponse {
 }
 
 export interface CreateFeedPostRequest {
+  postType?: "DRIVER" | "PASSENGER";
   origin: string;
   destination: string;
   price: number;
@@ -89,6 +90,7 @@ export interface CreateFeedPostRequest {
 
 export interface FeedPostResponse {
   id: string;
+  postType?: "DRIVER" | "PASSENGER";
   username: string;
   email: string;
   name: string | null;

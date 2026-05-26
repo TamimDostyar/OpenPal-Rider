@@ -49,9 +49,16 @@ export function FeedPostCard({
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
   const soldOut = post.seats <= 0;
+  const postType = post.postType ?? "DRIVER";
+  const isPassenger = postType === "PASSENGER";
+  const containerTone = isPassenger
+    ? "border-passenger-border bg-passenger-bg"
+    : "border-driver-border bg-driver-bg";
+  const badgeTone = isPassenger ? "bg-passenger" : "bg-driver";
+  const badgeLabel = isPassenger ? "Looking for rides" : "Looking for passengers";
 
   return (
-    <View className="gap-3 rounded-3xl border border-line bg-white p-5">
+    <View className={`gap-3 rounded-3xl border p-5 ${containerTone}`}>
       <View className="flex-row items-center gap-3">
         <View className="h-10 w-10 items-center justify-center rounded-full bg-cream-2">
           <Text className="text-base font-semibold text-ink">{initial}</Text>
@@ -73,6 +80,10 @@ export function FeedPostCard({
           </Text>
         </View>
         <Text className="text-xs text-muted">{relativeTime(post.createdAt)}</Text>
+      </View>
+
+      <View className={`self-start rounded-full px-2.5 py-1 ${badgeTone}`}>
+        <Text className="text-[10px] font-semibold text-white">{badgeLabel}</Text>
       </View>
 
       <View className="flex-row items-center gap-2">

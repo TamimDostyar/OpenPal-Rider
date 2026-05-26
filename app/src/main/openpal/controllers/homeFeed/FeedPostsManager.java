@@ -58,6 +58,10 @@ public class FeedPostsManager {
             return AuthSupport.error(HttpStatus.BAD_REQUEST, "seats must be at least 1");
         }
 
+        if (request.getPostType() == null || request.getPostType().isBlank()){
+            return AuthSupport.error(HttpStatus.BAD_REQUEST, "identify your post type");
+        }
+
         FeedPostsDB post = new FeedPostsDB(
                 profile.getUsername(),
                 profile.getEmail(),
@@ -67,7 +71,8 @@ public class FeedPostsManager {
                 request.getSeats(),
                 request.getDepartureTime(),
                 request.getVehicleInfo(),
-                request.getDescription()
+                request.getDescription(),
+                request.getPostType()
         );
         post.setOriginLat(request.getOriginLat());
         post.setOriginLng(request.getOriginLng());
@@ -76,6 +81,7 @@ public class FeedPostsManager {
         post.setDestLng(request.getDestLng());
         post.setDestPlaceId(request.getDestPlaceId());
         post.setRecurringDays(normalizeRecurring(request.getRecurringDays()));
+        post.setPostType(request.getPostType());
 
         FeedPostsDB saved = feedRepo.save(post);
 

@@ -136,7 +136,7 @@ export function BookingsScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#1A1815" />
+          <ActivityIndicator color="#120C0A" />
         </View>
       ) : (
         <FlatList
@@ -195,7 +195,7 @@ export function BookingsScreen() {
             gap: 12,
           }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#1A1815" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#120C0A" />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

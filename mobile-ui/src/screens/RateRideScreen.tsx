@@ -123,7 +123,7 @@ export function RateRideScreen() {
             value={text}
             onChangeText={setText}
             placeholder="On time, easy ride, would book again"
-            placeholderTextColor="#8A8378"
+            placeholderTextColor="#7A6A5E"
             multiline
             className="min-h-24 rounded-2xl border border-line bg-white px-4 py-3 text-base text-ink"
           />

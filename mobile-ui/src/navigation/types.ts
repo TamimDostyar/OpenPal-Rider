@@ -1,4 +1,4 @@
-import type { BookingResponse } from "@/api/types";
+import type { BookingResponse, FeedPostResponse } from "@/api/types";
 
 export type TabKey = "home" | "bookings" | "messages" | "profile";
 
@@ -11,6 +11,7 @@ export type RootStackParamList = {
   ResetPassword: { resetToken?: string };
   AuthedTabs: { initialTab?: TabKey } | undefined;
   CreatePost: undefined;
+  UpdatePost: { post: FeedPostResponse };
   Search: undefined;
   Conversation: { otherUsername: string; bookingId?: string };
   RateRide: { booking: BookingResponse };

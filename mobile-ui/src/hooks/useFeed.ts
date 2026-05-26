@@ -64,7 +64,10 @@ export function useFeed(): UseFeedResult {
         const next = filters
           ? await api.feed.search(token, filters)
           : await api.feed.list(token);
-        setPosts(next);
+        const filtered = myEmail
+          ? next.filter((post) => post.email.toLowerCase() !== myEmail.toLowerCase())
+          : next;
+        setPosts(filtered);
       } catch (err: unknown) {
         if (err instanceof ApiError) {
           if (await handleAuthFailure(err)) return;
@@ -77,7 +80,7 @@ export function useFeed(): UseFeedResult {
         else setRefreshing(false);
       }
     },
-    [filters, handleAuthFailure, token],
+    [filters, handleAuthFailure, myEmail, token],
   );
 
   useEffect(() => {

@@ -62,6 +62,10 @@ public class FeedPostsDB {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(nullable = false)
+    @ColumnDefault("'DRIVER'")
+    private String postType;
+
     @Column(nullable = false, updatable = false)
     @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
@@ -75,7 +79,7 @@ public class FeedPostsDB {
 
     public FeedPostsDB(String username, String email, String origin, String destination,
                        BigDecimal price, Integer seats, LocalDateTime departureTime,
-                       String vehicleInfo, String description) {
+                       String vehicleInfo, String description, String postType) {
         this.username = username;
         this.email = email;
         this.origin = origin;
@@ -85,6 +89,7 @@ public class FeedPostsDB {
         this.departureTime = departureTime;
         this.vehicleInfo = vehicleInfo;
         this.description = description;
+        this.postType = postType;
     }
 
     @PrePersist
@@ -92,6 +97,9 @@ public class FeedPostsDB {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
+        if (this.postType == null || this.postType.isBlank()) {
+            this.postType = "DRIVER";
+        }
     }
 
     @PreUpdate
@@ -148,6 +156,9 @@ public class FeedPostsDB {
 
     public String getDescription() { return this.description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String getPostType() { return this.postType; }
+    public void setPostType(String postType) { this.postType = postType; }
 
     public LocalDateTime getCreatedAt() { return this.createdAt; }
     public LocalDateTime getUpdatedAt() { return this.updatedAt; }

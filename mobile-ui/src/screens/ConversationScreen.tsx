@@ -79,7 +79,7 @@ export function ConversationScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#1A1815" />
+          <ActivityIndicator color="#120C0A" />
         </View>
       ) : (
         <FlatList
@@ -124,7 +124,7 @@ export function ConversationScreen() {
         <TextInput
           className="flex-1 rounded-2xl bg-cream-2 px-4 py-2 text-base text-ink"
           placeholder="Message"
-          placeholderTextColor="#8A8378"
+          placeholderTextColor="#7A6A5E"
           value={draft}
           onChangeText={setDraft}
           multiline
