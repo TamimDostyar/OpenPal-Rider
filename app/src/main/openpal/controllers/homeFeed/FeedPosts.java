@@ -9,12 +9,21 @@ import java.time.LocalDateTime;
  */
 public class FeedPosts {
     private String origin;
+    private Double originLat;
+    private Double originLng;
+    private String originPlaceId;
+
     private String destination;
+    private Double destLat;
+    private Double destLng;
+    private String destPlaceId;
+
     private BigDecimal price;
     private Integer seats;
     private LocalDateTime departureTime;
     private String vehicleInfo;
     private String description;
+    private String recurringDays;
 
     public FeedPosts() {
     }
@@ -22,8 +31,29 @@ public class FeedPosts {
     public String getOrigin() { return this.origin; }
     public void setOrigin(String origin) { this.origin = origin; }
 
+    public Double getOriginLat() { return this.originLat; }
+    public void setOriginLat(Double originLat) { this.originLat = originLat; }
+
+    public Double getOriginLng() { return this.originLng; }
+    public void setOriginLng(Double originLng) { this.originLng = originLng; }
+
+    public String getOriginPlaceId() { return this.originPlaceId; }
+    public void setOriginPlaceId(String originPlaceId) { this.originPlaceId = originPlaceId; }
+
     public String getDestination() { return this.destination; }
     public void setDestination(String destination) { this.destination = destination; }
+
+    public Double getDestLat() { return this.destLat; }
+    public void setDestLat(Double destLat) { this.destLat = destLat; }
+
+    public Double getDestLng() { return this.destLng; }
+    public void setDestLng(Double destLng) { this.destLng = destLng; }
+
+    public String getDestPlaceId() { return this.destPlaceId; }
+    public void setDestPlaceId(String destPlaceId) { this.destPlaceId = destPlaceId; }
+
+    public String getRecurringDays() { return this.recurringDays; }
+    public void setRecurringDays(String recurringDays) { this.recurringDays = recurringDays; }
 
     public BigDecimal getPrice() { return this.price; }
     public void setPrice(BigDecimal price) { this.price = price; }

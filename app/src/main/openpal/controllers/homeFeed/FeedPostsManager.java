@@ -1,5 +1,7 @@
 package openpal.controllers.homeFeed;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,90 +16,49 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-
-import openpal.controllers.security.JsonTokenWeb;
+import openpal.controllers.security.AuthSupport;
+import openpal.controllers.security.AuthSupport.AuthFailure;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
 import openpal.database.homeFeedDB.FeedPostsDB;
 import openpal.database.homeFeedDB.FeedPostsRepository;
 
-/**
- * Business logic for the school-scoped home feed: authenticates callers via
- * JWT and handles create, list, and delete operations against verified-email accounts.
- */
 @Component
 public class FeedPostsManager {
 
     private final FeedPostsRepository feedRepo;
     private final ProfileRepository profileRepo;
-    private final JsonTokenWeb jsonTokenWeb;
+    private final AuthSupport auth;
 
     @Autowired
     public FeedPostsManager(FeedPostsRepository feedRepo,
                             ProfileRepository profileRepo,
-                            JsonTokenWeb jsonTokenWeb) {
+                            AuthSupport auth) {
         this.feedRepo = feedRepo;
         this.profileRepo = profileRepo;
-        this.jsonTokenWeb = jsonTokenWeb;
-    }
-
-    public static ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", message);
-        return ResponseEntity.status(status).body(body);
-    }
-
-    public CreateProfileDB authenticate(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AuthFailure(HttpStatus.UNAUTHORIZED, "missing or malformed Authorization header");
-        }
-        String token = authHeader.substring("Bearer ".length()).trim();
-        Claims claims;
-        try {
-            claims = jsonTokenWeb.parseClaims(token);
-        } catch (JwtException e) {
-            throw new AuthFailure(HttpStatus.UNAUTHORIZED, "invalid token");
-        }
-        String email = claims.getSubject();
-        if (email == null || email.isBlank()) {
-            throw new AuthFailure(HttpStatus.UNAUTHORIZED, "token missing subject");
-        }
-        CreateProfileDB profile = profileRepo.findByEmail(email)
-                .orElseThrow(() -> new AuthFailure(HttpStatus.UNAUTHORIZED, "account not found"));
-
-        Integer tokenVer = claims.get("ver", Integer.class);
-        if (tokenVer == null || tokenVer != profile.getTokenVersion()) {
-            throw new AuthFailure(HttpStatus.UNAUTHORIZED, "token has been revoked");
-        }
-
-        if (!profile.isEmailVerified()) {
-            throw new AuthFailure(HttpStatus.FORBIDDEN, "email not verified");
-        }
-        return profile;
+        this.auth = auth;
     }
 
     public ResponseEntity<Map<String, Object>> createPost(String authHeader, FeedPosts request) {
         CreateProfileDB profile;
         try {
-            profile = authenticate(authHeader);
+            profile = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
-            return error(f.status, f.getMessage());
+            return AuthSupport.error(f.status, f.getMessage());
         }
 
         String missing = firstMissingField(request);
         if (missing != null) {
-            return error(HttpStatus.BAD_REQUEST, missing + " is required");
+            return AuthSupport.error(HttpStatus.BAD_REQUEST, missing + " is required");
         }
         if (request.getPrice().signum() < 0) {
-            return error(HttpStatus.BAD_REQUEST, "price must be non-negative");
+            return AuthSupport.error(HttpStatus.BAD_REQUEST, "price must be non-negative");
         }
         if (request.getSeats() < 1) {
-            return error(HttpStatus.BAD_REQUEST, "seats must be at least 1");
+            return AuthSupport.error(HttpStatus.BAD_REQUEST, "seats must be at least 1");
         }
 
-        FeedPostsDB saved = feedRepo.save(new FeedPostsDB(
+        FeedPostsDB post = new FeedPostsDB(
                 profile.getUsername(),
                 profile.getEmail(),
                 request.getOrigin().trim(),
@@ -107,7 +68,16 @@ public class FeedPostsManager {
                 request.getDepartureTime(),
                 request.getVehicleInfo(),
                 request.getDescription()
-        ));
+        );
+        post.setOriginLat(request.getOriginLat());
+        post.setOriginLng(request.getOriginLng());
+        post.setOriginPlaceId(request.getOriginPlaceId());
+        post.setDestLat(request.getDestLat());
+        post.setDestLng(request.getDestLng());
+        post.setDestPlaceId(request.getDestPlaceId());
+        post.setRecurringDays(normalizeRecurring(request.getRecurringDays()));
+
+        FeedPostsDB saved = feedRepo.save(post);
 
         Map<String, Object> body = new HashMap<>();
         body.put("message", "post created");
@@ -118,57 +88,89 @@ public class FeedPostsManager {
     public ResponseEntity<?> listFeed(String authHeader) {
         CreateProfileDB caller;
         try {
-            caller = authenticate(authHeader);
+            caller = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
-            return error(f.status, f.getMessage());
+            return AuthSupport.error(f.status, f.getMessage());
         }
-        String suffix = "@" + emailDomain(caller.getEmail());
+        String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
         List<FeedPostsDB> posts = feedRepo.findByEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(suffix);
         return ResponseEntity.ok(joinWithProfiles(posts));
+    }
+
+    public ResponseEntity<?> searchFeed(String authHeader, String destination,
+                                        LocalDateTime dateFrom, LocalDateTime dateTo,
+                                        BigDecimal maxPrice, Integer minSeats) {
+        CreateProfileDB caller;
+        try {
+            caller = auth.authenticate(authHeader);
+        } catch (AuthFailure f) {
+            return AuthSupport.error(f.status, f.getMessage());
+        }
+        String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
+        List<FeedPostsDB> posts = feedRepo.findByEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(suffix);
+
+        String needle = destination == null ? null : destination.trim().toLowerCase();
+        List<FeedPostsDB> filtered = posts.stream().filter(p -> {
+            if (needle != null && !needle.isEmpty()
+                    && !p.getDestination().toLowerCase().contains(needle)) return false;
+            if (dateFrom != null && p.getDepartureTime().isBefore(dateFrom)) return false;
+            if (dateTo != null && p.getDepartureTime().isAfter(dateTo)) return false;
+            if (maxPrice != null && p.getPrice().compareTo(maxPrice) > 0) return false;
+            if (minSeats != null && p.getSeats() < minSeats) return false;
+            return true;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(joinWithProfiles(filtered));
     }
 
     public ResponseEntity<?> listByUsername(String authHeader, String username) {
         CreateProfileDB caller;
         try {
-            caller = authenticate(authHeader);
+            caller = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
-            return error(f.status, f.getMessage());
+            return AuthSupport.error(f.status, f.getMessage());
         }
-        String suffix = "@" + emailDomain(caller.getEmail());
+        String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
         List<FeedPostsDB> posts = feedRepo
                 .findByUsernameAndEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(username, suffix);
+        return ResponseEntity.ok(joinWithProfiles(posts));
+    }
+
+    public ResponseEntity<?> listMyRides(String authHeader) {
+        CreateProfileDB caller;
+        try {
+            caller = auth.authenticate(authHeader);
+        } catch (AuthFailure f) {
+            return AuthSupport.error(f.status, f.getMessage());
+        }
+        String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
+        List<FeedPostsDB> posts = feedRepo
+                .findByUsernameAndEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(
+                        caller.getUsername(), suffix);
         return ResponseEntity.ok(joinWithProfiles(posts));
     }
 
     public ResponseEntity<Map<String, Object>> deletePost(String authHeader, UUID postId) {
         CreateProfileDB profile;
         try {
-            profile = authenticate(authHeader);
+            profile = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
-            return error(f.status, f.getMessage());
+            return AuthSupport.error(f.status, f.getMessage());
         }
 
         Optional<FeedPostsDB> found = feedRepo.findById(postId);
         if (found.isEmpty()) {
-            return error(HttpStatus.NOT_FOUND, "post not found");
+            return AuthSupport.error(HttpStatus.NOT_FOUND, "post not found");
         }
         FeedPostsDB post = found.get();
         if (!post.getEmail().equalsIgnoreCase(profile.getEmail())) {
-            return error(HttpStatus.FORBIDDEN, "you can only delete your own posts");
+            return AuthSupport.error(HttpStatus.FORBIDDEN, "you can only delete your own posts");
         }
         feedRepo.deleteById(postId);
 
         Map<String, Object> body = new HashMap<>();
         body.put("message", "post deleted");
         return ResponseEntity.ok(body);
-    }
-
-    static String emailDomain(String email) {
-        int at = email.lastIndexOf('@');
-        if (at < 0 || at == email.length() - 1) {
-            throw new AuthFailure(HttpStatus.UNAUTHORIZED, "account email is malformed");
-        }
-        return email.substring(at + 1).toLowerCase();
     }
 
     private List<FeedPostResponse> joinWithProfiles(List<FeedPostsDB> posts) {
@@ -198,11 +200,16 @@ public class FeedPostsManager {
         return null;
     }
 
-    public static class AuthFailure extends RuntimeException {
-        final HttpStatus status;
-        AuthFailure(HttpStatus status, String message) {
-            super(message);
-            this.status = status;
+    private static String normalizeRecurring(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        Set<String> valid = Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN");
+        List<String> kept = new ArrayList<>();
+        for (String token : raw.split(",")) {
+            String t = token.trim().toUpperCase();
+            if (valid.contains(t) && !kept.contains(t)) {
+                kept.add(t);
+            }
         }
+        return kept.isEmpty() ? null : String.join(",", kept);
     }
 }

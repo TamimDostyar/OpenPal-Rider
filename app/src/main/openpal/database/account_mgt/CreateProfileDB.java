@@ -44,6 +44,14 @@ public class CreateProfileDB {
     @ColumnDefault("0")
     private int tokenVersion = 0;
 
+    private String vehicleLicensePlate;
+    private String vehicleMake;
+    private String vehicleModel;
+    private String vehicleColor;
+
+    @ColumnDefault("false")
+    private boolean driverVerified = false;
+
     protected CreateProfileDB() {
     }
 
@@ -141,5 +149,35 @@ public class CreateProfileDB {
     }
     public void setTokenVersion(int tokenVersion) {
         this.tokenVersion = tokenVersion;
+    }
+    public String getVehicleLicensePlate() {
+        return this.vehicleLicensePlate;
+    }
+    public void setVehicleLicensePlate(String vehicleLicensePlate) {
+        this.vehicleLicensePlate = vehicleLicensePlate;
+    }
+    public String getVehicleMake() {
+        return this.vehicleMake;
+    }
+    public void setVehicleMake(String vehicleMake) {
+        this.vehicleMake = vehicleMake;
+    }
+    public String getVehicleModel() {
+        return this.vehicleModel;
+    }
+    public void setVehicleModel(String vehicleModel) {
+        this.vehicleModel = vehicleModel;
+    }
+    public String getVehicleColor() {
+        return this.vehicleColor;
+    }
+    public void setVehicleColor(String vehicleColor) {
+        this.vehicleColor = vehicleColor;
+    }
+    public boolean isDriverVerified() {
+        return this.driverVerified;
+    }
+    public void setDriverVerified(boolean driverVerified) {
+        this.driverVerified = driverVerified;
     }
 }

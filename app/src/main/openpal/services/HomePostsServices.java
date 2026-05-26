@@ -1,9 +1,12 @@
 package openpal.services;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,15 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import openpal.controllers.homeFeed.FeedPosts;
 import openpal.controllers.homeFeed.FeedPostsManager;
 
-/**
- * HTTP endpoints for the home feed under /api/feed. All endpoints require
- * a Bearer JWT and delegate to {@link FeedPostsManager}.
- */
 @RestController
 @RequestMapping("api/feed")
 public class HomePostsServices {
@@ -45,11 +45,30 @@ public class HomePostsServices {
         return manager.listFeed(authHeader);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchFeed(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam(required = false) String destination,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFrom,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Integer minSeats) {
+        return manager.searchFeed(authHeader, destination, dateFrom, dateTo, maxPrice, minSeats);
+    }
+
     @GetMapping("/posts/user/{username}")
     public ResponseEntity<?> listByUsername(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
             @PathVariable String username) {
         return manager.listByUsername(authHeader, username);
+    }
+
+    @GetMapping("/my-rides")
+    public ResponseEntity<?> listMyRides(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        return manager.listMyRides(authHeader);
     }
 
     @DeleteMapping("/posts/{id}")
