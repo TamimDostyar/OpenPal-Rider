@@ -1,7 +1,7 @@
-/**
- * Route parameter map for the root navigation stack. Used to type-check
- * navigation calls and route params across every screen.
- */
+import type { BookingResponse } from "@/api/types";
+
+export type TabKey = "home" | "bookings" | "messages" | "profile";
+
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -9,6 +9,13 @@ export type RootStackParamList = {
   VerifyEmail: { email: string };
   ForgotPassword: undefined;
   ResetPassword: { resetToken?: string };
-  Home: undefined;
+  AuthedTabs: { initialTab?: TabKey } | undefined;
   CreatePost: undefined;
+  Search: undefined;
+  Conversation: { otherUsername: string; bookingId?: string };
+  RateRide: { booking: BookingResponse };
+  Report:
+    | { kind: "post"; postId: string; postSummary?: string }
+    | { kind: "user"; username: string };
+  Vehicle: undefined;
 };

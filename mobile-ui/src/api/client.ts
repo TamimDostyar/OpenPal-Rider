@@ -1,25 +1,36 @@
-/**
- * Thin fetch wrapper that talks to the OpenPal backend. Base URL comes from
- * EXPO_PUBLIC_API_URL (see .env). When unset, falls back to the Expo dev host
- * so a fresh checkout still works against a locally running Gradle backend.
- */
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 import type {
+  BookingEnvelope,
+  BookingResponse,
+  ConversationSummary,
+  CreateBookingRequest,
   CreateFeedPostRequest,
   CreatePostEnvelope,
+  CreateRatingEnvelope,
+  CreateRatingRequest,
+  CreateReportEnvelope,
+  CreateReportRequest,
   CreateUserRequest,
   CreateUserResponse,
   DeletePostResponse,
+  DirectMessageResponse,
   FeedPostResponse,
+  FeedSearchParams,
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
   ResendCodeResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  SendMessageEnvelope,
+  SendMessageRequest,
   UniversitiesResponse,
+  UserRatingsResponse,
+  VehicleInfo,
+  VehicleUpdateRequest,
+  VehicleUpdateResponse,
   VerifyEmailRequest,
   VerifyEmailResponse,
 } from "./types";
@@ -51,10 +62,24 @@ interface ErrorPayload {
   error?: string;
 }
 
+type QueryValue = string | number | undefined | null;
+
 interface RequestOptions {
   method?: string;
   body?: unknown;
   token?: string;
+  query?: { [key: string]: QueryValue };
+}
+
+function buildPath(path: string, query?: RequestOptions["query"]): string {
+  if (!query) return path;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined || value === null || value === "") continue;
+    params.append(key, String(value));
+  }
+  const qs = params.toString();
+  return qs ? `${path}?${qs}` : path;
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -65,7 +90,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   let response: Response;
   try {
-    response = await fetch(`${BASE_URL}${path}`, {
+    response = await fetch(`${BASE_URL}${buildPath(path, options.query)}`, {
       method: options.method ?? "GET",
       headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -130,11 +155,20 @@ export const api = {
     list: (token: string) =>
       request<FeedPostResponse[]>("/api/feed/posts", { token }),
 
+    search: (token: string, params: FeedSearchParams) =>
+      request<FeedPostResponse[]>("/api/feed/search", {
+        token,
+        query: { ...params },
+      }),
+
     listByUsername: (token: string, username: string) =>
       request<FeedPostResponse[]>(
         `/api/feed/posts/user/${encodeURIComponent(username)}`,
         { token },
       ),
+
+    myRides: (token: string) =>
+      request<FeedPostResponse[]>("/api/feed/my-rides", { token }),
 
     create: (token: string, payload: CreateFeedPostRequest) =>
       request<CreatePostEnvelope>("/api/feed/create-post", {
@@ -148,5 +182,107 @@ export const api = {
         method: "DELETE",
         token,
       }),
+  },
+
+  vehicle: {
+    get: (token: string) =>
+      request<VehicleInfo>("/api/profile/vehicle", { token }),
+
+    update: (token: string, payload: VehicleUpdateRequest) =>
+      request<VehicleUpdateResponse>("/api/profile/vehicle", {
+        method: "PUT",
+        token,
+        body: payload,
+      }),
+  },
+
+  bookings: {
+    mine: (token: string) =>
+      request<BookingResponse[]>("/api/bookings/mine", { token }),
+
+    incoming: (token: string) =>
+      request<BookingResponse[]>("/api/bookings/incoming", { token }),
+
+    request: (token: string, payload: CreateBookingRequest) =>
+      request<BookingEnvelope>("/api/bookings/request", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    accept: (token: string, id: string) =>
+      request<BookingEnvelope>(`/api/bookings/${encodeURIComponent(id)}/accept`, {
+        method: "POST",
+        token,
+      }),
+
+    decline: (token: string, id: string) =>
+      request<BookingEnvelope>(`/api/bookings/${encodeURIComponent(id)}/decline`, {
+        method: "POST",
+        token,
+      }),
+
+    cancel: (token: string, id: string) =>
+      request<BookingEnvelope>(`/api/bookings/${encodeURIComponent(id)}/cancel`, {
+        method: "POST",
+        token,
+      }),
+
+    complete: (token: string, id: string) =>
+      request<BookingEnvelope>(`/api/bookings/${encodeURIComponent(id)}/complete`, {
+        method: "POST",
+        token,
+      }),
+  },
+
+  messages: {
+    conversations: (token: string) =>
+      request<ConversationSummary[]>("/api/messages/conversations", { token }),
+
+    with: (token: string, username: string) =>
+      request<DirectMessageResponse[]>(
+        `/api/messages/with/${encodeURIComponent(username)}`,
+        { token },
+      ),
+
+    send: (token: string, payload: SendMessageRequest) =>
+      request<SendMessageEnvelope>("/api/messages/send", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    delete: (token: string, id: string) =>
+      request<{ message: string }>(`/api/messages/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        token,
+      }),
+  },
+
+  ratings: {
+    create: (token: string, payload: CreateRatingRequest) =>
+      request<CreateRatingEnvelope>("/api/ratings", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    forUser: (token: string, username: string) =>
+      request<UserRatingsResponse>(
+        `/api/ratings/user/${encodeURIComponent(username)}`,
+        { token },
+      ),
+  },
+
+  reports: {
+    create: (token: string, payload: CreateReportRequest) =>
+      request<CreateReportEnvelope>("/api/reports", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    mine: (token: string) =>
+      request<import("./types").ReportResponse[]>("/api/reports/mine", { token }),
   },
 };

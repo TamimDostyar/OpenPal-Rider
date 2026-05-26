@@ -1,18 +1,19 @@
-/**
- * Top-level navigator that chooses between the authenticated and unauthenticated
- * stacks based on the stored JWT. Shows a loading spinner while the token loads.
- */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useAuth } from "@/auth/AuthContext";
+import { AuthedTabsScreen } from "@/screens/AuthedTabsScreen";
+import { ConversationScreen } from "@/screens/ConversationScreen";
 import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
-import { HomeScreen } from "@/screens/HomeScreen";
 import { LoginScreen } from "@/screens/LoginScreen";
+import { RateRideScreen } from "@/screens/RateRideScreen";
+import { ReportScreen } from "@/screens/ReportScreen";
 import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
+import { SearchScreen } from "@/screens/SearchScreen";
 import { SignupScreen } from "@/screens/SignupScreen";
+import { VehicleScreen } from "@/screens/VehicleScreen";
 import { VerifyEmailScreen } from "@/screens/VerifyEmailScreen";
 import { WelcomeScreen } from "@/screens/WelcomeScreen";
 
@@ -40,10 +41,31 @@ export function AppNavigator() {
     >
       {token ? (
         <>
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="AuthedTabs" component={AuthedTabsScreen} />
           <Stack.Screen
             name="CreatePost"
             component={CreatePostScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="Search"
+            component={SearchScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen name="Conversation" component={ConversationScreen} />
+          <Stack.Screen
+            name="RateRide"
+            component={RateRideScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="Report"
+            component={ReportScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="Vehicle"
+            component={VehicleScreen}
             options={{ presentation: "modal" }}
           />
         </>

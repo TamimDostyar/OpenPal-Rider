@@ -8,6 +8,7 @@ import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "@/auth/AuthContext";
+import { FeedFiltersProvider } from "@/hooks/FeedFiltersContext";
 import { AppNavigator } from "@/navigation/AppNavigator";
 
 import "./global.css";
@@ -16,10 +17,12 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          <AppNavigator />
-        </NavigationContainer>
+        <FeedFiltersProvider>
+          <NavigationContainer>
+            <StatusBar style="dark" />
+            <AppNavigator />
+          </NavigationContainer>
+        </FeedFiltersProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -1,7 +1,3 @@
-/**
- * Request and response payload types for the backend REST API. Mirrors the
- * Java DTOs so the client can call endpoints with full type safety.
- */
 export interface CreateUserRequest {
   name: string;
   email: string;
@@ -82,6 +78,13 @@ export interface CreateFeedPostRequest {
   departureTime: string;
   vehicleInfo?: string;
   description?: string;
+  originLat?: number;
+  originLng?: number;
+  originPlaceId?: string;
+  destLat?: number;
+  destLng?: number;
+  destPlaceId?: string;
+  recurringDays?: string;
 }
 
 export interface FeedPostResponse {
@@ -90,13 +93,21 @@ export interface FeedPostResponse {
   email: string;
   name: string | null;
   school: string | null;
+  driverVerified: boolean | null;
   origin: string;
+  originLat: number | null;
+  originLng: number | null;
+  originPlaceId: string | null;
   destination: string;
+  destLat: number | null;
+  destLng: number | null;
+  destPlaceId: string | null;
   price: number;
   seats: number;
   departureTime: string;
   vehicleInfo: string | null;
   description: string | null;
+  recurringDays: string | null;
   createdAt: string;
 }
 
@@ -107,4 +118,150 @@ export interface CreatePostEnvelope {
 
 export interface DeletePostResponse {
   message: string;
+}
+
+export interface FeedSearchParams {
+  destination?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  maxPrice?: number;
+  minSeats?: number;
+}
+
+export interface VehicleInfo {
+  licensePlate: string | null;
+  make: string | null;
+  model: string | null;
+  color: string | null;
+  driverVerified: boolean;
+}
+
+export interface VehicleUpdateRequest {
+  licensePlate: string;
+  make: string;
+  model: string;
+  color: string;
+}
+
+export interface VehicleUpdateResponse {
+  message: string;
+  driverVerified: boolean;
+}
+
+export type BookingStatus =
+  | "REQUESTED"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "CANCELLED"
+  | "COMPLETED";
+
+export interface BookingResponse {
+  id: string;
+  postId: string;
+  riderUsername: string;
+  riderEmail: string;
+  driverUsername: string;
+  driverEmail: string;
+  seatsRequested: number;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
+  origin: string | null;
+  destination: string | null;
+  departureTime: string | null;
+}
+
+export interface BookingEnvelope {
+  message: string;
+  booking: BookingResponse;
+}
+
+export interface CreateBookingRequest {
+  postId: string;
+  seatsRequested: number;
+}
+
+export interface DirectMessageResponse {
+  id: string;
+  senderUsername: string;
+  senderEmail: string;
+  recipientUsername: string;
+  recipientEmail: string;
+  bookingId: string | null;
+  text: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface SendMessageRequest {
+  recipientUsername: string;
+  text: string;
+  bookingId?: string;
+}
+
+export interface SendMessageEnvelope {
+  message: string;
+  data: DirectMessageResponse;
+}
+
+export interface ConversationSummary {
+  otherUsername: string;
+  otherEmail: string;
+  lastMessage: DirectMessageResponse;
+  unreadCount: number;
+}
+
+export interface RatingResponse {
+  id: string;
+  bookingId: string;
+  raterUsername: string;
+  ratedUsername: string;
+  stars: number;
+  text: string | null;
+  createdAt: string;
+}
+
+export interface CreateRatingRequest {
+  bookingId: string;
+  stars: number;
+  text?: string;
+}
+
+export interface CreateRatingEnvelope {
+  message: string;
+  rating: RatingResponse;
+}
+
+export interface UserRatingsResponse {
+  username: string;
+  average: number;
+  count: number;
+  ratings: RatingResponse[];
+}
+
+export type ReportTargetType = "USER" | "POST";
+export type ReportStatus = "OPEN" | "REVIEWED" | "DISMISSED" | "ACTIONED";
+
+export interface CreateReportRequest {
+  targetType: ReportTargetType;
+  targetUsername?: string;
+  targetPostId?: string;
+  reason: string;
+  text?: string;
+}
+
+export interface ReportResponse {
+  id: string;
+  reporterUsername: string;
+  targetType: ReportTargetType;
+  targetId: string;
+  reason: string;
+  text: string | null;
+  status: ReportStatus;
+  createdAt: string;
+}
+
+export interface CreateReportEnvelope {
+  message: string;
+  report: ReportResponse;
 }

@@ -1,12 +1,9 @@
-/**
- * Drives the home-feed screen: loads, refreshes, and optimistically deletes
- * posts, and signs the user out on 401/403 responses from the backend.
- */
 import { useCallback, useEffect, useState } from "react";
 
 import { ApiError, api } from "@/api/client";
-import type { FeedPostResponse } from "@/api/types";
+import type { FeedPostResponse, FeedSearchParams } from "@/api/types";
 import { useAuth } from "@/auth/AuthContext";
+import { useFeedFilters } from "@/hooks/FeedFiltersContext";
 
 interface UseFeedResult {
   posts: FeedPostResponse[];
@@ -14,8 +11,11 @@ interface UseFeedResult {
   refreshing: boolean;
   error: string | null;
   myEmail: string | null;
+  filters: FeedSearchParams | null;
   refresh: () => Promise<void>;
+  applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
+  bookPost: (postId: string, seats: number) => Promise<boolean>;
 }
 
 function emailFromToken(token: string): string | null {
@@ -35,6 +35,7 @@ function emailFromToken(token: string): string | null {
 
 export function useFeed(): UseFeedResult {
   const { token, signOut } = useAuth();
+  const { filters, setFilters } = useFeedFilters();
   const [posts, setPosts] = useState<FeedPostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,7 +61,9 @@ export function useFeed(): UseFeedResult {
       else setRefreshing(true);
       setError(null);
       try {
-        const next = await api.feed.list(token);
+        const next = filters
+          ? await api.feed.search(token, filters)
+          : await api.feed.list(token);
         setPosts(next);
       } catch (err: unknown) {
         if (err instanceof ApiError) {
@@ -74,7 +77,7 @@ export function useFeed(): UseFeedResult {
         else setRefreshing(false);
       }
     },
-    [handleAuthFailure, token],
+    [filters, handleAuthFailure, token],
   );
 
   useEffect(() => {
@@ -82,6 +85,13 @@ export function useFeed(): UseFeedResult {
   }, [load]);
 
   const refresh = useCallback(() => load("refresh"), [load]);
+
+  const applyFilters = useCallback(
+    (next: FeedSearchParams | null) => {
+      setFilters(next);
+    },
+    [setFilters],
+  );
 
   const deletePost = useCallback(
     async (id: string) => {
@@ -103,13 +113,35 @@ export function useFeed(): UseFeedResult {
     [handleAuthFailure, posts, token],
   );
 
+  const bookPost = useCallback(
+    async (postId: string, seats: number): Promise<boolean> => {
+      if (!token) return false;
+      try {
+        await api.bookings.request(token, { postId, seatsRequested: seats });
+        return true;
+      } catch (err: unknown) {
+        if (err instanceof ApiError) {
+          if (await handleAuthFailure(err)) return false;
+          setError(err.message);
+        } else {
+          setError("Couldn't book the ride.");
+        }
+        return false;
+      }
+    },
+    [handleAuthFailure, token],
+  );
+
   return {
     posts,
     loading,
     refreshing,
     error,
     myEmail,
+    filters,
     refresh,
+    applyFilters,
     deletePost,
+    bookPost,
   };
 }

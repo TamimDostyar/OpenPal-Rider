@@ -29,6 +29,9 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/vendor
+**/mobile-ui
+**/documentation
+**/json
 LICENSE
 README.md
 **/*.class

@@ -1,7 +1,3 @@
-/**
- * Card view of a single feed post: poster identity, route, departure time,
- * price, seats, and an owner-only delete action.
- */
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -11,6 +7,9 @@ interface FeedPostCardProps {
   post: FeedPostResponse;
   isOwner: boolean;
   onDelete?: (id: string) => void;
+  onBook?: (post: FeedPostResponse) => void;
+  onReport?: (post: FeedPostResponse) => void;
+  onMessage?: (post: FeedPostResponse) => void;
 }
 
 function formatDeparture(iso: string): string {
@@ -39,9 +38,17 @@ function relativeTime(iso: string): string {
   return `${Math.floor(seconds / 86400)}d ago`;
 }
 
-export function FeedPostCard({ post, isOwner, onDelete }: FeedPostCardProps) {
+export function FeedPostCard({
+  post,
+  isOwner,
+  onDelete,
+  onBook,
+  onReport,
+  onMessage,
+}: FeedPostCardProps) {
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
+  const soldOut = post.seats <= 0;
 
   return (
     <View className="gap-3 rounded-3xl border border-line bg-white p-5">
@@ -50,9 +57,16 @@ export function FeedPostCard({ post, isOwner, onDelete }: FeedPostCardProps) {
           <Text className="text-base font-semibold text-ink">{initial}</Text>
         </View>
         <View className="flex-1">
-          <Text className="text-base font-semibold text-ink" numberOfLines={1}>
-            {displayName}
-          </Text>
+          <View className="flex-row items-center gap-1.5">
+            <Text className="text-base font-semibold text-ink" numberOfLines={1}>
+              {displayName}
+            </Text>
+            {post.driverVerified ? (
+              <View className="rounded-full bg-sage px-2 py-0.5">
+                <Text className="text-[10px] font-semibold text-cream">✓ verified</Text>
+              </View>
+            ) : null}
+          </View>
           <Text className="text-xs text-muted" numberOfLines={1}>
             @{post.username}
             {post.school ? ` · ${post.school}` : ""}
@@ -76,7 +90,7 @@ export function FeedPostCard({ post, isOwner, onDelete }: FeedPostCardProps) {
 
       <View className="flex-row items-center gap-3">
         <Text className="text-sm text-ink-2">
-          {post.seats} seat{post.seats === 1 ? "" : "s"}
+          {post.seats} seat{post.seats === 1 ? "" : "s"} {soldOut ? "(full)" : "left"}
         </Text>
         {post.vehicleInfo ? (
           <Text className="text-sm text-muted" numberOfLines={1}>
@@ -85,15 +99,39 @@ export function FeedPostCard({ post, isOwner, onDelete }: FeedPostCardProps) {
         ) : null}
       </View>
 
+      {post.recurringDays ? (
+        <Text className="text-xs text-muted">Recurring: {post.recurringDays}</Text>
+      ) : null}
+
       {post.description ? (
         <Text className="text-sm leading-relaxed text-ink-2">{post.description}</Text>
       ) : null}
 
-      {isOwner && onDelete ? (
-        <Pressable onPress={() => onDelete(post.id)} className="self-end pt-1">
-          <Text className="text-sm font-semibold text-coral-dk">Delete</Text>
-        </Pressable>
-      ) : null}
+      <View className="flex-row items-center justify-end gap-3 pt-1">
+        {!isOwner && onReport ? (
+          <Pressable onPress={() => onReport(post)} className="py-1">
+            <Text className="text-xs font-semibold text-muted">Report</Text>
+          </Pressable>
+        ) : null}
+        {!isOwner && onMessage ? (
+          <Pressable onPress={() => onMessage(post)} className="py-1">
+            <Text className="text-sm font-semibold text-ink-2">Message</Text>
+          </Pressable>
+        ) : null}
+        {!isOwner && onBook && !soldOut ? (
+          <Pressable
+            onPress={() => onBook(post)}
+            className="rounded-full bg-coral px-4 py-2"
+          >
+            <Text className="text-sm font-semibold text-white">Book seat</Text>
+          </Pressable>
+        ) : null}
+        {isOwner && onDelete ? (
+          <Pressable onPress={() => onDelete(post.id)} className="py-1">
+            <Text className="text-sm font-semibold text-coral-dk">Delete</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
