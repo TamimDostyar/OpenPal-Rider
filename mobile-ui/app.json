@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "OpenPal Rider",
-    "slug": "openpal-rider-mobile",
+    "slug": "palrider",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -9,13 +9,15 @@
     "scheme": "openpalrider",
     "icon": "./asset/app-icon.png",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.dostah01.palrider"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./asset/app-icon.png",
         "backgroundColor": "#F7F1EB"
-      }
+      },
+      "package": "com.dostah01.palrider"
     },
     "splash": {
       "image": "./asset/app-icon.png",
@@ -25,6 +27,12 @@
     "plugins": [
       "expo-asset",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f8ba6cea-256e-4f83-bf0d-7d856538b217"
+      }
+    },
+    "owner": "dostah01"
   }
 }
