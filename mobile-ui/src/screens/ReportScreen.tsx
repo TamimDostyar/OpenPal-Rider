@@ -130,7 +130,7 @@ export function ReportScreen() {
             value={text}
             onChangeText={setText}
             placeholder="What happened?"
-            placeholderTextColor="#7A6A5E"
+            placeholderTextColor="#6B7076"
             multiline
             className="min-h-28 rounded-2xl border border-line bg-white px-4 py-3 text-base text-ink"
           />

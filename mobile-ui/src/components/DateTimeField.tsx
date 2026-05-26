@@ -17,7 +17,7 @@ interface DateTimeFieldProps {
   minimumDate?: Date;
 }
 
-const ACCENT = "#8B1C18";
+const ACCENT = "#0A0A0A";
 
 function toDate(value: string): Date {
   const parsed = value ? new Date(value) : new Date();

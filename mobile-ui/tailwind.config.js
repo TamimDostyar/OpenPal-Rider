@@ -4,29 +4,37 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      // BuddyRide design tokens (see BuddyRide/tokens.css).
       colors: {
-        cream: "#F7F1EB",
-        "cream-2": "#EEE3DA",
-        ink: "#120C0A",
-        "ink-2": "#2E201B",
-        muted: "#7A6A5E",
-        line: "#E1D4C8",
-        "line-2": "#E9DDD2",
-        coral: "#8B1C18",
-        "coral-dk": "#5E120F",
-        sage: "#3B241E",
-        "sage-2": "#4A2D26",
-        sun: "#C9A07A",
-        sky: "#B89A8A",
-        rose: "#B27870",
-        canvas: "#E6D9CF",
-        driver: "#1F7A4A",
-        "driver-bg": "#E6F4EA",
-        "driver-border": "#C6E6D3",
-        passenger: "#B42318",
-        "passenger-bg": "#FDECEC",
-        "passenger-border": "#F4C7C3",
+        // Surfaces — clean, near-white with cool tint.
+        cream: "#FFFFFF",
+        "cream-2": "#F5F5F7",
+        canvas: "#F0F0F3",
+
+        // Text — high-contrast black, secondary, and mid-gray muted.
+        ink: "#0A0A0A",
+        "ink-2": "#1F2024",
+        muted: "#6B7076",
+
+        // Hairlines and dividers.
+        line: "#E4E4E7",
+        "line-2": "#EEEEF1",
+
+        // Accents (sparingly used).
+        coral: "#DC2626",
+        "coral-dk": "#B91C1C",
+        sage: "#0E7C66",
+        "sage-2": "#0A5C4D",
+        sun: "#C2410C",
+        sky: "#475569",
+        rose: "#9F1239",
+
+        // Semantic ride tones.
+        driver: "#0E7C66",
+        "driver-bg": "#E6F4F0",
+        "driver-border": "#C2E2D9",
+        passenger: "#C2410C",
+        "passenger-bg": "#FDF1E6",
+        "passenger-border": "#F4D5B8",
       },
     },
   },

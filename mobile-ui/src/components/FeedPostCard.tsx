@@ -25,17 +25,17 @@ function formatDeparture(iso: string): string {
 }
 
 function formatPrice(value: number): string {
-  return `$${Number(value).toFixed(2)}`;
+  return `$${Number(value).toFixed(0)}`;
 }
 
 function relativeTime(iso: string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return "";
   const seconds = Math.max(1, Math.floor((Date.now() - then) / 1000));
-  if (seconds < 60) return `${seconds}s ago`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+  return `${Math.floor(seconds / 86400)}d`;
 }
 
 export function FeedPostCard({
@@ -48,100 +48,131 @@ export function FeedPostCard({
 }: FeedPostCardProps) {
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
-  const soldOut = post.seats <= 0;
   const postType = post.postType ?? "DRIVER";
   const isPassenger = postType === "PASSENGER";
-  const containerTone = isPassenger
-    ? "border-passenger-border bg-passenger-bg"
-    : "border-driver-border bg-driver-bg";
-  const badgeTone = isPassenger ? "bg-passenger" : "bg-driver";
-  const badgeLabel = isPassenger ? "Looking for rides" : "Looking for passengers";
+  const soldOut = !isPassenger && post.seats <= 0;
+
+  const accentText = isPassenger ? "text-passenger" : "text-driver";
+  const accentDot = isPassenger ? "bg-passenger" : "bg-driver";
+  const tagLabel = isPassenger ? "Looking for a ride" : "Offering a ride";
 
   return (
-    <View className={`gap-3 rounded-3xl border p-5 ${containerTone}`}>
-      <View className="flex-row items-center gap-3">
-        <View className="h-10 w-10 items-center justify-center rounded-full bg-cream-2">
-          <Text className="text-base font-semibold text-ink">{initial}</Text>
+    <View className="rounded-2xl border border-line bg-cream p-4">
+      {/* Status strip */}
+      <View className="mb-3 flex-row items-center gap-2">
+        <View className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
+        <Text className={`text-[11px] font-semibold uppercase tracking-wider ${accentText}`}>
+          {tagLabel}
+        </Text>
+        <View className="flex-1" />
+        <Text className="text-[11px] text-muted">{relativeTime(post.createdAt)}</Text>
+      </View>
+
+      {/* Route — the headline */}
+      <View className="mb-3">
+        <View className="flex-row items-center gap-2">
+          <View className="h-2 w-2 rounded-full bg-ink" />
+          <Text className="flex-1 text-base font-semibold text-ink" numberOfLines={1}>
+            {post.origin}
+          </Text>
+        </View>
+        <View className="my-1 ml-[3px] h-3 w-px bg-line-2" />
+        <View className="flex-row items-center gap-2">
+          <View className="h-2 w-2 rounded-sm bg-ink" />
+          <Text className="flex-1 text-base font-semibold text-ink" numberOfLines={1}>
+            {post.destination}
+          </Text>
+        </View>
+      </View>
+
+      {/* Meta row: departure + price/seats */}
+      <View className="mb-3 flex-row flex-wrap items-center gap-x-3 gap-y-1">
+        <Text className="text-[13px] text-ink-2">{formatDeparture(post.departureTime)}</Text>
+        {!isPassenger ? (
+          <>
+            <View className="h-1 w-1 rounded-full bg-line-2" />
+            <Text className="text-[13px] font-semibold text-ink">
+              {formatPrice(post.price)}
+            </Text>
+            <View className="h-1 w-1 rounded-full bg-line-2" />
+            <Text className="text-[13px] text-ink-2">
+              {post.seats} seat{post.seats === 1 ? "" : "s"}
+              {soldOut ? " · full" : ""}
+            </Text>
+          </>
+        ) : (
+          <>
+            <View className="h-1 w-1 rounded-full bg-line-2" />
+            <Text className="text-[13px] text-ink-2">
+              {post.seats} rider{post.seats === 1 ? "" : "s"}
+            </Text>
+          </>
+        )}
+      </View>
+
+      {/* Description */}
+      {post.description ? (
+        <Text className="mb-3 text-[13px] leading-5 text-ink-2" numberOfLines={3}>
+          {post.description}
+        </Text>
+      ) : null}
+
+      {/* Vehicle hint for drivers */}
+      {!isPassenger && post.vehicleInfo ? (
+        <Text className="mb-3 text-xs text-muted" numberOfLines={1}>
+          {post.vehicleInfo}
+        </Text>
+      ) : null}
+
+      {/* Footer: poster + actions */}
+      <View className="flex-row items-center gap-3 border-t border-line-2 pt-3">
+        <View className="h-8 w-8 items-center justify-center rounded-full bg-cream-2">
+          <Text className="text-xs font-semibold text-ink">{initial}</Text>
         </View>
         <View className="flex-1">
           <View className="flex-row items-center gap-1.5">
-            <Text className="text-base font-semibold text-ink" numberOfLines={1}>
+            <Text className="text-[13px] font-semibold text-ink" numberOfLines={1}>
               {displayName}
             </Text>
             {post.driverVerified ? (
-              <View className="rounded-full bg-sage px-2 py-0.5">
-                <Text className="text-[10px] font-semibold text-cream">✓ verified</Text>
-              </View>
+              <Text className="text-[10px] font-semibold text-sage">✓</Text>
             ) : null}
           </View>
-          <Text className="text-xs text-muted" numberOfLines={1}>
+          <Text className="text-[11px] text-muted" numberOfLines={1}>
             @{post.username}
-            {post.school ? ` · ${post.school}` : ""}
           </Text>
         </View>
-        <Text className="text-xs text-muted">{relativeTime(post.createdAt)}</Text>
-      </View>
 
-      <View className={`self-start rounded-full px-2.5 py-1 ${badgeTone}`}>
-        <Text className="text-[10px] font-semibold text-white">{badgeLabel}</Text>
-      </View>
-
-      <View className="flex-row items-center gap-2">
-        <Text className="text-xl font-semibold text-ink">{post.origin}</Text>
-        <Text className="text-xl text-muted">→</Text>
-        <Text className="text-xl font-semibold text-ink">{post.destination}</Text>
-      </View>
-
-      <View className="flex-row items-center justify-between">
-        <Text className="text-sm text-ink-2">{formatDeparture(post.departureTime)}</Text>
-        <View className="rounded-full bg-sage px-3 py-1">
-          <Text className="text-sm font-semibold text-cream">{formatPrice(post.price)}</Text>
-        </View>
-      </View>
-
-      <View className="flex-row items-center gap-3">
-        <Text className="text-sm text-ink-2">
-          {post.seats} seat{post.seats === 1 ? "" : "s"} {soldOut ? "(full)" : "left"}
-        </Text>
-        {post.vehicleInfo ? (
-          <Text className="text-sm text-muted" numberOfLines={1}>
-            · {post.vehicleInfo}
-          </Text>
-        ) : null}
-      </View>
-
-      {post.recurringDays ? (
-        <Text className="text-xs text-muted">Recurring: {post.recurringDays}</Text>
-      ) : null}
-
-      {post.description ? (
-        <Text className="text-sm leading-relaxed text-ink-2">{post.description}</Text>
-      ) : null}
-
-      <View className="flex-row items-center justify-end gap-3 pt-1">
-        {!isOwner && onReport ? (
-          <Pressable onPress={() => onReport(post)} className="py-1">
-            <Text className="text-xs font-semibold text-muted">Report</Text>
-          </Pressable>
-        ) : null}
-        {!isOwner && onMessage ? (
-          <Pressable onPress={() => onMessage(post)} className="py-1">
-            <Text className="text-sm font-semibold text-ink-2">Message</Text>
-          </Pressable>
-        ) : null}
-        {!isOwner && onBook && !soldOut ? (
-          <Pressable
-            onPress={() => onBook(post)}
-            className="rounded-full bg-coral px-4 py-2"
-          >
-            <Text className="text-sm font-semibold text-white">Book seat</Text>
-          </Pressable>
-        ) : null}
         {isOwner && onDelete ? (
-          <Pressable onPress={() => onDelete(post.id)} className="py-1">
-            <Text className="text-sm font-semibold text-coral-dk">Delete</Text>
+          <Pressable onPress={() => onDelete(post.id)} hitSlop={8} className="px-2 py-1">
+            <Text className="text-xs font-semibold text-coral">Delete</Text>
           </Pressable>
-        ) : null}
+        ) : (
+          <>
+            {onReport ? (
+              <Pressable onPress={() => onReport(post)} hitSlop={8} className="px-2 py-1">
+                <Text className="text-xs text-muted">Report</Text>
+              </Pressable>
+            ) : null}
+            {onMessage ? (
+              <Pressable
+                onPress={() => onMessage(post)}
+                hitSlop={8}
+                className="rounded-full border border-line px-3 py-1.5"
+              >
+                <Text className="text-xs font-semibold text-ink">Message</Text>
+              </Pressable>
+            ) : null}
+            {onBook && !soldOut && !isPassenger ? (
+              <Pressable
+                onPress={() => onBook(post)}
+                className="rounded-full bg-ink px-3 py-1.5"
+              >
+                <Text className="text-xs font-semibold text-white">Book</Text>
+              </Pressable>
+            ) : null}
+          </>
+        )}
       </View>
     </View>
   );

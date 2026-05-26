@@ -130,6 +130,15 @@ export interface FeedSearchParams {
   minSeats?: number;
 }
 
+export interface MyProfile {
+  username: string;
+  name: string | null;
+  email: string;
+  school: string | null;
+  bio: string | null;
+  driverVerified: boolean;
+}
+
 export interface VehicleInfo {
   licensePlate: string | null;
   make: string | null;

@@ -1,5 +1,6 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { TabKey } from "./types";
 
@@ -17,8 +18,16 @@ const TABS: { key: TabKey; label: string; icon: string }[] = [
 ];
 
 export function TabBar({ active, onChange, unreadMessages = 0 }: TabBarProps) {
+  const insets = useSafeAreaInsets();
+  // Lift the bar above the home indicator / system gesture area. Always
+  // reserve some breathing room even on devices without an inset.
+  const bottomPad = Math.max(insets.bottom, 12);
+
   return (
-    <View className="flex-row items-stretch border-t border-line bg-cream">
+    <View
+      className="flex-row items-stretch border-t border-line bg-cream"
+      style={{ paddingTop: 10, paddingBottom: bottomPad }}
+    >
       {TABS.map((tab) => {
         const isActive = tab.key === active;
         const showBadge = tab.key === "messages" && unreadMessages > 0;
@@ -26,10 +35,14 @@ export function TabBar({ active, onChange, unreadMessages = 0 }: TabBarProps) {
           <Pressable
             key={tab.key}
             onPress={() => onChange(tab.key)}
-            className="flex-1 items-center py-2.5"
+            className="flex-1 items-center"
+            hitSlop={8}
           >
             <View className="relative">
-              <Text className={`text-xl ${isActive ? "text-ink" : "text-muted"}`}>
+              <Text
+                style={{ fontSize: 26, lineHeight: 30 }}
+                className={isActive ? "text-ink" : "text-muted"}
+              >
                 {tab.icon}
               </Text>
               {showBadge ? (
@@ -41,7 +54,7 @@ export function TabBar({ active, onChange, unreadMessages = 0 }: TabBarProps) {
               ) : null}
             </View>
             <Text
-              className={`mt-0.5 text-[11px] font-semibold ${
+              className={`mt-1 text-[12px] font-semibold ${
                 isActive ? "text-ink" : "text-muted"
               }`}
             >

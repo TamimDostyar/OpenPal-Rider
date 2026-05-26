@@ -75,31 +75,31 @@ export function HomeScreen() {
 
   return (
     <Screen className="px-0">
-      <View className="flex-row items-center justify-between px-6 pb-3 pt-2">
+      <View className="flex-row items-end justify-between gap-3 px-5 pb-4 pt-2">
         <View className="flex-1">
-          <Text className="text-2xl font-semibold text-ink">Feed</Text>
+          <Text className="text-3xl font-bold tracking-tight text-ink">Rides</Text>
           {schoolDomain ? (
-            <Text className="text-xs text-muted">@{schoolDomain}</Text>
+            <Text className="mt-0.5 text-xs text-muted">@{schoolDomain}</Text>
           ) : null}
         </View>
         <Pressable
           onPress={() => navigation.navigate("Search")}
-          className="mr-2 rounded-full border border-line bg-white px-3 py-2"
+          hitSlop={6}
+          className="h-10 w-10 items-center justify-center rounded-full border border-line bg-cream"
         >
-          <Text className="text-sm font-semibold text-ink">
-            {filters ? "Filters ●" : "Search"}
-          </Text>
+          <Text className="text-base text-ink">{filters ? "●" : "⌕"}</Text>
         </Pressable>
         <Pressable
           onPress={() => navigation.navigate("CreatePost")}
-          className="rounded-full bg-coral px-4 py-2"
+          className="h-10 flex-row items-center gap-1.5 rounded-full bg-ink px-4"
         >
-          <Text className="text-sm font-semibold text-white">+ New</Text>
+          <Text className="text-base font-semibold text-white">+</Text>
+          <Text className="text-sm font-semibold text-white">Post</Text>
         </Pressable>
       </View>
 
       {filters ? (
-        <View className="mx-6 mb-2 flex-row items-center justify-between rounded-2xl bg-cream-2 px-3 py-2">
+        <View className="mx-5 mb-3 flex-row items-center justify-between rounded-full border border-line bg-cream-2 px-4 py-2">
           <Text className="flex-1 text-xs text-ink-2" numberOfLines={1}>
             Filtered{filters.destination ? ` · to "${filters.destination}"` : ""}
             {filters.maxPrice !== undefined ? ` · ≤$${filters.maxPrice}` : ""}
@@ -119,7 +119,7 @@ export function HomeScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#120C0A" />
+          <ActivityIndicator color="#0A0A0A" />
         </View>
       ) : (
         <FlatList
@@ -137,19 +137,19 @@ export function HomeScreen() {
               />
               {booking === item.id ? (
                 <View className="absolute inset-0 items-center justify-center rounded-3xl bg-cream/70">
-                  <ActivityIndicator color="#120C0A" />
+                  <ActivityIndicator color="#0A0A0A" />
                 </View>
               ) : null}
             </View>
           )}
           contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingBottom: 24,
-            gap: 12,
+            paddingHorizontal: 20,
+            paddingBottom: 32,
+            gap: 10,
           }}
           ItemSeparatorComponent={() => <View className="h-0" />}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#120C0A" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#0A0A0A" />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

@@ -21,6 +21,7 @@ import type {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  MyProfile,
   ResendCodeResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
@@ -181,6 +182,18 @@ export const api = {
       request<DeletePostResponse>(`/api/feed/posts/${encodeURIComponent(id)}`, {
         method: "DELETE",
         token,
+      }),
+  },
+
+  profile: {
+    me: (token: string) =>
+      request<MyProfile>("/api/profile/me", { token }),
+
+    updateBio: (token: string, bio: string) =>
+      request<MyProfile>("/api/profile/bio", {
+        method: "PUT",
+        token,
+        body: { bio },
       }),
   },
 

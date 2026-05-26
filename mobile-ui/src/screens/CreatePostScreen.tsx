@@ -55,7 +55,7 @@ export function CreatePostScreen() {
 
         <View className="gap-2">
           <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Looking for
+            What are you posting?
           </Text>
           <View className="flex-row rounded-full bg-cream-2 p-1">
             <Pressable
@@ -69,7 +69,7 @@ export function CreatePostScreen() {
                   postType === "DRIVER" ? "text-white" : "text-muted"
                 }`}
               >
-                Passengers
+                Offering a ride
               </Text>
             </Pressable>
             <Pressable
@@ -83,10 +83,15 @@ export function CreatePostScreen() {
                   postType === "PASSENGER" ? "text-white" : "text-muted"
                 }`}
               >
-                Ride
+                Looking for a ride
               </Text>
             </Pressable>
           </View>
+          <Text className="text-[11px] text-muted">
+            {postType === "DRIVER"
+              ? "You're driving and have seats to share."
+              : "You need a ride from someone driving."}
+          </Text>
         </View>
 
         <TextField
@@ -111,33 +116,37 @@ export function CreatePostScreen() {
           minimumDate={new Date()}
         />
 
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <TextField
-              label="Price (USD)"
-              value={price}
-              onChangeText={setPrice}
-              placeholder="25"
-              keyboardType="decimal-pad"
-            />
-          </View>
-          <View className="flex-1">
-            <TextField
-              label="Seats"
-              value={seats}
-              onChangeText={setSeats}
-              placeholder="3"
-              keyboardType="number-pad"
-            />
-          </View>
-        </View>
+        {postType === "DRIVER" ? (
+          <>
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <TextField
+                  label="Price (USD)"
+                  value={price}
+                  onChangeText={setPrice}
+                  placeholder="25"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View className="flex-1">
+                <TextField
+                  label="Seats"
+                  value={seats}
+                  onChangeText={setSeats}
+                  placeholder="3"
+                  keyboardType="number-pad"
+                />
+              </View>
+            </View>
 
-        <TextField
-          label="Vehicle (optional)"
-          value={vehicleInfo}
-          onChangeText={setVehicleInfo}
-          placeholder="Silver Toyota Camry"
-        />
+            <TextField
+              label="Vehicle (optional)"
+              value={vehicleInfo}
+              onChangeText={setVehicleInfo}
+              placeholder="Silver Toyota Camry"
+            />
+          </>
+        ) : null}
 
         <TextField
           label="Notes (optional)"
@@ -148,7 +157,11 @@ export function CreatePostScreen() {
         />
 
         <View className="pt-2">
-          <Button label="Post ride" onPress={submit} loading={submitting} />
+          <Button
+            label={postType === "DRIVER" ? "Post ride offer" : "Post ride request"}
+            onPress={submit}
+            loading={submitting}
+          />
         </View>
       </ScrollView>
     </Screen>

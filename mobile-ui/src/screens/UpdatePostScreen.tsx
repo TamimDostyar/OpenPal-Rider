@@ -43,6 +43,43 @@ export function UpdatePostScreen() {
   const [description, setDescription] = useState(post.description ?? "");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = () => {
+    Alert.alert(
+      "Delete this post?",
+      "This will remove your post for everyone. You can't undo this.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => void doDelete() },
+      ],
+    );
+  };
+
+  const doDelete = async () => {
+    if (!token) {
+      setError("You're signed out — log in to delete this post.");
+      return;
+    }
+    setError(null);
+    setDeleting(true);
+    try {
+      await api.feed.delete(token, post.id);
+      navigation.goBack();
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        if (err.status === 401 || err.status === 403) {
+          await signOut();
+          return;
+        }
+        setError(err.message);
+      } else {
+        setError("Couldn't delete the post.");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const title = useMemo(() => formatTitle(post), [post]);
 
@@ -53,17 +90,22 @@ export function UpdatePostScreen() {
     }
     if (!origin.trim()) return setError("Where are you leaving from?");
     if (!destination.trim()) return setError("Where are you going?");
-
-    const priceNum = Number(price);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      return setError("Enter a valid price (e.g. 25 or 25.50).");
-    }
-    const seatsNum = Number.parseInt(seats, 10);
-    if (!Number.isFinite(seatsNum) || seatsNum < 1) {
-      return setError("Seats must be at least 1.");
-    }
     if (!departureTime) {
       return setError("Pick when the ride leaves.");
+    }
+
+    const isDriver = postType === "DRIVER";
+    let priceNum = 0;
+    let seatsNum = 1;
+    if (isDriver) {
+      priceNum = Number(price);
+      if (!Number.isFinite(priceNum) || priceNum < 0) {
+        return setError("Enter a valid price (e.g. 25 or 25.50).");
+      }
+      seatsNum = Number.parseInt(seats, 10);
+      if (!Number.isFinite(seatsNum) || seatsNum < 1) {
+        return setError("Seats must be at least 1.");
+      }
     }
 
     setError(null);
@@ -76,7 +118,7 @@ export function UpdatePostScreen() {
         price: priceNum,
         seats: seatsNum,
         departureTime,
-        vehicleInfo: vehicleInfo.trim() || undefined,
+        vehicleInfo: isDriver ? vehicleInfo.trim() || undefined : undefined,
         description: description.trim() || undefined,
       });
 
@@ -126,7 +168,7 @@ export function UpdatePostScreen() {
 
         <View className="gap-2">
           <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
-            Looking for
+            What are you posting?
           </Text>
           <View className="flex-row rounded-full bg-cream-2 p-1">
             <Pressable
@@ -140,7 +182,7 @@ export function UpdatePostScreen() {
                   postType === "DRIVER" ? "text-white" : "text-muted"
                 }`}
               >
-                Passengers
+                Offering a ride
               </Text>
             </Pressable>
             <Pressable
@@ -154,10 +196,15 @@ export function UpdatePostScreen() {
                   postType === "PASSENGER" ? "text-white" : "text-muted"
                 }`}
               >
-                Ride
+                Looking for a ride
               </Text>
             </Pressable>
           </View>
+          <Text className="text-[11px] text-muted">
+            {postType === "DRIVER"
+              ? "You're driving and have seats to share."
+              : "You need a ride from someone driving."}
+          </Text>
         </View>
 
         <TextField
@@ -181,33 +228,37 @@ export function UpdatePostScreen() {
           onChange={setDepartureTime}
         />
 
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <TextField
-              label="Price (USD)"
-              value={price}
-              onChangeText={setPrice}
-              placeholder="25"
-              keyboardType="decimal-pad"
-            />
-          </View>
-          <View className="flex-1">
-            <TextField
-              label="Seats"
-              value={seats}
-              onChangeText={setSeats}
-              placeholder="3"
-              keyboardType="number-pad"
-            />
-          </View>
-        </View>
+        {postType === "DRIVER" ? (
+          <>
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <TextField
+                  label="Price (USD)"
+                  value={price}
+                  onChangeText={setPrice}
+                  placeholder="25"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View className="flex-1">
+                <TextField
+                  label="Seats"
+                  value={seats}
+                  onChangeText={setSeats}
+                  placeholder="3"
+                  keyboardType="number-pad"
+                />
+              </View>
+            </View>
 
-        <TextField
-          label="Vehicle (optional)"
-          value={vehicleInfo}
-          onChangeText={setVehicleInfo}
-          placeholder="Silver Toyota Camry"
-        />
+            <TextField
+              label="Vehicle (optional)"
+              value={vehicleInfo}
+              onChangeText={setVehicleInfo}
+              placeholder="Silver Toyota Camry"
+            />
+          </>
+        ) : null}
 
         <TextField
           label="Notes (optional)"
@@ -217,8 +268,17 @@ export function UpdatePostScreen() {
           multiline
         />
 
-        <View className="pt-2">
+        <View className="gap-3 pt-2">
           <Button label="Save update" onPress={submit} loading={submitting} />
+          <Pressable
+            onPress={confirmDelete}
+            disabled={deleting || submitting}
+            className="items-center rounded-lg border border-coral bg-white py-3"
+          >
+            <Text className="text-sm font-semibold text-coral">
+              {deleting ? "Deleting…" : "Delete post"}
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </Screen>

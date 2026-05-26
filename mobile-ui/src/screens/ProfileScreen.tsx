@@ -4,15 +4,25 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Linking,
+  Modal,
+  Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ApiError, api } from "@/api/client";
-import type { FeedPostResponse, UserRatingsResponse } from "@/api/types";
+import type {
+  FeedPostResponse,
+  MyProfile,
+  UserRatingsResponse,
+} from "@/api/types";
 import { useAuth } from "@/auth/AuthContext";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
@@ -23,18 +33,51 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const BUG_REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSe3zd3k3IRQ-rh_Y12asBzfg4OK1nXxY_6eUa6CdP-KQ1fWxQ/viewform?usp=publish-editor";
+const BIO_MAX = 200;
 
-function decodeClaims(token: string | null): { sub?: string } | null {
-  if (!token) return null;
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
+type LoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; profile: MyProfile; rides: FeedPostResponse[]; ratings: UserRatingsResponse | null }
+  | { kind: "session-expired"; message: string }
+  | { kind: "error"; message: string };
+
+function initialsFor(label: string): string {
+  return (
+    label
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?"
+  );
+}
+
+async function fetchProfile(token: string): Promise<LoadState> {
   try {
-    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
-    const decoded = globalThis.atob ? globalThis.atob(padded) : "";
-    return decoded ? (JSON.parse(decoded) as { sub?: string }) : null;
-  } catch {
-    return null;
+    const profile = await api.profile.me(token);
+    const [ridesR, ratingsR] = await Promise.allSettled([
+      api.feed.myRides(token),
+      api.ratings.forUser(token, profile.username),
+    ]);
+    return {
+      kind: "ready",
+      profile,
+      rides: ridesR.status === "fulfilled" ? ridesR.value : [],
+      ratings: ratingsR.status === "fulfilled" ? ratingsR.value : null,
+    };
+  } catch (e) {
+    if (e instanceof ApiError) {
+      // Only 401/403 mean "this token no longer works." A 404 means the
+      // endpoint itself wasn't found on the server (most often: backend
+      // not rebuilt to include /api/profile/me) — that's a server-side
+      // problem, not an expired session.
+      if (e.status === 401 || e.status === 403) {
+        return { kind: "session-expired", message: e.message || "Your session expired." };
+      }
+      return { kind: "error", message: e.message };
+    }
+    return { kind: "error", message: "Couldn't load your profile." };
   }
 }
 
@@ -42,276 +85,442 @@ export function ProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { token, signOut } = useAuth();
   const { info: vehicle } = useVehicle();
-  const [myRides, setMyRides] = useState<FeedPostResponse[]>([]);
-  const [ratings, setRatings] = useState<UserRatingsResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const email = decodeClaims(token)?.sub ?? null;
+  const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [refreshing, setRefreshing] = useState(false);
+  const [editing, setEditing] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const rides = await api.feed.myRides(token);
-      setMyRides(rides);
-      if (rides[0]?.username) {
-        try {
-          const r = await api.ratings.forUser(token, rides[0].username);
-          setRatings(r);
-        } catch {
-          // ignore — user might just have no ratings yet
-        }
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  const reload = useCallback(
+    async (mode: "initial" | "refresh" = "initial") => {
+      if (!token) return;
+      if (mode === "initial") setState({ kind: "loading" });
+      else setRefreshing(true);
+      const next = await fetchProfile(token);
+      setState(next);
+      setRefreshing(false);
+    },
+    [token],
+  );
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void reload("initial");
+  }, [reload]);
 
   useFocusEffect(
     useCallback(() => {
-      void load();
-    }, [load]),
+      void reload("refresh");
+    }, [reload]),
   );
-
-  const primaryRide = myRides[0] ?? null;
-  const username =
-    primaryRide?.username ?? email?.split("@")[0] ?? "you";
-  const displayName = primaryRide?.name ?? primaryRide?.username ?? "Your profile";
-  const initials = displayName
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-  const bio = primaryRide?.school
-    ? `Student at ${primaryRide.school}`
-    : "No bio yet.";
 
   const openBugReport = async () => {
     try {
-      const supported = await Linking.canOpenURL(BUG_REPORT_URL);
-      if (supported) {
-        await Linking.openURL(BUG_REPORT_URL);
-      } else {
-        Alert.alert("Can't open link", BUG_REPORT_URL);
-      }
+      const ok = await Linking.canOpenURL(BUG_REPORT_URL);
+      if (ok) await Linking.openURL(BUG_REPORT_URL);
+      else Alert.alert("Can't open link", BUG_REPORT_URL);
     } catch {
       Alert.alert("Can't open link", BUG_REPORT_URL);
     }
   };
 
+  if (state.kind === "loading") {
+    return (
+      <Screen>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator color="#0A0A0A" />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (state.kind === "session-expired") {
+    return (
+      <Screen>
+        <View className="flex-1 items-center justify-center gap-3 px-6">
+          <Text className="text-xl font-semibold text-ink">Session expired</Text>
+          <Text className="text-center text-sm text-muted">
+            {state.message}. Sign in again to keep using OpenPal.
+          </Text>
+          <Pressable
+            onPress={signOut}
+            className="mt-2 rounded-full bg-ink px-6 py-2.5"
+          >
+            <Text className="text-sm font-semibold text-white">Sign in again</Text>
+          </Pressable>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <Screen>
+        <View className="flex-1 items-center justify-center gap-3 px-6">
+          <Text className="text-base font-semibold text-ink">Couldn't load profile.</Text>
+          <Text className="text-center text-sm text-muted">{state.message}</Text>
+          <Pressable
+            onPress={() => void reload("initial")}
+            className="mt-2 rounded-full bg-ink px-5 py-2"
+          >
+            <Text className="text-sm font-semibold text-white">Try again</Text>
+          </Pressable>
+          <Pressable onPress={signOut} hitSlop={8} className="py-2">
+            <Text className="text-xs font-semibold text-muted">Sign out</Text>
+          </Pressable>
+        </View>
+      </Screen>
+    );
+  }
+
+  const { profile, rides, ratings } = state;
+  const displayName = profile.name ?? profile.username;
+  const bio = profile.bio?.trim() ?? "";
+  const ratingAvg = ratings && ratings.count > 0 ? ratings.average.toFixed(1) : "—";
+  const ratingCount = ratings?.count ?? 0;
+
   return (
     <Screen className="px-0">
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32, gap: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 32, gap: 20 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => void reload("refresh")}
+            tintColor="#0A0A0A"
+          />
+        }
       >
-        <View className="pt-2">
-          <Text className="text-2xl font-semibold text-ink">Profile</Text>
-          {email ? <Text className="text-xs text-muted">{email}</Text> : null}
+        <View className="flex-row items-center justify-between">
+          <Text className="text-3xl font-bold tracking-tight text-ink">Profile</Text>
+          <Pressable onPress={signOut} hitSlop={8} className="py-2">
+            <Text className="text-xs font-semibold text-muted">Sign out</Text>
+          </Pressable>
         </View>
 
-        {error ? <FormError message={error} /> : null}
-
-        <View className="gap-4 rounded-3xl border border-line bg-white p-5">
-          <View className="flex-row items-center gap-4">
-            <View className="h-16 w-16 items-center justify-center rounded-full bg-cream-2">
-              <Text className="text-xl font-semibold text-ink">
-                {initials || "?"}
-              </Text>
-            </View>
-            <View className="flex-1">
-              <Text className="text-lg font-semibold text-ink" numberOfLines={1}>
-                {displayName}
-              </Text>
-              <Text className="text-xs text-muted">@{username}</Text>
-              <Text className="text-xs text-ink-2" numberOfLines={2}>
-                {bio}
-              </Text>
-            </View>
+        <View className="flex-row items-center gap-4">
+          <View className="h-20 w-20 items-center justify-center rounded-full bg-cream-2">
+            <Text className="text-2xl font-semibold text-ink">{initialsFor(displayName)}</Text>
           </View>
-
-          <View className="flex-row items-center justify-between rounded-2xl bg-cream-2 px-4 py-3">
-            <View className="items-center">
-              <Text className="text-base font-semibold text-ink">{myRides.length}</Text>
-              <Text className="text-[10px] uppercase tracking-wider text-muted">
-                Posts
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-base font-semibold text-ink">
-                {ratings ? ratings.average.toFixed(1) : "--"}
-              </Text>
-              <Text className="text-[10px] uppercase tracking-wider text-muted">
-                Rating
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-base font-semibold text-ink">
-                {ratings ? ratings.count : 0}
-              </Text>
-              <Text className="text-[10px] uppercase tracking-wider text-muted">
-                Reviews
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View className="gap-2 rounded-3xl border border-line bg-white p-5">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-ink">Ratings</Text>
-            {ratings ? (
-              <Text className="text-xs text-muted">
-                {ratings.count} review{ratings.count === 1 ? "" : "s"}
+          <View className="flex-1">
+            <Text className="text-lg font-semibold text-ink" numberOfLines={1}>
+              {displayName}
+            </Text>
+            <Text className="text-xs text-muted" numberOfLines={1}>
+              @{profile.username}
+            </Text>
+            {profile.school ? (
+              <Text className="mt-0.5 text-xs text-muted" numberOfLines={1}>
+                {profile.school}
               </Text>
             ) : null}
           </View>
-          {ratings ? (
-            <>
-              <Text className="text-3xl font-semibold text-ink">
-                {ratings.average.toFixed(1)}
-              </Text>
-              {ratings.ratings.slice(0, 3).map((r) => (
-                <View key={r.id} className="border-t border-line pt-2">
-                  <Text className="text-xs text-muted">
-                    @{r.raterUsername} · {"★".repeat(r.stars)}
-                  </Text>
-                  {r.text ? (
-                    <Text className="text-sm text-ink-2">{r.text}</Text>
-                  ) : null}
-                </View>
-              ))}
-            </>
+        </View>
+
+        <View className="flex-row items-center justify-between rounded-2xl border border-line bg-cream-2 px-4 py-3">
+          <Stat label="Posts" value={String(rides.length)} />
+          <View className="h-8 w-px bg-line" />
+          <Stat label="Rating" value={ratingAvg} />
+          <View className="h-8 w-px bg-line" />
+          <Stat label="Reviews" value={String(ratingCount)} />
+        </View>
+
+        <View className="gap-1">
+          <Text className="text-xs font-semibold uppercase tracking-wider text-muted">Bio</Text>
+          {bio ? (
+            <Text className="text-sm leading-5 text-ink-2">{bio}</Text>
           ) : (
-            <Text className="text-sm text-muted">No ratings yet.</Text>
+            <Text className="text-sm text-muted">No bio yet.</Text>
           )}
         </View>
 
-        <View className="gap-3 rounded-3xl border border-line bg-white p-5">
-          <Text className="text-base font-semibold text-ink">My posts</Text>
-          {loading ? (
-            <View className="items-center py-6">
-              <ActivityIndicator color="#120C0A" />
-            </View>
-          ) : myRides.length === 0 ? (
-            <Text className="text-sm text-muted">No rides posted yet.</Text>
-          ) : (
-            myRides.map((r) => {
-              const postType = r.postType ?? "DRIVER";
-              const isPassenger = postType === "PASSENGER";
-              const cardTone = isPassenger
-                ? "border-passenger-border bg-passenger-bg"
-                : "border-driver-border bg-driver-bg";
-              const badgeTone = isPassenger ? "bg-passenger" : "bg-driver";
-              const badgeLabel = isPassenger
-                ? "Looking for rides"
-                : "Looking for passengers";
-              return (
-                <View key={r.id} className={`gap-2 rounded-2xl border p-4 ${cardTone}`}>
-                <View className="flex-row items-start justify-between gap-3">
-                  <View className="flex-1">
-                    <Text className="text-sm font-semibold text-ink">
-                      {r.origin} → {r.destination}
-                    </Text>
-                    <Text className="text-xs text-muted">
-                      {new Date(r.departureTime).toLocaleString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() => navigation.navigate("UpdatePost", { post: r })}
-                    className="rounded-full border border-line bg-white px-3 py-1"
-                  >
-                    <Text className="text-xs font-semibold text-ink">Update</Text>
-                  </Pressable>
-                </View>
-                <View className={`self-start rounded-full px-2.5 py-1 ${badgeTone}`}>
-                  <Text className="text-[10px] font-semibold text-white">
-                    {badgeLabel}
-                  </Text>
-                </View>
-                <View className="flex-row flex-wrap items-center gap-2">
-                  <Text className="text-xs text-ink-2">
-                    {r.seats} seat{r.seats === 1 ? "" : "s"}
-                  </Text>
-                  <Text className="text-xs text-muted">·</Text>
-                  <Text className="text-xs text-ink-2">${r.price.toFixed(2)}</Text>
-                  {r.vehicleInfo ? (
-                    <>
-                      <Text className="text-xs text-muted">·</Text>
-                      <Text className="text-xs text-muted" numberOfLines={1}>
-                        {r.vehicleInfo}
-                      </Text>
-                    </>
-                  ) : null}
-                </View>
-                </View>
-              );
-            })
-          )}
-        </View>
-
-        <View className="gap-3 rounded-3xl border border-line bg-white p-5">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-ink">Driver</Text>
-            {vehicle?.driverVerified ? (
-              <View className="rounded-full bg-sage px-2 py-0.5">
-                <Text className="text-[10px] font-semibold text-cream">✓ verified</Text>
-              </View>
-            ) : (
-              <Text className="text-xs text-muted">Not verified</Text>
-            )}
-          </View>
-          {vehicle?.make ? (
-            <Text className="text-sm text-ink-2">
-              {vehicle.color} {vehicle.make} {vehicle.model} · {vehicle.licensePlate}
-            </Text>
-          ) : (
-            <Text className="text-sm text-muted">
-              Add your vehicle to post rides and earn the verified badge.
-            </Text>
-          )}
+        <View className="flex-row gap-2">
+          <Pressable
+            onPress={() => setEditing(true)}
+            className="flex-1 items-center rounded-full border border-line bg-cream py-2.5"
+          >
+            <Text className="text-sm font-semibold text-ink">Edit profile</Text>
+          </Pressable>
           <Pressable
             onPress={() => navigation.navigate("Vehicle")}
-            className="self-start rounded-full bg-ink px-4 py-2"
+            className="flex-1 items-center rounded-full border border-line bg-cream py-2.5"
           >
-            <Text className="text-sm font-semibold text-cream">
+            <Text className="text-sm font-semibold text-ink">
               {vehicle?.make ? "Edit vehicle" : "Add vehicle"}
             </Text>
           </Pressable>
         </View>
 
-        <View className="gap-2 rounded-3xl border border-line bg-white p-5">
-          <Text className="text-base font-semibold text-ink">Support</Text>
-          <Pressable onPress={openBugReport} className="py-2">
-            <Text className="text-sm font-semibold text-ink-2">
-              Report an issue / bug →
+        {vehicle?.driverVerified ? (
+          <View className="self-start rounded-full bg-sage px-3 py-1">
+            <Text className="text-[10px] font-semibold text-white">✓ verified driver</Text>
+          </View>
+        ) : null}
+
+        <View className="gap-2 border-t border-line pt-4">
+          <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+            Your posts
+          </Text>
+          {rides.length === 0 ? (
+            <View className="items-center py-6">
+              <Text className="text-sm text-muted">No posts yet.</Text>
+            </View>
+          ) : (
+            rides.map((r) => (
+              <PostRow
+                key={r.id}
+                post={r}
+                onPress={() => navigation.navigate("UpdatePost", { post: r })}
+              />
+            ))
+          )}
+        </View>
+
+        {ratings && ratings.count > 0 ? (
+          <View className="gap-2 border-t border-line pt-4">
+            <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+              Recent reviews
             </Text>
-            <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
+            {ratings.ratings.slice(0, 3).map((r) => (
+              <View key={r.id} className="rounded-2xl border border-line bg-cream p-3">
+                <Text className="text-xs text-muted">
+                  @{r.raterUsername} · {"★".repeat(r.stars)}
+                </Text>
+                {r.text ? <Text className="text-sm text-ink-2">{r.text}</Text> : null}
+              </View>
+            ))}
+          </View>
+        ) : null}
+
+        <Pressable onPress={openBugReport} className="mt-2 border-t border-line pt-4">
+          <Text className="text-sm font-semibold text-ink-2">Report an issue / bug →</Text>
+          <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
+        </Pressable>
+      </ScrollView>
+
+      <EditBioModal
+        visible={editing}
+        token={token}
+        initialBio={profile.bio ?? ""}
+        displayName={displayName}
+        onClose={() => setEditing(false)}
+        onSaved={(updated) => {
+          setState({ kind: "ready", profile: updated, rides, ratings });
+          setEditing(false);
+        }}
+      />
+    </Screen>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-1 items-center">
+      <Text className="text-lg font-semibold text-ink">{value}</Text>
+      <Text className="mt-0.5 text-[11px] text-muted">{label}</Text>
+    </View>
+  );
+}
+
+function PostRow({ post, onPress }: { post: FeedPostResponse; onPress: () => void }) {
+  const isPassenger = (post.postType ?? "DRIVER") === "PASSENGER";
+  const dot = isPassenger ? "bg-passenger" : "bg-driver";
+  const accent = isPassenger ? "text-passenger" : "text-driver";
+  const tag = isPassenger ? "Looking" : "Offering";
+  const when = new Date(post.departureTime).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return (
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center gap-3 rounded-2xl border border-line bg-cream p-3"
+    >
+      <View className="flex-1">
+        <View className="mb-1 flex-row items-center gap-1.5">
+          <View className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+          <Text className={`text-[10px] font-semibold uppercase tracking-wider ${accent}`}>
+            {tag}
+          </Text>
+        </View>
+        <Text className="text-sm font-semibold text-ink" numberOfLines={1}>
+          {post.origin} → {post.destination}
+        </Text>
+        <Text className="mt-0.5 text-xs text-muted" numberOfLines={1}>
+          {when}
+          {!isPassenger
+            ? ` · $${post.price.toFixed(0)} · ${post.seats} seat${post.seats === 1 ? "" : "s"}`
+            : ""}
+        </Text>
+      </View>
+      <Text className="text-xs font-semibold text-ink">Edit</Text>
+    </Pressable>
+  );
+}
+
+interface EditBioModalProps {
+  visible: boolean;
+  token: string | null;
+  initialBio: string;
+  displayName: string;
+  onClose: () => void;
+  onSaved: (profile: MyProfile) => void;
+}
+
+function EditBioModal({
+  visible,
+  token,
+  initialBio,
+  displayName,
+  onClose,
+  onSaved,
+}: EditBioModalProps) {
+  const [bio, setBio] = useState(initialBio);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (visible) {
+      setBio(initialBio);
+      setErr(null);
+    }
+  }, [visible, initialBio]);
+
+  const save = async () => {
+    if (!token) return;
+    if (bio.length > BIO_MAX) {
+      setErr(`Bio must be ${BIO_MAX} characters or fewer.`);
+      return;
+    }
+    setSaving(true);
+    setErr(null);
+    try {
+      const updated = await api.profile.updateBio(token, bio.trim());
+      onSaved(updated);
+    } catch (e) {
+      if (e instanceof ApiError) setErr(e.message);
+      else setErr("Couldn't save bio.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle={Platform.OS === "ios" ? "pageSheet" : "fullScreen"}
+      onRequestClose={onClose}
+    >
+      <EditBioBody
+        bio={bio}
+        setBio={setBio}
+        save={save}
+        saving={saving}
+        err={err}
+        onClose={onClose}
+        displayName={displayName}
+      />
+    </Modal>
+  );
+}
+
+function EditBioBody({
+  bio,
+  setBio,
+  save,
+  saving,
+  err,
+  onClose,
+  displayName,
+}: {
+  bio: string;
+  setBio: (next: string) => void;
+  save: () => void;
+  saving: boolean;
+  err: string | null;
+  onClose: () => void;
+  displayName: string;
+}) {
+  const insets = useSafeAreaInsets();
+  // iOS pageSheet handles its own top inset; Android fullScreen needs ours.
+  const headerTopPad = Platform.OS === "ios" ? 14 : Math.max(insets.top, 12) + 6;
+
+  return (
+    <SafeAreaView
+      className="flex-1 bg-cream"
+      edges={Platform.OS === "ios" ? ["bottom"] : ["top", "bottom"]}
+    >
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View
+          className="flex-row items-center justify-between border-b border-line px-5 pb-4"
+          style={{ paddingTop: headerTopPad }}
+        >
+          <Pressable onPress={onClose} hitSlop={10} className="min-w-[64px] py-1">
+            <Text className="text-sm font-semibold text-muted">Cancel</Text>
+          </Pressable>
+          <Text className="text-base font-semibold text-ink">Edit profile</Text>
+          <Pressable
+            onPress={save}
+            disabled={saving}
+            hitSlop={10}
+            className="min-w-[64px] items-end py-1"
+          >
+            <Text className={`text-sm font-semibold ${saving ? "text-muted" : "text-ink"}`}>
+              {saving ? "Saving…" : "Done"}
+            </Text>
           </Pressable>
         </View>
 
-        <Pressable
-          onPress={signOut}
-          className="self-stretch rounded-full border border-line bg-white py-3"
+        <ScrollView
+          contentContainerStyle={{ padding: 20, gap: 20 }}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text className="text-center text-sm font-semibold text-coral-dk">
-            Sign out
-          </Text>
-        </Pressable>
-      </ScrollView>
-    </Screen>
+          <View className="items-center gap-2">
+            <View className="h-20 w-20 items-center justify-center rounded-full bg-cream-2">
+              <Text className="text-2xl font-semibold text-ink">
+                {(displayName[0] ?? "?").toUpperCase()}
+              </Text>
+            </View>
+            <Text className="text-xs text-muted">Profile photo coming soon</Text>
+          </View>
+
+          {err ? <FormError message={err} /> : null}
+
+          <View className="gap-2">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+                Bio
+              </Text>
+              <Text className="text-[10px] text-muted">
+                {bio.length}/{BIO_MAX}
+              </Text>
+            </View>
+            <TextInput
+              value={bio}
+              onChangeText={(t) => setBio(t.slice(0, BIO_MAX))}
+              placeholder="Tell people about yourself"
+              placeholderTextColor="#6B7076"
+              multiline
+              style={{
+                minHeight: 120,
+                padding: 14,
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: "#E4E4E7",
+                backgroundColor: "#FFFFFF",
+                color: "#0A0A0A",
+                fontSize: 15,
+                lineHeight: 21,
+                textAlignVertical: "top",
+              }}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

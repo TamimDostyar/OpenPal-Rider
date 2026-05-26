@@ -17,7 +17,7 @@ interface DateFieldProps {
   maximumDate?: Date;
   minimumDate?: Date;
 }
-const ACCENT = "#8B1C18";
+const ACCENT = "#0A0A0A";
 function toDate(value: string): Date {
   const parsed = value ? new Date(`${value}T00:00:00`) : new Date();
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;

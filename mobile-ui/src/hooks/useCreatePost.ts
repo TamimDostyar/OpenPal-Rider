@@ -34,17 +34,22 @@ export function useCreatePost() {
     }
     if (!origin.trim()) return setError("Where are you leaving from?");
     if (!destination.trim()) return setError("Where are you going?");
-
-    const priceNum = Number(price);
-    if (!Number.isFinite(priceNum) || priceNum < 0) {
-      return setError("Enter a valid price (e.g. 25 or 25.50).");
-    }
-    const seatsNum = Number.parseInt(seats, 10);
-    if (!Number.isFinite(seatsNum) || seatsNum < 1) {
-      return setError("Seats must be at least 1.");
-    }
     if (!departureTime) {
       return setError("Pick when the ride leaves.");
+    }
+
+    const isDriver = postType === "DRIVER";
+    let priceNum = 0;
+    let seatsNum = 1;
+    if (isDriver) {
+      priceNum = Number(price);
+      if (!Number.isFinite(priceNum) || priceNum < 0) {
+        return setError("Enter a valid price (e.g. 25 or 25.50).");
+      }
+      seatsNum = Number.parseInt(seats, 10);
+      if (!Number.isFinite(seatsNum) || seatsNum < 1) {
+        return setError("Seats must be at least 1.");
+      }
     }
 
     setError(null);
@@ -57,7 +62,7 @@ export function useCreatePost() {
         price: priceNum,
         seats: seatsNum,
         departureTime,
-        vehicleInfo: vehicleInfo.trim() || undefined,
+        vehicleInfo: isDriver ? vehicleInfo.trim() || undefined : undefined,
         description: description.trim() || undefined,
       });
       navigation.goBack();

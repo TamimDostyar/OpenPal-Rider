@@ -52,6 +52,9 @@ public class CreateProfileDB {
     @ColumnDefault("false")
     private boolean driverVerified = false;
 
+    @Column(length = 200)
+    private String bio;
+
     protected CreateProfileDB() {
     }
 
@@ -179,5 +182,11 @@ public class CreateProfileDB {
     }
     public void setDriverVerified(boolean driverVerified) {
         this.driverVerified = driverVerified;
+    }
+    public String getBio() {
+        return this.bio;
+    }
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

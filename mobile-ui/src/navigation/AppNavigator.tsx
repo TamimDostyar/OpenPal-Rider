@@ -28,7 +28,7 @@ export function AppNavigator() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator color="#120C0A" />
+        <ActivityIndicator color="#0A0A0A" />
       </View>
     );
   }
@@ -37,7 +37,7 @@ export function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#F7F1EB" },
+        contentStyle: { backgroundColor: "#FFFFFF" },
       }}
     >
       {token ? (
