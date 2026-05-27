@@ -26,8 +26,25 @@
     },
     "plugins": [
       "expo-asset",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./asset/app-icon.png",
+          "color": "#F7F1EB"
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "OpenPal needs calendar access to add your accepted rides to your schedule."
+        }
+      ]
     ],
+    "notification": {
+      "icon": "./asset/app-icon.png",
+      "color": "#F7F1EB"
+    },
     "extra": {
       "eas": {
         "projectId": "f8ba6cea-256e-4f83-bf0d-7d856538b217"

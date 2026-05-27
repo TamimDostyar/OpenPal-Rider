@@ -21,6 +21,7 @@ public class BookingResponse {
     private String origin;
     private String destination;
     private LocalDateTime departureTime;
+    private String postType;
 
     public BookingResponse() {
     }

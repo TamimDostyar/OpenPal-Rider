@@ -45,6 +45,16 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSCalendarsUsageDescription</key>
+    <string>OpenPal needs calendar access to add your accepted rides to your schedule.</string>
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>OpenPal needs calendar access to add your accepted rides to your schedule.</string>
+    <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+    <string>OpenPal needs calendar access to add your accepted rides to your schedule.</string>
+    <key>NSRemindersUsageDescription</key>
+    <string>OpenPal needs reminder access to nudge you before a ride starts.</string>
+    <key>NSRemindersFullAccessUsageDescription</key>
+    <string>OpenPal needs reminder access to nudge you before a ride starts.</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>

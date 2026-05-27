@@ -10,6 +10,7 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { resetToken?: string };
   AuthedTabs: { initialTab?: TabKey } | undefined;
+  Permissions: undefined;
   CreatePost: undefined;
   UpdatePost: { post: FeedPostResponse };
   Search: undefined;

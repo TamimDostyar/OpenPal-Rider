@@ -3,7 +3,9 @@ import React from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useAuth } from "@/auth/AuthContext";
+import { useOnboarding } from "@/auth/OnboardingContext";
 import { AuthedTabsScreen } from "@/screens/AuthedTabsScreen";
+import { PermissionsScreen } from "@/screens/PermissionsScreen";
 import { ConversationScreen } from "@/screens/ConversationScreen";
 import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
@@ -25,8 +27,9 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function AppNavigator() {
   const { token, loading } = useAuth();
+  const { onboarded, loading: onboardingLoading } = useOnboarding();
 
-  if (loading) {
+  if (loading || onboardingLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
         <ActivityIndicator color="#0A0A0A" />
@@ -42,6 +45,7 @@ export function AppNavigator() {
       }}
     >
       {token ? (
+        onboarded ? (
         <>
           <Stack.Screen name="AuthedTabs" component={AuthedTabsScreen} />
           <Stack.Screen
@@ -77,6 +81,9 @@ export function AppNavigator() {
             options={{ presentation: "modal" }}
           />
         </>
+        ) : (
+          <Stack.Screen name="Permissions" component={PermissionsScreen} />
+        )
       ) : (
         <>
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
