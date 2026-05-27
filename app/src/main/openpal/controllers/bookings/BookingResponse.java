@@ -47,6 +47,10 @@ public class BookingResponse {
         this.departureTime = departureTime;
     }
 
+    public void setPostType(String postType) {
+        this.postType = postType;
+    }
+
     public UUID getId() { return this.id; }
     public UUID getPostId() { return this.postId; }
     public String getRiderUsername() { return this.riderUsername; }
@@ -60,4 +64,5 @@ public class BookingResponse {
     public String getOrigin() { return this.origin; }
     public String getDestination() { return this.destination; }
     public LocalDateTime getDepartureTime() { return this.departureTime; }
+    public String getPostType() { return this.postType; }
 }
