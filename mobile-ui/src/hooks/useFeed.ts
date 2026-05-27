@@ -33,10 +33,16 @@ function emailFromToken(token: string): string | null {
   }
 }
 
+// A booking in any of these states means "this post is mine for now" — hide it
+// from the feed. DECLINED / CANCELLED let the post come back so the user can
+// try again.
+const ACTIVE_BOOKING_STATES = new Set(["REQUESTED", "ACCEPTED", "COMPLETED"]);
+
 export function useFeed(): UseFeedResult {
   const { token, signOut } = useAuth();
   const { filters, setFilters } = useFeedFilters();
   const [posts, setPosts] = useState<FeedPostResponse[]>([]);
+  const [bookedPostIds, setBookedPostIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,12 +67,31 @@ export function useFeed(): UseFeedResult {
       else setRefreshing(true);
       setError(null);
       try {
-        const next = filters
-          ? await api.feed.search(token, filters)
-          : await api.feed.list(token);
-        const filtered = myEmail
-          ? next.filter((post) => post.email.toLowerCase() !== myEmail.toLowerCase())
-          : next;
+        const [feedResult, bookingsResult] = await Promise.allSettled([
+          filters ? api.feed.search(token, filters) : api.feed.list(token),
+          api.bookings.mine(token),
+        ]);
+        if (feedResult.status === "rejected") throw feedResult.reason;
+        const next = feedResult.value;
+
+        // Build the set of post ids the user has actively booked. If the
+        // bookings call fails (network blip, 5xx), fall back to whatever we
+        // already had so the feed doesn't suddenly show ghosts.
+        const bookedIds =
+          bookingsResult.status === "fulfilled"
+            ? new Set(
+                bookingsResult.value
+                  .filter((b) => ACTIVE_BOOKING_STATES.has(b.status))
+                  .map((b) => b.postId),
+              )
+            : bookedPostIds;
+        setBookedPostIds(bookedIds);
+
+        const filtered = next.filter((post) => {
+          if (myEmail && post.email.toLowerCase() === myEmail.toLowerCase()) return false;
+          if (bookedIds.has(post.id)) return false;
+          return true;
+        });
         setPosts(filtered);
       } catch (err: unknown) {
         if (err instanceof ApiError) {
@@ -121,6 +146,14 @@ export function useFeed(): UseFeedResult {
       if (!token) return false;
       try {
         await api.bookings.request(token, { postId, seatsRequested: seats });
+        // Optimistically hide the post and remember it as booked, so it stays
+        // hidden even before the next bookings.mine reload settles.
+        setBookedPostIds((curr) => {
+          const next = new Set(curr);
+          next.add(postId);
+          return next;
+        });
+        setPosts((curr) => curr.filter((p) => p.id !== postId));
         return true;
       } catch (err: unknown) {
         if (err instanceof ApiError) {

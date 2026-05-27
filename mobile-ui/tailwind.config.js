@@ -29,12 +29,14 @@ module.exports = {
         rose: "#9F1239",
 
         // Semantic ride tones.
+        //  driver    = OFFERING a ride (green)
+        //  passenger = LOOKING for a ride (red)
         driver: "#0E7C66",
         "driver-bg": "#E6F4F0",
         "driver-border": "#C2E2D9",
-        passenger: "#C2410C",
-        "passenger-bg": "#FDF1E6",
-        "passenger-border": "#F4D5B8",
+        passenger: "#DC2626",
+        "passenger-bg": "#FEE7E7",
+        "passenger-border": "#F4C2C2",
       },
     },
   },

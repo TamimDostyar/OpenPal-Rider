@@ -73,6 +73,9 @@ export function HomeScreen() {
   const onMessage = (post: FeedPostResponse) =>
     navigation.navigate("Conversation", { otherUsername: post.username });
 
+  const onViewProfile = (post: FeedPostResponse) =>
+    navigation.navigate("UserProfile", { username: post.username });
+
   return (
     <Screen className="px-0">
       <View className="flex-row items-end justify-between gap-3 px-5 pb-4 pt-2">
@@ -134,6 +137,7 @@ export function HomeScreen() {
                 onBook={onBook}
                 onReport={onReport}
                 onMessage={onMessage}
+                onViewProfile={onViewProfile}
               />
               {booking === item.id ? (
                 <View className="absolute inset-0 items-center justify-center rounded-3xl bg-cream/70">

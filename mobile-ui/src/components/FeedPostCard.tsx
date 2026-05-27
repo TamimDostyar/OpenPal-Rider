@@ -10,6 +10,7 @@ interface FeedPostCardProps {
   onBook?: (post: FeedPostResponse) => void;
   onReport?: (post: FeedPostResponse) => void;
   onMessage?: (post: FeedPostResponse) => void;
+  onViewProfile?: (post: FeedPostResponse) => void;
 }
 
 function formatDeparture(iso: string): string {
@@ -45,6 +46,7 @@ export function FeedPostCard({
   onBook,
   onReport,
   onMessage,
+  onViewProfile,
 }: FeedPostCardProps) {
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
@@ -126,22 +128,30 @@ export function FeedPostCard({
 
       {/* Footer: poster + actions */}
       <View className="flex-row items-center gap-3 border-t border-line-2 pt-3">
-        <View className="h-8 w-8 items-center justify-center rounded-full bg-cream-2">
-          <Text className="text-xs font-semibold text-ink">{initial}</Text>
-        </View>
-        <View className="flex-1">
-          <View className="flex-row items-center gap-1.5">
-            <Text className="text-[13px] font-semibold text-ink" numberOfLines={1}>
-              {displayName}
-            </Text>
-            {post.driverVerified ? (
-              <Text className="text-[10px] font-semibold text-sage">✓</Text>
-            ) : null}
+        <Pressable
+          onPress={onViewProfile ? () => onViewProfile(post) : undefined}
+          disabled={!onViewProfile}
+          hitSlop={6}
+          className="flex-1 flex-row items-center gap-3"
+        >
+          <View className="h-8 w-8 items-center justify-center rounded-full bg-cream-2">
+            <Text className="text-xs font-semibold text-ink">{initial}</Text>
           </View>
-          <Text className="text-[11px] text-muted" numberOfLines={1}>
-            @{post.username}
-          </Text>
-        </View>
+          <View className="flex-1">
+            <View className="flex-row items-center gap-1.5">
+              <Text className="text-[13px] font-semibold text-ink" numberOfLines={1}>
+                {displayName}
+              </Text>
+              {post.driverVerified ? (
+                <Text className="text-[10px] font-semibold text-sage">✓</Text>
+              ) : null}
+            </View>
+            <Text className="text-[11px] text-muted" numberOfLines={1}>
+              @{post.username}
+              {onViewProfile ? "  ›" : ""}
+            </Text>
+          </View>
+        </Pressable>
 
         {isOwner && onDelete ? (
           <Pressable onPress={() => onDelete(post.id)} hitSlop={8} className="px-2 py-1">

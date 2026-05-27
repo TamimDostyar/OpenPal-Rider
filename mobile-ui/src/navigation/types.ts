@@ -19,4 +19,5 @@ export type RootStackParamList = {
     | { kind: "post"; postId: string; postSummary?: string }
     | { kind: "user"; username: string };
   Vehicle: undefined;
+  UserProfile: { username: string };
 };

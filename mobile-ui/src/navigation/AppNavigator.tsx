@@ -14,6 +14,7 @@ import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
 import { SearchScreen } from "@/screens/SearchScreen";
 import { SignupScreen } from "@/screens/SignupScreen";
 import { UpdatePostScreen } from "@/screens/UpdatePostScreen";
+import { UserProfileScreen } from "@/screens/UserProfileScreen";
 import { VehicleScreen } from "@/screens/VehicleScreen";
 import { VerifyEmailScreen } from "@/screens/VerifyEmailScreen";
 import { WelcomeScreen } from "@/screens/WelcomeScreen";
@@ -59,6 +60,7 @@ export function AppNavigator() {
             options={{ presentation: "modal" }}
           />
           <Stack.Screen name="Conversation" component={ConversationScreen} />
+          <Stack.Screen name="UserProfile" component={UserProfileScreen} />
           <Stack.Screen
             name="RateRide"
             component={RateRideScreen}
