@@ -39,28 +39,32 @@ export function HomeScreen() {
   const schoolDomain = myEmail?.split("@")[1] ?? null;
 
   const onBook = async (post: FeedPostResponse) => {
-    Alert.alert(
-      "Book seat?",
-      `Request 1 seat from @${post.username}, ${post.origin} → ${post.destination}.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Book",
-          onPress: async () => {
-            setBooking(post.id);
-            const ok = await bookPost(post.id, 1);
-            setBooking(null);
-            if (ok) {
-              Alert.alert(
-                "Requested",
-                "The driver was notified. You can track this in Bookings.",
-              );
-              await refresh();
-            }
-          },
+    const isPassengerPost = post.postType === "PASSENGER";
+    const title = isPassengerPost ? "Offer this ride?" : "Book seat?";
+    const body = isPassengerPost
+      ? `Offer to drive @${post.username}, ${post.origin} → ${post.destination}.`
+      : `Request 1 seat from @${post.username}, ${post.origin} → ${post.destination}.`;
+    const confirmLabel = isPassengerPost ? "Offer" : "Book";
+    const successTitle = isPassengerPost ? "Offer sent" : "Requested";
+    const successBody = isPassengerPost
+      ? "The rider was notified. You can track this in Bookings."
+      : "The driver was notified. You can track this in Bookings.";
+
+    Alert.alert(title, body, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: confirmLabel,
+        onPress: async () => {
+          setBooking(post.id);
+          const ok = await bookPost(post.id, 1);
+          setBooking(null);
+          if (ok) {
+            Alert.alert(successTitle, successBody);
+            await refresh();
+          }
         },
-      ],
-    );
+      },
+    ]);
   };
 
   const onReport = (post: FeedPostResponse) =>

@@ -135,15 +135,12 @@ public class MessagingSysManager {
             return AuthSupport.error(HttpStatus.NOT_FOUND, "user not found");
         }
         CreateProfileDB other = otherOpt.get();
-        List<MessagingSysDB> convo = messageRepo.findConversation(caller.getEmail(), other.getEmail());
-
         LocalDateTime now = LocalDateTime.now();
+        messageRepo.markConversationRead(caller.getEmail(), other.getEmail(), now);
+
+        List<MessagingSysDB> convo = messageRepo.findConversation(caller.getEmail(), other.getEmail());
         List<MessagingSysResponse> out = new ArrayList<>(convo.size());
         for (MessagingSysDB m : convo) {
-            if (m.getRecipientEmail().equalsIgnoreCase(caller.getEmail()) && m.getReadAt() == null) {
-                m.setReadAt(now);
-                messageRepo.save(m);
-            }
             out.add(MessagingSysResponse.from(m));
         }
         return ResponseEntity.ok(out);

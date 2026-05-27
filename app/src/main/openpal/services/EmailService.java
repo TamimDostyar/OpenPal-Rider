@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendVerificationCode(String toEmail, String code) {
         send(toEmail, "Your OpenPal verification code",
             "Welcome to OpenPal!\n\n"
@@ -26,6 +28,7 @@ public class EmailService {
             + "It expires in 10 minutes. If you didn't sign up, you can ignore this email.");
     }
 
+    @Async
     public void sendBookingRequested(String driverEmail, String riderUsername,
                                      String origin, String destination, int seats) {
         send(driverEmail, "New ride request from @" + riderUsername,
@@ -34,6 +37,7 @@ public class EmailService {
             + "Open OpenPal to accept or decline.");
     }
 
+    @Async
     public void sendRideOffer(String riderEmail, String driverUsername,
                               String origin, String destination) {
         send(riderEmail, "@" + driverUsername + " offered you a ride",
@@ -42,6 +46,7 @@ public class EmailService {
             + "Open OpenPal to accept or decline.");
     }
 
+    @Async
     public void sendBookingResponse(String riderEmail, boolean accepted,
                                     String driverUsername, String origin, String destination) {
         String verb = accepted ? "accepted" : "declined";
@@ -53,6 +58,7 @@ public class EmailService {
                 : "Browse the feed for other rides going your way."));
     }
 
+    @Async
     public void sendNewDirectMessage(String recipientEmail, String senderUsername, String preview) {
         String clipped = preview == null ? "" : (preview.length() > 120
                 ? preview.substring(0, 117) + "..."
@@ -62,6 +68,7 @@ public class EmailService {
             + "\n\nReply in OpenPal.");
     }
 
+    @Async
     public void sendRatingPrompt(String toEmail, String otherPartyUsername,
                                  String origin, String destination) {
         send(toEmail, "Rate your ride with @" + otherPartyUsername,

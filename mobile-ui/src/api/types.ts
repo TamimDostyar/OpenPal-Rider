@@ -180,6 +180,7 @@ export interface BookingResponse {
   origin: string | null;
   destination: string | null;
   departureTime: string | null;
+  postType: "DRIVER" | "PASSENGER" | null;
 }
 
 export interface BookingEnvelope {

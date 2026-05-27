@@ -65,28 +65,36 @@ export function BookingsScreen() {
 
   const renderActions = (b: BookingResponse) => {
     const buttons: { label: string; tone: "ink" | "coral" | "ghost"; onPress: () => void }[] = [];
-    if (scope === "incoming") {
-      if (b.status === "REQUESTED") {
+    // Determine who decides on this booking:
+    //  - PASSENGER post → driver offered the ride, the rider (post owner) decides.
+    //  - DRIVER post (or unknown/legacy) → rider booked a seat, the driver decides.
+    const passengerPost = b.postType === "PASSENGER";
+    const callerIsAcceptor =
+      (scope === "mine" && passengerPost) ||
+      (scope === "incoming" && !passengerPost);
+    const callerIsDriver = scope === "incoming";
+
+    if (b.status === "REQUESTED") {
+      if (callerIsAcceptor) {
         buttons.push({ label: "Accept", tone: "ink", onPress: () => accept(b.id) });
         buttons.push({ label: "Decline", tone: "ghost", onPress: () => decline(b.id) });
+      } else {
+        buttons.push({ label: "Cancel", tone: "ghost", onPress: () => cancel(b.id) });
       }
-      if (b.status === "ACCEPTED") {
+    } else if (b.status === "ACCEPTED") {
+      if (callerIsDriver) {
         buttons.push({ label: "Mark complete", tone: "ink", onPress: () => complete(b.id) });
-        buttons.push({ label: "Cancel", tone: "ghost", onPress: () => cancel(b.id) });
       }
-    } else {
-      if (b.status === "REQUESTED" || b.status === "ACCEPTED") {
-        buttons.push({ label: "Cancel", tone: "ghost", onPress: () => cancel(b.id) });
-      }
-      if (b.status === "COMPLETED") {
-        buttons.push({
-          label: "Rate ride",
-          tone: "coral",
-          onPress: () => navigation.navigate("RateRide", { booking: b }),
-        });
-      }
+      buttons.push({ label: "Cancel", tone: "ghost", onPress: () => cancel(b.id) });
+    } else if (b.status === "COMPLETED" && !callerIsDriver) {
+      buttons.push({
+        label: "Rate ride",
+        tone: "coral",
+        onPress: () => navigation.navigate("RateRide", { booking: b }),
+      });
     }
-    const otherUsername = scope === "incoming" ? b.riderUsername : b.driverUsername;
+
+    const otherUsername = callerIsDriver ? b.riderUsername : b.driverUsername;
     buttons.push({
       label: "Message",
       tone: "ghost",
@@ -155,9 +163,17 @@ export function BookingsScreen() {
                 </View>
               </View>
               <Text className="text-sm text-ink-2">
-                {scope === "incoming"
-                  ? `@${item.riderUsername} requested ${item.seatsRequested} seat(s)`
-                  : `Driver: @${item.driverUsername} · ${item.seatsRequested} seat(s)`}
+                {(() => {
+                  const passengerPost = item.postType === "PASSENGER";
+                  if (scope === "incoming") {
+                    return passengerPost
+                      ? `You offered to drive @${item.riderUsername}`
+                      : `@${item.riderUsername} requested ${item.seatsRequested} seat(s)`;
+                  }
+                  return passengerPost
+                    ? `@${item.driverUsername} offered to drive you`
+                    : `Driver: @${item.driverUsername} · ${item.seatsRequested} seat(s)`;
+                })()}
               </Text>
               {item.departureTime ? (
                 <Text className="text-xs text-muted">

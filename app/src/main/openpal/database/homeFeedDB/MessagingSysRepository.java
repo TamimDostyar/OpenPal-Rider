@@ -1,12 +1,15 @@
 package openpal.database.homeFeedDB;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface MessagingSysRepository extends JpaRepository<MessagingSysDB, UUID> {
@@ -21,4 +24,14 @@ public interface MessagingSysRepository extends JpaRepository<MessagingSysDB, UU
         + "LOWER(m.senderEmail) = LOWER(:email) OR LOWER(m.recipientEmail) = LOWER(:email) "
         + "ORDER BY m.createdAt DESC")
     List<MessagingSysDB> findInvolving(@Param("email") String email);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MessagingSysDB m SET m.readAt = :now WHERE "
+        + "LOWER(m.recipientEmail) = LOWER(:recipient) AND "
+        + "LOWER(m.senderEmail) = LOWER(:sender) AND "
+        + "m.readAt IS NULL")
+    int markConversationRead(@Param("recipient") String recipient,
+                             @Param("sender") String sender,
+                             @Param("now") LocalDateTime now);
 }

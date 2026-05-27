@@ -173,12 +173,14 @@ export function FeedPostCard({
                 <Text className="text-xs font-semibold text-ink">Message</Text>
               </Pressable>
             ) : null}
-            {onBook && !soldOut && !isPassenger ? (
+            {onBook && !soldOut ? (
               <Pressable
                 onPress={() => onBook(post)}
                 className="rounded-full bg-ink px-3 py-1.5"
               >
-                <Text className="text-xs font-semibold text-white">Book</Text>
+                <Text className="text-xs font-semibold text-white">
+                  {isPassenger ? "Offer ride" : "Book"}
+                </Text>
               </Pressable>
             ) : null}
           </>

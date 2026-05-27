@@ -117,9 +117,9 @@ public class BookingManager {
     }
 
     private ResponseEntity<Map<String, Object>> decide(String authHeader, UUID bookingId, boolean accept) {
-        CreateProfileDB driver;
+        CreateProfileDB caller;
         try {
-            driver = auth.authenticate(authHeader);
+            caller = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
             return AuthSupport.error(f.status, f.getMessage());
         }
@@ -128,9 +128,6 @@ public class BookingManager {
             return AuthSupport.error(HttpStatus.NOT_FOUND, "booking not found");
         }
         BookingDB booking = bookingOpt.get();
-        if (!booking.getDriverEmail().equalsIgnoreCase(driver.getEmail())) {
-            return AuthSupport.error(HttpStatus.FORBIDDEN, "only the driver can respond to this booking");
-        }
         if (booking.getStatus() != BookingStatus.REQUESTED) {
             return AuthSupport.error(HttpStatus.CONFLICT,
                     "booking is already " + booking.getStatus().name().toLowerCase());
@@ -141,6 +138,18 @@ public class BookingManager {
             return AuthSupport.error(HttpStatus.NOT_FOUND, "underlying post not found");
         }
         FeedPostsDB post = postOpt.get();
+
+        // The party that DIDN'T initiate the booking is the one who accepts/declines:
+        //  - DRIVER post → rider initiated (booking request), driver accepts.
+        //  - PASSENGER post → driver initiated (ride offer), rider (post owner) accepts.
+        boolean passengerPost = "PASSENGER".equalsIgnoreCase(post.getPostType());
+        String acceptorEmail = passengerPost ? booking.getRiderEmail() : booking.getDriverEmail();
+        if (!acceptorEmail.equalsIgnoreCase(caller.getEmail())) {
+            return AuthSupport.error(HttpStatus.FORBIDDEN,
+                    passengerPost
+                            ? "only the rider can respond to a ride offer"
+                            : "only the driver can respond to this booking");
+        }
 
         if (accept) {
             if (post.getSeats() < booking.getSeatsRequested()) {
@@ -154,8 +163,11 @@ public class BookingManager {
             booking.setStatus(BookingStatus.DECLINED);
         }
         BookingDB saved = bookingRepo.save(booking);
-        emailService.sendBookingResponse(booking.getRiderEmail(), accept,
-                booking.getDriverUsername(), post.getOrigin(), post.getDestination());
+        // Notify the *other* party — the one who initiated the booking.
+        String initiatorEmail = passengerPost ? booking.getDriverEmail() : booking.getRiderEmail();
+        String acceptorUsername = passengerPost ? booking.getRiderUsername() : booking.getDriverUsername();
+        emailService.sendBookingResponse(initiatorEmail, accept,
+                acceptorUsername, post.getOrigin(), post.getDestination());
 
         return ok(accept ? "booking accepted" : "booking declined", saved, post);
     }
@@ -264,6 +276,7 @@ public class BookingManager {
             FeedPostsDB post = postsById.get(b.getPostId());
             if (post != null) {
                 r.setRideSummary(post.getOrigin(), post.getDestination(), post.getDepartureTime());
+                r.setPostType(post.getPostType());
             }
             out.add(r);
         }
@@ -274,6 +287,7 @@ public class BookingManager {
         BookingResponse data = BookingResponse.from(booking);
         if (post != null) {
             data.setRideSummary(post.getOrigin(), post.getDestination(), post.getDepartureTime());
+            data.setPostType(post.getPostType());
         }
         Map<String, Object> body = new HashMap<>();
         body.put("message", message);
