@@ -43,9 +43,9 @@ public class BookingManager {
     }
 
     public ResponseEntity<Map<String, Object>> request(String authHeader, Booking request) {
-        CreateProfileDB rider;
+        CreateProfileDB caller;
         try {
-            rider = auth.authenticate(authHeader);
+            caller = auth.authenticate(authHeader);
         } catch (AuthFailure f) {
             return AuthSupport.error(f.status, f.getMessage());
         }
@@ -62,30 +62,48 @@ public class BookingManager {
             return AuthSupport.error(HttpStatus.NOT_FOUND, "post not found");
         }
         FeedPostsDB post = postOpt.get();
-        if (post.getEmail().equalsIgnoreCase(rider.getEmail())) {
+        if (post.getEmail().equalsIgnoreCase(caller.getEmail())) {
             return AuthSupport.error(HttpStatus.BAD_REQUEST, "cannot book your own ride");
         }
         if (!AuthSupport.emailDomain(post.getEmail())
-                .equalsIgnoreCase(AuthSupport.emailDomain(rider.getEmail()))) {
+                .equalsIgnoreCase(AuthSupport.emailDomain(caller.getEmail()))) {
             return AuthSupport.error(HttpStatus.FORBIDDEN, "ride is not at your school");
         }
-        if (post.getSeats() < seats) {
+
+        // Two directions:
+        //  - DRIVER post  → caller is a rider booking a seat (normal flow)
+        //  - PASSENGER post → caller is a driver offering to give the ride
+        boolean callerIsDriver = "PASSENGER".equalsIgnoreCase(post.getPostType());
+
+        if (!callerIsDriver && post.getSeats() < seats) {
             return AuthSupport.error(HttpStatus.BAD_REQUEST,
                     "only " + post.getSeats() + " seat(s) available");
         }
 
+        String riderEmail    = callerIsDriver ? post.getEmail()    : caller.getEmail();
+        String riderUsername = callerIsDriver ? post.getUsername() : caller.getUsername();
+        String driverEmail   = callerIsDriver ? caller.getEmail()    : post.getEmail();
+        String driverUsername= callerIsDriver ? caller.getUsername() : post.getUsername();
+
         BookingDB saved = bookingRepo.save(new BookingDB(
                 post.getId(),
-                rider.getEmail(),
-                rider.getUsername(),
-                post.getEmail(),
-                post.getUsername(),
+                riderEmail,
+                riderUsername,
+                driverEmail,
+                driverUsername,
                 seats
         ));
-        emailService.sendBookingRequested(post.getEmail(), rider.getUsername(),
-                post.getOrigin(), post.getDestination(), seats);
 
-        return ok("booking requested", saved, post);
+        // Notify the recipient (the *other* party in the booking) by email.
+        if (callerIsDriver) {
+            emailService.sendRideOffer(riderEmail, driverUsername,
+                    post.getOrigin(), post.getDestination());
+        } else {
+            emailService.sendBookingRequested(driverEmail, riderUsername,
+                    post.getOrigin(), post.getDestination(), seats);
+        }
+
+        return ok(callerIsDriver ? "ride offered" : "booking requested", saved, post);
     }
 
     @Transactional
