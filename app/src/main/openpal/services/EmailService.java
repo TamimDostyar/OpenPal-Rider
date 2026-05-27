@@ -34,6 +34,14 @@ public class EmailService {
             + "Open OpenPal to accept or decline.");
     }
 
+    public void sendRideOffer(String riderEmail, String driverUsername,
+                              String origin, String destination) {
+        send(riderEmail, "@" + driverUsername + " offered you a ride",
+            "@" + driverUsername + " offered to drive you from "
+            + origin + " to " + destination + ".\n\n"
+            + "Open OpenPal to accept or decline.");
+    }
+
     public void sendBookingResponse(String riderEmail, boolean accepted,
                                     String driverUsername, String origin, String destination) {
         String verb = accepted ? "accepted" : "declined";
