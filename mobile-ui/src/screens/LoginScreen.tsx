@@ -28,7 +28,7 @@ export function LoginScreen() {
     <Screen className="justify-between">
       <View className="gap-5 pt-4">
         <Text className="text-4xl font-semibold leading-tight text-ink">
-          Welcome back.
+          Welcome
         </Text>
 
         <FormError message={error} />

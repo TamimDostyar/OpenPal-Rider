@@ -1,5 +1,9 @@
 # OpenPal Rider
 
+
+npx expo run:ios --device --configuration Release
+
+
 ![OpenPal UI icon](mobile-ui/asset/app-icon.png)
 
 PalRider is OpenPal's student ride-sharing system for campus trips. It includes a Spring Boot backend, an Expo mobile app for rider onboarding and auth, and a simple marketing website.
