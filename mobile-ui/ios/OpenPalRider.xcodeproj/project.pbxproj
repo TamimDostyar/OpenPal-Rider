@@ -17,10 +17,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* OpenPalRider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenPalRider.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* PalRider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PalRider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OpenPalRider/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OpenPalRider/Info.plist; sourceTree = "<group>"; };
-		1633FEBD0E99B6D230280B7B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = OpenPalRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1633FEBD0E99B6D230280B7B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = OpenPalRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		19DFC17A8D1AA30588C566E1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-OpenPalRider/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		1D08E0106B8B95A111B1C18E /* Pods-OpenPalRider.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenPalRider.debug.xcconfig"; path = "Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider.debug.xcconfig"; sourceTree = "<group>"; };
 		29E06CDB7F9B56400ABE680E /* libPods-OpenPalRider.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OpenPalRider.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -108,7 +108,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* OpenPalRider.app */,
+				13B07F961A680F5B00A75B9A /* PalRider.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,7 +128,6 @@
 				1D08E0106B8B95A111B1C18E /* Pods-OpenPalRider.debug.xcconfig */,
 				874250764166A91298B2ECB1 /* Pods-OpenPalRider.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -154,7 +153,7 @@
 			);
 			name = OpenPalRider;
 			productName = OpenPalRider;
-			productReference = 13B07F961A680F5B00A75B9A /* OpenPalRider.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* PalRider.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -347,13 +346,15 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3P2F3G2FDX;
+				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = OpenPalRider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PalRider;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -366,8 +367,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palrider;
-				PRODUCT_NAME = OpenPalRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.openpalteam;
+				PRODUCT_NAME = PalRider;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -386,8 +387,10 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 3P2F3G2FDX;
+				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				INFOPLIST_FILE = OpenPalRider/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PalRider;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -400,8 +403,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palrider;
-				PRODUCT_NAME = OpenPalRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tamimdostyar.openpal;
+				PRODUCT_NAME = PalRider;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

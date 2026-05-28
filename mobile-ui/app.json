@@ -10,7 +10,10 @@
     "icon": "./asset/app-icon.png",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.dostah01.palrider"
+      "bundleIdentifier": "com.dostah01.palrider",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
