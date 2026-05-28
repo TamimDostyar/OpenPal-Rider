@@ -1,3 +1,77 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Theme palettes as RGB channel variables. :root is the light theme (the
+ * original values); .dark:root overrides them for dark mode. NativeWind
+ * activates .dark:root when the resolved color scheme is dark (driven by the
+ * ThemeProvider via colorScheme.set). Keep these in sync with tailwind.config.js.
+ */
+@layer base {
+  :root {
+    /* Surfaces */
+    --c-cream: 255 255 255;
+    --c-cream-2: 245 245 247;
+    --c-canvas: 240 240 243;
+
+    /* Text */
+    --c-ink: 10 10 10;
+    --c-ink-2: 31 32 36;
+    --c-muted: 107 112 118;
+
+    /* Hairlines */
+    --c-line: 228 228 231;
+    --c-line-2: 238 238 241;
+
+    /* Accents */
+    --c-coral: 220 38 38;
+    --c-coral-dk: 185 28 28;
+    --c-sage: 14 124 102;
+    --c-sage-2: 10 92 77;
+    --c-sun: 194 65 12;
+    --c-sky: 71 85 105;
+    --c-rose: 159 18 57;
+
+    /* Ride tones */
+    --c-driver: 14 124 102;
+    --c-driver-bg: 230 244 240;
+    --c-driver-border: 194 226 217;
+    --c-passenger: 220 38 38;
+    --c-passenger-bg: 254 231 231;
+    --c-passenger-border: 244 194 194;
+  }
+
+  .dark:root {
+    /* Surfaces — deep neutral charcoals. */
+    --c-cream: 18 18 20;
+    --c-cream-2: 28 28 32;
+    --c-canvas: 9 9 11;
+
+    /* Text — inverted: light foreground on dark. */
+    --c-ink: 244 244 246;
+    --c-ink-2: 212 212 216;
+    --c-muted: 148 152 158;
+
+    /* Hairlines — subtle light-on-dark separators. */
+    --c-line: 46 46 52;
+    --c-line-2: 38 38 43;
+
+    /* Accents — brightened a touch so they read on dark. */
+    --c-coral: 239 68 68;
+    --c-coral-dk: 220 38 38;
+    --c-sage: 21 168 138;
+    --c-sage-2: 16 130 108;
+    --c-sun: 251 146 60;
+    --c-sky: 148 163 184;
+    --c-rose: 251 113 133;
+
+    /* Ride tones — dark tints that keep their colored text legible. */
+    --c-driver: 21 168 138;
+    --c-driver-bg: 14 42 36;
+    --c-driver-border: 31 74 64;
+    --c-passenger: 239 68 68;
+    --c-passenger-bg: 46 20 20;
+    --c-passenger-border: 90 36 36;
+  }
+}

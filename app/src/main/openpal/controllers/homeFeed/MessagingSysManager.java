@@ -87,7 +87,7 @@ public class MessagingSysManager {
 
         Map<String, Object> body = new HashMap<>();
         body.put("message", "message sent");
-        body.put("data", MessagingSysResponse.from(saved));
+        body.put("data", MessagingSysResponse.from(saved, sender.getName(), recipient.getName()));
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
@@ -112,10 +112,16 @@ public class MessagingSysManager {
                 }
                 continue;
             }
+            String otherName = profileRepo.findByEmail(otherEmail)
+                    .map(CreateProfileDB::getName)
+                    .orElse(null);
+            String senderName = iAmSender ? caller.getName() : otherName;
+            String recipientName = iAmSender ? otherName : caller.getName();
             Map<String, Object> entry = new HashMap<>();
             entry.put("otherUsername", otherUsername);
+            entry.put("otherName", otherName);
             entry.put("otherEmail", otherEmail);
-            entry.put("lastMessage", MessagingSysResponse.from(m));
+            entry.put("lastMessage", MessagingSysResponse.from(m, senderName, recipientName));
             int unread = (!iAmSender && m.getReadAt() == null) ? 1 : 0;
             entry.put("unreadCount", unread);
             byOther.put(key, entry);
@@ -141,7 +147,10 @@ public class MessagingSysManager {
         List<MessagingSysDB> convo = messageRepo.findConversation(caller.getEmail(), other.getEmail());
         List<MessagingSysResponse> out = new ArrayList<>(convo.size());
         for (MessagingSysDB m : convo) {
-            out.add(MessagingSysResponse.from(m));
+            boolean iAmSender = m.getSenderEmail().equalsIgnoreCase(caller.getEmail());
+            String senderName = iAmSender ? caller.getName() : other.getName();
+            String recipientName = iAmSender ? other.getName() : caller.getName();
+            out.add(MessagingSysResponse.from(m, senderName, recipientName));
         }
         return ResponseEntity.ok(out);
     }

@@ -1,8 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import { useColorScheme } from "nativewind";
+import React, { useCallback, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   FlatList,
   Pressable,
@@ -15,6 +15,7 @@ import type { FeedPostResponse } from "@/api/types";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
+import { Spinner } from "@/components/Spinner";
 import { useFeed } from "@/hooks/useFeed";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -35,6 +36,21 @@ export function HomeScreen() {
     applyFilters,
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
+  const { colorScheme } = useColorScheme();
+  const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
+
+  // useFeed loads on mount; skip that first focus and only refresh when we
+  // return to the feed (e.g. after booking from the post detail screen).
+  const firstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (firstFocus.current) {
+        firstFocus.current = false;
+        return;
+      }
+      void refresh();
+    }, [refresh]),
+  );
 
   const schoolDomain = myEmail?.split("@")[1] ?? null;
 
@@ -75,10 +91,19 @@ export function HomeScreen() {
     });
 
   const onMessage = (post: FeedPostResponse) =>
-    navigation.navigate("Conversation", { otherUsername: post.username });
+    navigation.navigate("Conversation", {
+      otherUsername: post.username,
+      otherName: post.name ?? undefined,
+    });
 
   const onViewProfile = (post: FeedPostResponse) =>
     navigation.navigate("UserProfile", { username: post.username });
+
+  const onOpen = (post: FeedPostResponse) =>
+    navigation.navigate("PostDetail", {
+      post,
+      isOwner: !!myEmail && post.email.toLowerCase() === myEmail.toLowerCase(),
+    });
 
   return (
     <Screen className="px-0">
@@ -100,8 +125,8 @@ export function HomeScreen() {
           onPress={() => navigation.navigate("CreatePost")}
           className="h-10 flex-row items-center gap-1.5 rounded-full bg-ink px-4"
         >
-          <Text className="text-base font-semibold text-white">+</Text>
-          <Text className="text-sm font-semibold text-white">Post</Text>
+          <Text className="text-base font-semibold text-cream">+</Text>
+          <Text className="text-sm font-semibold text-cream">Post</Text>
         </Pressable>
       </View>
 
@@ -126,7 +151,7 @@ export function HomeScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       ) : (
         <FlatList
@@ -142,10 +167,11 @@ export function HomeScreen() {
                 onReport={onReport}
                 onMessage={onMessage}
                 onViewProfile={onViewProfile}
+                onOpen={onOpen}
               />
               {booking === item.id ? (
                 <View className="absolute inset-0 items-center justify-center rounded-3xl bg-cream/70">
-                  <ActivityIndicator color="#0A0A0A" />
+                  <Spinner />
                 </View>
               ) : null}
             </View>
@@ -157,7 +183,7 @@ export function HomeScreen() {
           }}
           ItemSeparatorComponent={() => <View className="h-0" />}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#0A0A0A" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={refreshTint} />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

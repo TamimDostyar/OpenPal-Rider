@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useColorScheme } from "nativewind";
 import React from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -13,6 +13,7 @@ import {
 import type { BookingResponse, BookingStatus } from "@/api/types";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
+import { Spinner } from "@/components/Spinner";
 import { useBookings, type BookingScope } from "@/hooks/useBookings";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -62,6 +63,8 @@ export function BookingsScreen() {
     cancel,
     complete,
   } = useBookings();
+  const { colorScheme } = useColorScheme();
+  const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
 
   const renderActions = (b: BookingResponse) => {
     const buttons: { label: string; tone: "ink" | "coral" | "ghost"; onPress: () => void }[] = [];
@@ -121,7 +124,7 @@ export function BookingsScreen() {
               key={opt}
               onPress={() => setScope(opt)}
               className={`flex-1 items-center rounded-full py-2 ${
-                isActive ? "bg-white" : ""
+                isActive ? "bg-cream" : ""
               }`}
             >
               <Text
@@ -144,14 +147,14 @@ export function BookingsScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       ) : (
         <FlatList
           data={bookings}
           keyExtractor={(b) => b.id}
           renderItem={({ item }) => (
-            <View className="gap-3 rounded-3xl border border-line bg-white p-5">
+            <View className="gap-3 rounded-3xl border border-line bg-cream p-5">
               <View className="flex-row items-center justify-between">
                 <Text className="text-base font-semibold text-ink">
                   {item.origin ?? "?"} → {item.destination ?? "?"}
@@ -190,12 +193,16 @@ export function BookingsScreen() {
                         ? "bg-ink"
                         : btn.tone === "coral"
                           ? "bg-coral"
-                          : "border border-line bg-white"
+                          : "border border-line bg-cream"
                     }`}
                   >
                     <Text
                       className={`text-xs font-semibold ${
-                        btn.tone === "ghost" ? "text-ink" : "text-white"
+                        btn.tone === "ghost"
+                          ? "text-ink"
+                          : btn.tone === "ink"
+                            ? "text-cream"
+                            : "text-white"
                       }`}
                     >
                       {btn.label}
@@ -211,7 +218,7 @@ export function BookingsScreen() {
             gap: 12,
           }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#0A0A0A" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={refreshTint} />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

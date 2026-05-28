@@ -79,7 +79,7 @@ export function RateRideScreen() {
       >
         <FormError message={error} />
 
-        <View className="gap-2 rounded-3xl border border-line bg-white p-4">
+        <View className="gap-2 rounded-3xl border border-line bg-cream p-4">
           <Text className="text-sm text-muted">Ride</Text>
           <Text className="text-base font-semibold text-ink">
             {booking.origin ?? "?"} → {booking.destination ?? "?"}
@@ -101,7 +101,7 @@ export function RateRideScreen() {
                   key={n}
                   onPress={() => setStars(n)}
                   className={`h-12 w-12 items-center justify-center rounded-full border ${
-                    filled ? "border-coral bg-coral" : "border-line bg-white"
+                    filled ? "border-coral bg-coral" : "border-line bg-cream"
                   }`}
                 >
                   <Text
@@ -125,7 +125,7 @@ export function RateRideScreen() {
             placeholder="On time, easy ride, would book again"
             placeholderTextColor="#6B7076"
             multiline
-            className="min-h-24 rounded-2xl border border-line bg-white px-4 py-3 text-base text-ink"
+            className="min-h-24 rounded-2xl border border-line bg-cream px-4 py-3 text-base text-ink"
           />
         </View>
 

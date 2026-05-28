@@ -1,42 +1,49 @@
 /** @type {import('tailwindcss').Config} */
+
+// Every color is a CSS variable (RGB channels) so the whole palette can swap
+// between light and dark in one place — see global.css. Components keep using
+// the same semantic class names (bg-cream, text-ink, …); only the values flip.
+const withVar = (name) => `rgb(var(${name}) / <alpha-value>)`;
+
 module.exports = {
   content: ["./App.tsx", "./src/**/*.{ts,tsx}"],
   presets: [require("nativewind/preset")],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // Surfaces — clean, near-white with cool tint.
-        cream: "#FFFFFF",
-        "cream-2": "#F5F5F7",
-        canvas: "#F0F0F3",
+        // Surfaces.
+        cream: withVar("--c-cream"),
+        "cream-2": withVar("--c-cream-2"),
+        canvas: withVar("--c-canvas"),
 
-        // Text — high-contrast black, secondary, and mid-gray muted.
-        ink: "#0A0A0A",
-        "ink-2": "#1F2024",
-        muted: "#6B7076",
+        // Text.
+        ink: withVar("--c-ink"),
+        "ink-2": withVar("--c-ink-2"),
+        muted: withVar("--c-muted"),
 
         // Hairlines and dividers.
-        line: "#E4E4E7",
-        "line-2": "#EEEEF1",
+        line: withVar("--c-line"),
+        "line-2": withVar("--c-line-2"),
 
-        // Accents (sparingly used).
-        coral: "#DC2626",
-        "coral-dk": "#B91C1C",
-        sage: "#0E7C66",
-        "sage-2": "#0A5C4D",
-        sun: "#C2410C",
-        sky: "#475569",
-        rose: "#9F1239",
+        // Accents.
+        coral: withVar("--c-coral"),
+        "coral-dk": withVar("--c-coral-dk"),
+        sage: withVar("--c-sage"),
+        "sage-2": withVar("--c-sage-2"),
+        sun: withVar("--c-sun"),
+        sky: withVar("--c-sky"),
+        rose: withVar("--c-rose"),
 
         // Semantic ride tones.
         //  driver    = OFFERING a ride (green)
         //  passenger = LOOKING for a ride (red)
-        driver: "#0E7C66",
-        "driver-bg": "#E6F4F0",
-        "driver-border": "#C2E2D9",
-        passenger: "#DC2626",
-        "passenger-bg": "#FEE7E7",
-        "passenger-border": "#F4C2C2",
+        driver: withVar("--c-driver"),
+        "driver-bg": withVar("--c-driver-bg"),
+        "driver-border": withVar("--c-driver-border"),
+        passenger: withVar("--c-passenger"),
+        "passenger-bg": withVar("--c-passenger-bg"),
+        "passenger-border": withVar("--c-passenger-border"),
       },
     },
   },

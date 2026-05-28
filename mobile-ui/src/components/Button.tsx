@@ -3,7 +3,9 @@
  * when loading and dims itself while disabled.
  */
 import React from "react";
-import { ActivityIndicator, Pressable, Text } from "react-native";
+import { Pressable, Text } from "react-native";
+
+import { Spinner } from "@/components/Spinner";
 
 type Variant = "ink" | "coral" | "sage" | "ghost";
 
@@ -46,7 +48,7 @@ export function Button({
       }`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "ghost" ? "#0A0A0A" : "#FFFFFF"} />
+        <Spinner tone={variant === "ghost" ? "ink" : "onInk"} />
       ) : (
         <Text className={`text-base font-semibold ${TEXT[variant]}`}>{label}</Text>
       )}

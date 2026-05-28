@@ -2,8 +2,10 @@
  * Step 1 of the signup flow: collects user profile fields and sends them to
  * the backend, which responds by emailing a verification code.
  */
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { DateField } from "@/components/DateField";
@@ -12,8 +14,12 @@ import { SchoolField } from "@/components/SchoolField";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { useSignup } from "@/hooks/useSignup";
+import type { RootStackParamList } from "@/navigation/types";
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export function SignupScreen() {
+  const navigation = useNavigation<Nav>();
   const {
     fields,
     setName,
@@ -104,13 +110,23 @@ export function SignupScreen() {
           />
         </View>
 
-        <View className="py-6">
+        <View className="gap-3 py-6">
           <Button
             label="Send verification code"
             variant="coral"
             onPress={submit}
             loading={submitting}
           />
+          <Text className="text-center text-xs leading-5 text-muted">
+            By creating an account, you agree to our{" "}
+            <Text
+              className="font-semibold text-ink underline"
+              onPress={() => navigation.navigate("Terms")}
+            >
+              Terms &amp; Conditions
+            </Text>
+            .
+          </Text>
         </View>
       </ScrollView>
     </Screen>

@@ -8,6 +8,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { Button } from "@/components/Button";
 import { DateTimeField } from "@/components/DateTimeField";
 import { FormError } from "@/components/FormError";
+import { LocationField } from "@/components/LocationField";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { useCreatePost } from "@/hooks/useCreatePost";
@@ -16,8 +17,10 @@ export function CreatePostScreen() {
   const {
     origin,
     setOrigin,
+    selectOrigin,
     destination,
     setDestination,
+    selectDestination,
     postType,
     setPostType,
     price,
@@ -94,19 +97,19 @@ export function CreatePostScreen() {
           </Text>
         </View>
 
-        <TextField
+        <LocationField
           label="From"
           value={origin}
           onChangeText={setOrigin}
-          placeholder="MSP"
-          autoCapitalize="words"
+          onSelect={selectOrigin}
+          placeholder="Search a place, e.g. Minneapolis"
         />
-        <TextField
+        <LocationField
           label="To"
           value={destination}
           onChangeText={setDestination}
-          placeholder="Colorado"
-          autoCapitalize="words"
+          onSelect={selectDestination}
+          placeholder="Search a place, e.g. Denver"
         />
 
         <DateTimeField

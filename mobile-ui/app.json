@@ -15,14 +15,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./asset/app-icon.png",
-        "backgroundColor": "#F7F1EB"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.dostah01.palrider"
     },
     "splash": {
       "image": "./asset/app-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F7F1EB"
+      "backgroundColor": "#FFFFFF"
     },
     "plugins": [
       "expo-asset",
@@ -31,7 +31,7 @@
         "expo-notifications",
         {
           "icon": "./asset/app-icon.png",
-          "color": "#F7F1EB"
+          "color": "#FFFFFF"
         }
       ],
       [
@@ -43,7 +43,7 @@
     ],
     "notification": {
       "icon": "./asset/app-icon.png",
-      "color": "#F7F1EB"
+      "color": "#FFFFFF"
     },
     "extra": {
       "eas": {

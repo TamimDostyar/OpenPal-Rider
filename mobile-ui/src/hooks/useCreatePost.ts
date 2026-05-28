@@ -9,15 +9,24 @@ import { useState } from "react";
 import { ApiError, api } from "@/api/client";
 import { useAuth } from "@/auth/AuthContext";
 import type { RootStackParamList } from "@/navigation/types";
+import type { GeocodePlace } from "@/services/geocode";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
+
+interface Coord {
+  lat: number;
+  lng: number;
+  placeId: string;
+}
 
 export function useCreatePost() {
   const navigation = useNavigation<Nav>();
   const { token, signOut } = useAuth();
 
   const [origin, setOrigin] = useState("");
+  const [originCoord, setOriginCoord] = useState<Coord | null>(null);
   const [destination, setDestination] = useState("");
+  const [destCoord, setDestCoord] = useState<Coord | null>(null);
   const [postType, setPostType] = useState<"DRIVER" | "PASSENGER">("DRIVER");
   const [price, setPrice] = useState("");
   const [seats, setSeats] = useState("1");
@@ -64,6 +73,12 @@ export function useCreatePost() {
         departureTime,
         vehicleInfo: isDriver ? vehicleInfo.trim() || undefined : undefined,
         description: description.trim() || undefined,
+        originLat: originCoord?.lat,
+        originLng: originCoord?.lng,
+        originPlaceId: originCoord?.placeId,
+        destLat: destCoord?.lat,
+        destLng: destCoord?.lng,
+        destPlaceId: destCoord?.placeId,
       });
       navigation.goBack();
     } catch (err: unknown) {
@@ -81,11 +96,29 @@ export function useCreatePost() {
     }
   };
 
+  // Editing the text by hand invalidates a previously picked coordinate; the
+  // map fallback will geocode the typed text instead. Selecting a suggestion
+  // re-sets it.
+  const changeOrigin = (text: string) => {
+    setOrigin(text);
+    setOriginCoord(null);
+  };
+  const changeDestination = (text: string) => {
+    setDestination(text);
+    setDestCoord(null);
+  };
+  const selectOrigin = (place: GeocodePlace) =>
+    setOriginCoord({ lat: place.lat, lng: place.lng, placeId: place.placeId });
+  const selectDestination = (place: GeocodePlace) =>
+    setDestCoord({ lat: place.lat, lng: place.lng, placeId: place.placeId });
+
   return {
     origin,
-    setOrigin,
+    setOrigin: changeOrigin,
+    selectOrigin,
     destination,
-    setDestination,
+    setDestination: changeDestination,
+    selectDestination,
     postType,
     setPostType,
     price,

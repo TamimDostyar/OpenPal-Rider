@@ -2,7 +2,6 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Linking,
@@ -26,14 +25,22 @@ import type {
 import { useAuth } from "@/auth/AuthContext";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
+import { Spinner } from "@/components/Spinner";
 import { useVehicle } from "@/hooks/useVehicle";
 import type { RootStackParamList } from "@/navigation/types";
+import { useTheme, type ThemeMode } from "@/theme/ThemeContext";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 const BUG_REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSe3zd3k3IRQ-rh_Y12asBzfg4OK1nXxY_6eUa6CdP-KQ1fWxQ/viewform?usp=publish-editor";
 const BIO_MAX = 200;
+
+const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
+];
 
 type LoadState =
   | { kind: "loading" }
@@ -85,6 +92,7 @@ export function ProfileScreen() {
   const navigation = useNavigation<Nav>();
   const { token, signOut } = useAuth();
   const { info: vehicle } = useVehicle();
+  const { mode, setMode, resolved } = useTheme();
 
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [refreshing, setRefreshing] = useState(false);
@@ -126,7 +134,7 @@ export function ProfileScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       </Screen>
     );
@@ -144,7 +152,7 @@ export function ProfileScreen() {
             onPress={signOut}
             className="mt-2 rounded-full bg-ink px-6 py-2.5"
           >
-            <Text className="text-sm font-semibold text-white">Sign in again</Text>
+            <Text className="text-sm font-semibold text-cream">Sign in again</Text>
           </Pressable>
         </View>
       </Screen>
@@ -161,7 +169,7 @@ export function ProfileScreen() {
             onPress={() => void reload("initial")}
             className="mt-2 rounded-full bg-ink px-5 py-2"
           >
-            <Text className="text-sm font-semibold text-white">Try again</Text>
+            <Text className="text-sm font-semibold text-cream">Try again</Text>
           </Pressable>
           <Pressable onPress={signOut} hitSlop={8} className="py-2">
             <Text className="text-xs font-semibold text-muted">Sign out</Text>
@@ -185,7 +193,7 @@ export function ProfileScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => void reload("refresh")}
-            tintColor="#0A0A0A"
+            tintColor={resolved === "dark" ? "#F4F4F6" : "#0A0A0A"}
           />
         }
       >
@@ -290,9 +298,43 @@ export function ProfileScreen() {
           </View>
         ) : null}
 
+        <View className="gap-2 border-t border-line pt-4">
+          <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+            Appearance
+          </Text>
+          <View className="flex-row rounded-full bg-cream-2 p-1">
+            {THEME_OPTIONS.map((opt) => {
+              const active = mode === opt.value;
+              return (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => setMode(opt.value)}
+                  className={`flex-1 items-center rounded-full py-2 ${active ? "bg-ink" : ""}`}
+                >
+                  <Text
+                    className={`text-xs font-semibold ${active ? "text-cream" : "text-muted"}`}
+                  >
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
         <Pressable onPress={openBugReport} className="mt-2 border-t border-line pt-4">
           <Text className="text-sm font-semibold text-ink-2">Report an issue / bug →</Text>
           <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => navigation.navigate("Terms")}
+          className="border-t border-line pt-4"
+        >
+          <Text className="text-sm font-semibold text-ink-2">Terms &amp; Conditions →</Text>
+          <Text className="text-xs text-muted">
+            How we use your information and what you're responsible for.
+          </Text>
         </Pressable>
       </ScrollView>
 

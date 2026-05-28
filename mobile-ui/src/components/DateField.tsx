@@ -79,7 +79,7 @@ export function DateField({
       </Text>
       <Pressable
         onPress={openPicker}
-        className="h-14 justify-center rounded-2xl border border-line bg-white px-4"
+        className="h-14 justify-center rounded-2xl border border-line bg-cream px-4"
       >
         <Text className={`text-base ${value ? "text-ink" : "text-muted"}`}>
           {value || placeholder}

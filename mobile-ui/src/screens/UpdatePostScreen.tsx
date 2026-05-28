@@ -9,12 +9,31 @@ import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/Button";
 import { DateTimeField } from "@/components/DateTimeField";
 import { FormError } from "@/components/FormError";
+import { LocationField } from "@/components/LocationField";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import type { RootStackParamList } from "@/navigation/types";
+import type { GeocodePlace } from "@/services/geocode";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, "UpdatePost">;
+
+interface Coord {
+  lat: number;
+  lng: number;
+  placeId: string;
+}
+
+function coordFromPost(
+  lat: number | null,
+  lng: number | null,
+  placeId: string | null,
+): Coord | null {
+  if (typeof lat === "number" && typeof lng === "number") {
+    return { lat, lng, placeId: placeId ?? "" };
+  }
+  return null;
+}
 
 function toStringValue(value: number | null | undefined, fallback = ""): string {
   if (value === null || value === undefined) return fallback;
@@ -32,7 +51,13 @@ export function UpdatePostScreen() {
   const post = route.params.post;
 
   const [origin, setOrigin] = useState(post.origin ?? "");
+  const [originCoord, setOriginCoord] = useState<Coord | null>(
+    coordFromPost(post.originLat, post.originLng, post.originPlaceId),
+  );
   const [destination, setDestination] = useState(post.destination ?? "");
+  const [destCoord, setDestCoord] = useState<Coord | null>(
+    coordFromPost(post.destLat, post.destLng, post.destPlaceId),
+  );
   const [postType, setPostType] = useState<"DRIVER" | "PASSENGER">(
     post.postType ?? "DRIVER",
   );
@@ -83,6 +108,21 @@ export function UpdatePostScreen() {
 
   const title = useMemo(() => formatTitle(post), [post]);
 
+  // Hand-editing the text drops the matching coordinate; picking a suggestion
+  // re-sets it. Preserved coords keep the route map working on an unchanged edit.
+  const changeOrigin = (text: string) => {
+    setOrigin(text);
+    setOriginCoord(null);
+  };
+  const changeDestination = (text: string) => {
+    setDestination(text);
+    setDestCoord(null);
+  };
+  const selectOrigin = (place: GeocodePlace) =>
+    setOriginCoord({ lat: place.lat, lng: place.lng, placeId: place.placeId });
+  const selectDestination = (place: GeocodePlace) =>
+    setDestCoord({ lat: place.lat, lng: place.lng, placeId: place.placeId });
+
   const submit = async () => {
     if (!token) {
       setError("You're signed out — log in to update this post.");
@@ -120,6 +160,12 @@ export function UpdatePostScreen() {
         departureTime,
         vehicleInfo: isDriver ? vehicleInfo.trim() || undefined : undefined,
         description: description.trim() || undefined,
+        originLat: originCoord?.lat,
+        originLng: originCoord?.lng,
+        originPlaceId: originCoord?.placeId,
+        destLat: destCoord?.lat,
+        destLng: destCoord?.lng,
+        destPlaceId: destCoord?.placeId,
       });
 
       try {
@@ -207,19 +253,19 @@ export function UpdatePostScreen() {
           </Text>
         </View>
 
-        <TextField
+        <LocationField
           label="From"
           value={origin}
-          onChangeText={setOrigin}
-          placeholder="MSP"
-          autoCapitalize="words"
+          onChangeText={changeOrigin}
+          onSelect={selectOrigin}
+          placeholder="Search a place, e.g. Minneapolis"
         />
-        <TextField
+        <LocationField
           label="To"
           value={destination}
-          onChangeText={setDestination}
-          placeholder="Colorado"
-          autoCapitalize="words"
+          onChangeText={changeDestination}
+          onSelect={selectDestination}
+          placeholder="Search a place, e.g. Denver"
         />
 
         <DateTimeField
@@ -273,7 +319,7 @@ export function UpdatePostScreen() {
           <Pressable
             onPress={confirmDelete}
             disabled={deleting || submitting}
-            className="items-center rounded-lg border border-coral bg-white py-3"
+            className="items-center rounded-lg border border-coral bg-cream py-3"
           >
             <Text className="text-sm font-semibold text-coral">
               {deleting ? "Deleting…" : "Delete post"}

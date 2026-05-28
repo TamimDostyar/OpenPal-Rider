@@ -18,7 +18,7 @@ export function TextField({ label, hint, ...inputProps }: TextFieldProps) {
       </Text>
       <TextInput
         placeholderTextColor="#6B7076"
-        className="h-14 rounded-2xl border border-line bg-white px-4 text-base text-ink"
+        className="h-14 rounded-2xl border border-line bg-cream px-4 text-base text-ink"
         {...inputProps}
       />
       {hint ? <Text className="mt-1.5 text-xs text-muted">{hint}</Text> : null}

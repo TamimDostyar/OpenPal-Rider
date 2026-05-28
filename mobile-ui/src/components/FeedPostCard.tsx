@@ -11,6 +11,8 @@ interface FeedPostCardProps {
   onReport?: (post: FeedPostResponse) => void;
   onMessage?: (post: FeedPostResponse) => void;
   onViewProfile?: (post: FeedPostResponse) => void;
+  /** Tap the card body to open the full ride detail screen. */
+  onOpen?: (post: FeedPostResponse) => void;
 }
 
 function formatDeparture(iso: string): string {
@@ -39,6 +41,72 @@ function relativeTime(iso: string): string {
   return `${Math.floor(seconds / 86400)}d`;
 }
 
+interface Countdown {
+  value: number;
+  unit: string;
+  label: string;
+  past: boolean;
+}
+
+function countdownTo(iso: string): Countdown | null {
+  const target = new Date(iso).getTime();
+  if (Number.isNaN(target)) return null;
+  const diffMs = target - Date.now();
+
+  if (diffMs <= 0) {
+    return { value: 0, unit: "", label: "departed", past: true };
+  }
+
+  const minutes = Math.floor(diffMs / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days >= 1) {
+    return { value: days, unit: "d", label: days === 1 ? "day left" : "days left", past: false };
+  }
+  if (hours >= 1) {
+    return { value: hours, unit: "h", label: hours === 1 ? "hour left" : "hours left", past: false };
+  }
+  return {
+    value: Math.max(1, minutes),
+    unit: "m",
+    label: minutes === 1 ? "min left" : "mins left",
+    past: false,
+  };
+}
+
+function CountdownCircle({ iso, accent }: { iso: string; accent: boolean }) {
+  const countdown = countdownTo(iso);
+  if (!countdown) return null;
+
+  const ring = countdown.past
+    ? "border-line-2"
+    : accent
+      ? "border-passenger"
+      : "border-driver";
+  const valueColor = countdown.past
+    ? "text-muted"
+    : accent
+      ? "text-passenger"
+      : "text-driver";
+
+  return (
+    <View className="items-center">
+      <View className={`h-12 w-12 items-center justify-center rounded-full border-2 ${ring}`}>
+        {countdown.past ? (
+          <Text className="text-[9px] font-semibold uppercase text-muted">past</Text>
+        ) : (
+          <Text className={`text-base font-bold ${valueColor}`}>
+            {countdown.value}
+            <Text className="text-[10px] font-semibold">{countdown.unit}</Text>
+          </Text>
+        )}
+      </View>
+      <Text className="mt-1 text-[10px] font-medium text-muted">{countdown.label}</Text>
+    </View>
+  );
+}
+
 export function FeedPostCard({
   post,
   isOwner,
@@ -47,6 +115,7 @@ export function FeedPostCard({
   onReport,
   onMessage,
   onViewProfile,
+  onOpen,
 }: FeedPostCardProps) {
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
@@ -60,14 +129,23 @@ export function FeedPostCard({
 
   return (
     <View className="rounded-2xl border border-line bg-cream p-4">
+      <Pressable
+        onPress={onOpen ? () => onOpen(post) : undefined}
+        disabled={!onOpen}
+        accessibilityRole={onOpen ? "button" : undefined}
+        accessibilityHint={onOpen ? "Opens full ride details" : undefined}
+      >
       {/* Status strip */}
-      <View className="mb-3 flex-row items-center gap-2">
-        <View className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
-        <Text className={`text-[11px] font-semibold uppercase tracking-wider ${accentText}`}>
-          {tagLabel}
-        </Text>
-        <View className="flex-1" />
-        <Text className="text-[11px] text-muted">{relativeTime(post.createdAt)}</Text>
+      <View className="mb-3 flex-row items-start gap-2">
+        <View className="flex-1 flex-row items-center gap-2">
+          <View className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
+          <Text className={`text-[11px] font-semibold uppercase tracking-wider ${accentText}`}>
+            {tagLabel}
+          </Text>
+          <View className="flex-1" />
+          <Text className="text-[11px] text-muted">{relativeTime(post.createdAt)}</Text>
+        </View>
+        <CountdownCircle iso={post.departureTime} accent={isPassenger} />
       </View>
 
       {/* Route — the headline */}
@@ -125,6 +203,7 @@ export function FeedPostCard({
           {post.vehicleInfo}
         </Text>
       ) : null}
+      </Pressable>
 
       {/* Footer: poster + actions */}
       <View className="flex-row items-center gap-3 border-t border-line-2 pt-3">
@@ -178,7 +257,7 @@ export function FeedPostCard({
                 onPress={() => onBook(post)}
                 className="rounded-full bg-ink px-3 py-1.5"
               >
-                <Text className="text-xs font-semibold text-white">
+                <Text className="text-xs font-semibold text-cream">
                   {isPassenger ? "Offer ride" : "Book"}
                 </Text>
               </Pressable>

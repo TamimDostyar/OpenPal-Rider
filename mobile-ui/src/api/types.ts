@@ -196,8 +196,10 @@ export interface CreateBookingRequest {
 export interface DirectMessageResponse {
   id: string;
   senderUsername: string;
+  senderName: string | null;
   senderEmail: string;
   recipientUsername: string;
+  recipientName: string | null;
   recipientEmail: string;
   bookingId: string | null;
   text: string;
@@ -218,6 +220,7 @@ export interface SendMessageEnvelope {
 
 export interface ConversationSummary {
   otherUsername: string;
+  otherName: string | null;
   otherEmail: string;
   lastMessage: DirectMessageResponse;
   unreadCount: number;

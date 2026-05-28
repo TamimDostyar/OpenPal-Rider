@@ -1,7 +1,9 @@
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
+
+import { Spinner } from "@/components/Spinner";
 
 import { ApiError, api } from "@/api/client";
 import type { FeedPostResponse, UserRatingsResponse } from "@/api/types";
@@ -75,17 +77,20 @@ export function UserProfileScreen() {
         </Pressable>
         <Pressable
           onPress={() =>
-            navigation.navigate("Conversation", { otherUsername: username })
+            navigation.navigate("Conversation", {
+              otherUsername: username,
+              otherName: primary?.name ?? undefined,
+            })
           }
           className="rounded-full bg-ink px-4 py-1.5"
         >
-          <Text className="text-xs font-semibold text-white">Message</Text>
+          <Text className="text-xs font-semibold text-cream">Message</Text>
         </Pressable>
       </View>
 
       {loading && posts.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       ) : (
         <ScrollView

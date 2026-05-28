@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useColorScheme } from "nativewind";
 import React, { useEffect } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -12,6 +12,7 @@ import {
 
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
+import { Spinner } from "@/components/Spinner";
 import { useConversations } from "@/hooks/useConversations";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -34,6 +35,8 @@ function relativeTime(iso: string): string {
 export function MessagesScreen({ onChange }: MessagesScreenProps) {
   const navigation = useNavigation<Nav>();
   const { items, loading, refreshing, error, refresh } = useConversations();
+  const { colorScheme } = useColorScheme();
+  const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
 
   useEffect(() => {
     onChange?.();
@@ -53,30 +56,33 @@ export function MessagesScreen({ onChange }: MessagesScreenProps) {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       ) : (
         <FlatList
           data={items}
           keyExtractor={(c) => c.otherEmail}
-          renderItem={({ item }) => (
+          renderItem={({ item }) => {
+            const displayName = item.otherName ?? `@${item.otherUsername}`;
+            return (
             <Pressable
               onPress={() =>
                 navigation.navigate("Conversation", {
                   otherUsername: item.otherUsername,
+                  otherName: item.otherName ?? undefined,
                 })
               }
-              className="flex-row items-center gap-3 rounded-3xl border border-line bg-white p-4"
+              className="flex-row items-center gap-3 rounded-3xl border border-line bg-cream p-4"
             >
               <View className="h-10 w-10 items-center justify-center rounded-full bg-cream-2">
                 <Text className="text-base font-semibold text-ink">
-                  {item.otherUsername[0]?.toUpperCase() ?? "?"}
+                  {displayName[0]?.toUpperCase() ?? "?"}
                 </Text>
               </View>
               <View className="flex-1">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-base font-semibold text-ink">
-                    @{item.otherUsername}
+                    {displayName}
                   </Text>
                   <Text className="text-xs text-muted">
                     {relativeTime(item.lastMessage.createdAt)}
@@ -94,14 +100,15 @@ export function MessagesScreen({ onChange }: MessagesScreenProps) {
                 </View>
               ) : null}
             </Pressable>
-          )}
+            );
+          }}
           contentContainerStyle={{
             paddingHorizontal: 24,
             paddingBottom: 24,
             gap: 10,
           }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#0A0A0A" />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={refreshTint} />
           }
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">

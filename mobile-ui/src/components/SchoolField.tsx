@@ -54,7 +54,7 @@ export function SchoolField({
       </Text>
       <Pressable
         onPress={() => setOpen(true)}
-        className="h-14 flex-row items-center justify-between rounded-2xl border border-line bg-white px-4"
+        className="h-14 flex-row items-center justify-between rounded-2xl border border-line bg-cream px-4"
       >
         <Text className={`text-base ${value ? "text-ink" : "text-muted"}`}>
           {value || "Select your school"}
@@ -89,7 +89,7 @@ export function SchoolField({
               placeholder="Search universities"
               placeholderTextColor="#6B7076"
               autoCapitalize="words"
-              className="h-12 rounded-2xl border border-line bg-white px-4 text-base text-ink"
+              className="h-12 rounded-2xl border border-line bg-cream px-4 text-base text-ink"
             />
 
             {loading ? (

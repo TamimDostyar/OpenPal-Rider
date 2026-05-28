@@ -83,7 +83,7 @@ export function ReportScreen() {
       >
         <FormError message={error} />
 
-        <View className="gap-1 rounded-3xl border border-line bg-white p-4">
+        <View className="gap-1 rounded-3xl border border-line bg-cream p-4">
           <Text className="text-xs text-muted">
             {params.kind === "post" ? "Reporting post" : "Reporting user"}
           </Text>
@@ -106,7 +106,7 @@ export function ReportScreen() {
                   key={r}
                   onPress={() => setReason(r)}
                   className={`rounded-2xl border px-4 py-3 ${
-                    active ? "border-ink bg-cream-2" : "border-line bg-white"
+                    active ? "border-ink bg-cream-2" : "border-line bg-cream"
                   }`}
                 >
                   <Text
@@ -132,7 +132,7 @@ export function ReportScreen() {
             placeholder="What happened?"
             placeholderTextColor="#6B7076"
             multiline
-            className="min-h-28 rounded-2xl border border-line bg-white px-4 py-3 text-base text-ink"
+            className="min-h-28 rounded-2xl border border-line bg-cream px-4 py-3 text-base text-ink"
           />
         </View>
 

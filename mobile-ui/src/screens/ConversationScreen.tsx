@@ -2,7 +2,6 @@ import { useNavigation, useRoute, type RouteProp } from "@react-navigation/nativ
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useRef, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   Text,
@@ -13,6 +12,7 @@ import {
 import { useAuth } from "@/auth/AuthContext";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
+import { Spinner } from "@/components/Spinner";
 import { useConversation } from "@/hooks/useConversation";
 import type { RootStackParamList } from "@/navigation/types";
 
@@ -44,13 +44,23 @@ function formatTime(iso: string): string {
 export function ConversationScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { otherUsername, bookingId } = route.params;
+  const { otherUsername, otherName, bookingId } = route.params;
   const { messages, loading, sending, error, send } = useConversation(otherUsername, bookingId);
   const [draft, setDraft] = useState("");
   const listRef = useRef<FlatList>(null);
 
   const { token } = useAuth();
   const myEmail = emailFromToken(token);
+
+  // Prefer the name carried on the messages, then the param passed in by the
+  // opening screen, and finally fall back to the @username.
+  const nameFromMessages = messages.reduce<string | null>((found, m) => {
+    if (found) return found;
+    const fromOther =
+      m.senderUsername === otherUsername ? m.senderName : m.recipientName;
+    return fromOther ?? null;
+  }, null);
+  const displayName = nameFromMessages ?? otherName ?? `@${otherUsername}`;
 
   const onSend = async () => {
     const ok = await send(draft);
@@ -67,7 +77,7 @@ export function ConversationScreen() {
           <Text className="text-sm font-semibold text-muted">‹ Back</Text>
         </Pressable>
         <Text className="flex-1 text-base font-semibold text-ink" numberOfLines={1}>
-          @{otherUsername}
+          {displayName}
         </Text>
       </View>
 
@@ -79,7 +89,7 @@ export function ConversationScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#0A0A0A" />
+          <Spinner />
         </View>
       ) : (
         <FlatList
@@ -95,7 +105,7 @@ export function ConversationScreen() {
               <View className={`flex-row ${mine ? "justify-end" : "justify-start"}`}>
                 <View
                   className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${
-                    mine ? "bg-ink" : "bg-white border border-line"
+                    mine ? "bg-ink" : "bg-cream border border-line"
                   }`}
                 >
                   <Text className={`text-sm ${mine ? "text-cream" : "text-ink"}`}>
@@ -120,7 +130,7 @@ export function ConversationScreen() {
         />
       )}
 
-      <View className="flex-row items-center gap-2 border-t border-line bg-white px-3 py-2">
+      <View className="flex-row items-center gap-2 border-t border-line bg-cream px-3 py-2">
         <TextInput
           className="flex-1 rounded-2xl bg-cream-2 px-4 py-2 text-base text-ink"
           placeholder="Message"

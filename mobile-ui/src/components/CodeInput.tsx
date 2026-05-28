@@ -50,7 +50,7 @@ export function CodeInput({ value, onChange }: CodeInputProps) {
           className={`h-16 flex-1 rounded-2xl border text-center text-2xl font-semibold ${
             digit
               ? "border-ink bg-ink text-cream"
-              : "border-line bg-white text-ink"
+              : "border-line bg-cream text-ink"
           }`}
         />
       ))}

@@ -1,7 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useColorScheme } from "nativewind";
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
+import { Spinner } from "@/components/Spinner";
 import { useAuth } from "@/auth/AuthContext";
 import { useOnboarding } from "@/auth/OnboardingContext";
 import { AuthedTabsScreen } from "@/screens/AuthedTabsScreen";
@@ -10,11 +12,13 @@ import { ConversationScreen } from "@/screens/ConversationScreen";
 import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
 import { LoginScreen } from "@/screens/LoginScreen";
+import { PostDetailScreen } from "@/screens/PostDetailScreen";
 import { RateRideScreen } from "@/screens/RateRideScreen";
 import { ReportScreen } from "@/screens/ReportScreen";
 import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
 import { SearchScreen } from "@/screens/SearchScreen";
 import { SignupScreen } from "@/screens/SignupScreen";
+import { TermsScreen } from "@/screens/TermsScreen";
 import { UpdatePostScreen } from "@/screens/UpdatePostScreen";
 import { UserProfileScreen } from "@/screens/UserProfileScreen";
 import { VehicleScreen } from "@/screens/VehicleScreen";
@@ -28,11 +32,12 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export function AppNavigator() {
   const { token, loading } = useAuth();
   const { onboarded, loading: onboardingLoading } = useOnboarding();
+  const { colorScheme } = useColorScheme();
 
   if (loading || onboardingLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
-        <ActivityIndicator color="#0A0A0A" />
+        <Spinner />
       </View>
     );
   }
@@ -41,7 +46,8 @@ export function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#FFFFFF" },
+        // Matches --c-cream so screen transitions don't flash the wrong color.
+        contentStyle: { backgroundColor: colorScheme === "dark" ? "#121214" : "#FFFFFF" },
       }}
     >
       {token ? (
@@ -56,6 +62,11 @@ export function AppNavigator() {
           <Stack.Screen
             name="UpdatePost"
             component={UpdatePostScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="PostDetail"
+            component={PostDetailScreen}
             options={{ presentation: "modal" }}
           />
           <Stack.Screen
@@ -80,6 +91,11 @@ export function AppNavigator() {
             component={VehicleScreen}
             options={{ presentation: "modal" }}
           />
+          <Stack.Screen
+            name="Terms"
+            component={TermsScreen}
+            options={{ presentation: "modal" }}
+          />
         </>
         ) : (
           <Stack.Screen name="Permissions" component={PermissionsScreen} />
@@ -92,6 +108,11 @@ export function AppNavigator() {
           <Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+          <Stack.Screen
+            name="Terms"
+            component={TermsScreen}
+            options={{ presentation: "modal" }}
+          />
         </>
       )}
     </Stack.Navigator>

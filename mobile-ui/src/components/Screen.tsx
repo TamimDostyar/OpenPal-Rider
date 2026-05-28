@@ -1,5 +1,5 @@
 /**
- * Shared screen shell that applies the cream background, safe-area insets,
+ * Shared screen shell that applies the white background, safe-area insets,
  * and keyboard-avoiding behavior used by every authenticated and auth screen.
  */
 import React from "react";

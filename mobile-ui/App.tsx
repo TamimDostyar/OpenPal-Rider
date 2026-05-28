@@ -12,6 +12,7 @@ import { AuthProvider } from "@/auth/AuthContext";
 import { OnboardingProvider } from "@/auth/OnboardingContext";
 import { FeedFiltersProvider } from "@/hooks/FeedFiltersContext";
 import { AppNavigator } from "@/navigation/AppNavigator";
+import { ThemeProvider, useTheme } from "@/theme/ThemeContext";
 import {
   getCurrentPermissionStatus,
   initNotifications,
@@ -79,17 +80,25 @@ export default function App() {
   return (
     <ErrorBoundary>
       <SafeAreaProvider>
-        <AuthProvider>
-          <OnboardingProvider>
-            <FeedFiltersProvider>
-              <NavigationContainer>
-                <StatusBar style="dark" />
-                <AppNavigator />
-              </NavigationContainer>
-            </FeedFiltersProvider>
-          </OnboardingProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <OnboardingProvider>
+              <FeedFiltersProvider>
+                <NavigationContainer>
+                  <ThemedStatusBar />
+                  <AppNavigator />
+                </NavigationContainer>
+              </FeedFiltersProvider>
+            </OnboardingProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
   );
+}
+
+/** StatusBar text/icons follow the active theme (light glyphs on dark bg). */
+function ThemedStatusBar() {
+  const { resolved } = useTheme();
+  return <StatusBar style={resolved === "dark" ? "light" : "dark"} />;
 }
