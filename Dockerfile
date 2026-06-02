@@ -45,4 +45,4 @@ COPY --from=build /workspace/app.jar app.jar
 ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "echo \"[boot] DB_URL set: $([ -n \\\"$DB_URL\\\" ] && echo YES || echo NO) | DB_USERNAME set: $([ -n \\\"$DB_USERNAME\\\" ] && echo YES || echo NO) | JWT_SECRET set: $([ -n \\\"$JWT_SECRET\\\" ] && echo YES || echo NO) | MAIL_USERNAME set: $([ -n \\\"$MAIL_USERNAME\\\" ] && echo YES || echo NO) | MAIL_PASSWORD set: $([ -n \\\"$MAIL_PASSWORD\\\" ] && echo YES || echo NO) | PORT=$PORT\"; java -Dserver.port=${PORT} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "echo \"[boot] DB_URL set: $([ -n \\\"$DB_URL\\\" ] && echo YES || echo NO) | DB_USERNAME set: $([ -n \\\"$DB_USERNAME\\\" ] && echo YES || echo NO) | JWT_SECRET set: $([ -n \\\"$JWT_SECRET\\\" ] && echo YES || echo NO) | MAIL_USERNAME set: $([ -n \\\"$MAIL_USERNAME\\\" ] && echo YES || echo NO) | BREVO_API_KEY set: $([ -n \\\"$BREVO_API_KEY\\\" ] && echo YES || echo NO) | PORT=$PORT\"; java -Dserver.port=${PORT} -jar /app/app.jar"]
