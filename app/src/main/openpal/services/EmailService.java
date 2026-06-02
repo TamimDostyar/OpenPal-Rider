@@ -1,24 +1,48 @@
 package openpal.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * Sends transactional email through Brevo's HTTPS API (port 443).
+ *
+ * <p>We deliberately do NOT use SMTP: our host (Render) firewalls outbound SMTP
+ * ports, so JavaMailSender → Gmail just times out. Brevo's REST endpoint goes
+ * over plain HTTPS, which is not blocked.
+ *
+ * <p>Set {@code BREVO_API_KEY} and {@code MAIL_USERNAME} (the from-address,
+ * which must be a verified sender in Brevo). With no key configured we log the
+ * message instead of sending — convenient for local dev.
+ */
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    private static final String BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
+
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+    private final ObjectMapper json = new ObjectMapper();
+
+    @Value("${brevo.api.key:}")
+    private String apiKey;
 
     @Value("${openpal.mail.from:}")
     private String fromAddress;
 
-    @Autowired
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    @Value("${openpal.mail.fromName:OpenPal}")
+    private String fromName;
 
     /**
      * Sends the signup verification code. Unlike the notification emails below
@@ -92,22 +116,51 @@ public class EmailService {
     }
 
     /**
-     * Actually delivers the email. Throws if SMTP delivery fails so critical
-     * paths (the signup code) can react. When no from-address is configured we
-     * fall back to logging the message — handy for local dev without SMTP, but
-     * note the email is NOT delivered in that mode.
+     * Delivers an email via Brevo. Throws on any non-2xx response or transport
+     * error so critical paths (the signup code) can react. When no API key is
+     * configured we fall back to logging — handy for local dev, but note the
+     * email is NOT actually delivered in that mode.
      */
     private void sendOrThrow(String toEmail, String subject, String body) {
-        if (fromAddress == null || fromAddress.isBlank()) {
-            System.out.println("[EmailService] MAIL not configured (set MAIL_USERNAME/MAIL_PASSWORD). "
-                + "Logging instead of sending:\n" + subject + " -> " + toEmail + "\n" + body);
+        if (apiKey == null || apiKey.isBlank()) {
+            System.out.println("[EmailService] BREVO_API_KEY not set. Logging instead of sending:\n"
+                + subject + " -> " + toEmail + "\n" + body);
             return;
         }
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
-        message.setTo(toEmail);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+
+        Map<String, Object> payload = Map.of(
+            "sender", Map.of("name", fromName, "email", fromAddress),
+            "to", List.of(Map.of("email", toEmail)),
+            "subject", subject,
+            "textContent", body
+        );
+
+        String requestBody;
+        try {
+            requestBody = json.writeValueAsString(payload);
+        } catch (Exception e) {
+            throw new IllegalStateException("could not serialize email payload", e);
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(BREVO_ENDPOINT))
+            .timeout(Duration.ofSeconds(15))
+            .header("api-key", apiKey)
+            .header("Content-Type", "application/json")
+            .header("accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+            .build();
+
+        HttpResponse<String> response;
+        try {
+            response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            throw new IllegalStateException("email transport error: " + e.getMessage(), e);
+        }
+
+        if (response.statusCode() / 100 != 2) {
+            throw new IllegalStateException(
+                "Brevo rejected the email (HTTP " + response.statusCode() + "): " + response.body());
+        }
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface ArchivedUserRepository extends JpaRepository<ArchivedUserDB, UUID> {
-
+    
     @Modifying
     @Transactional
     @Query("DELETE FROM ArchivedUserDB a WHERE a.deletedAt < :cutoff")
