@@ -71,7 +71,7 @@ export function SignupScreen() {
             label="Date of birth"
             value={fields.dob}
             onChange={setDob}
-            placeholder="Pick your date of birth"
+            placeholder="MM/DD/YYYY"
             maximumDate={new Date()}
           />
 
@@ -91,7 +91,7 @@ export function SignupScreen() {
             label="Graduation date"
             value={fields.graduationDate}
             onChange={setGraduationDate}
-            placeholder="Pick your graduation date"
+            placeholder="MM/DD/YYYY"
           />
           <TextField
             label="Phone number"

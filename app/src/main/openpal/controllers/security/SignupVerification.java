@@ -76,8 +76,14 @@ public class SignupVerification {
             code,
             LocalDateTime.now().plusMinutes(CODE_VALID_MINUTES)
         );
+        try {
+            emailService.sendVerificationCode(email, code);
+        } catch (Exception e) {
+            System.err.println("[SignupVerification] could not send code to " + email + ": " + e.getMessage());
+            return SignupResult.error(502,
+                "we couldn't send the verification email right now; please try again in a moment");
+        }
         pending.put(email.toLowerCase(), registration);
-        emailService.sendVerificationCode(email, code);
 
         Map<String, Object> response = new HashMap<>();
         response.put("email", email);
@@ -169,8 +175,15 @@ public class SignupVerification {
             code,
             LocalDateTime.now().plusMinutes(CODE_VALID_MINUTES)
         );
+        try {
+            emailService.sendVerificationCode(existing.getEmail(), code);
+        } catch (Exception e) {
+            System.err.println("[SignupVerification] could not resend code to "
+                + existing.getEmail() + ": " + e.getMessage());
+            return SignupResult.error(502,
+                "we couldn't send the verification email right now; please try again in a moment");
+        }
         pending.put(key, refreshed);
-        emailService.sendVerificationCode(existing.getEmail(), code);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "a new 4-digit verification code has been sent to your email");

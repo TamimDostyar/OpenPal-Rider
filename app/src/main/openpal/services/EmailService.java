@@ -20,9 +20,14 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    @Async
+    /**
+     * Sends the signup verification code. Unlike the notification emails below
+     * this is synchronous and propagates failures: if we can't deliver the code
+     * the caller must know, so signup can fail loudly instead of telling the
+     * user "check your email" when nothing was sent.
+     */
     public void sendVerificationCode(String toEmail, String code) {
-        send(toEmail, "Your OpenPal verification code",
+        sendOrThrow(toEmail, "Your OpenPal verification code",
             "Welcome to OpenPal!\n\n"
             + "Your 4-digit verification code is: " + code + "\n\n"
             + "It expires in 10 minutes. If you didn't sign up, you can ignore this email.");
@@ -77,9 +82,25 @@ public class EmailService {
             + "so future riders and drivers know what to expect.");
     }
 
+    /** Best-effort send for non-critical notifications: never throws. */
     private void send(String toEmail, String subject, String body) {
+        try {
+            sendOrThrow(toEmail, subject, body);
+        } catch (Exception e) {
+            System.err.println("[EmailService] failed to send to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Actually delivers the email. Throws if SMTP delivery fails so critical
+     * paths (the signup code) can react. When no from-address is configured we
+     * fall back to logging the message — handy for local dev without SMTP, but
+     * note the email is NOT delivered in that mode.
+     */
+    private void sendOrThrow(String toEmail, String subject, String body) {
         if (fromAddress == null || fromAddress.isBlank()) {
-            System.out.println("[EmailService] " + subject + " -> " + toEmail + "\n" + body);
+            System.out.println("[EmailService] MAIL not configured (set MAIL_USERNAME/MAIL_PASSWORD). "
+                + "Logging instead of sending:\n" + subject + " -> " + toEmail + "\n" + body);
             return;
         }
         SimpleMailMessage message = new SimpleMailMessage();
@@ -87,10 +108,6 @@ public class EmailService {
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(body);
-        try {
-            mailSender.send(message);
-        } catch (Exception e) {
-            System.err.println("[EmailService] failed to send to " + toEmail + ": " + e.getMessage());
-        }
+        mailSender.send(message);
     }
 }
