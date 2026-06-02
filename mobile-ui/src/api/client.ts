@@ -195,6 +195,12 @@ export const api = {
         token,
         body: { bio },
       }),
+
+    deleteAccount: (token: string) =>
+      request<{ message: string }>("/api/profile/account", {
+        method: "DELETE",
+        token,
+      }),
   },
 
   vehicle: {

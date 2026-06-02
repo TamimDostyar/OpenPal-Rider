@@ -34,4 +34,20 @@ public interface MessagingSysRepository extends JpaRepository<MessagingSysDB, UU
     int markConversationRead(@Param("recipient") String recipient,
                              @Param("sender") String sender,
                              @Param("now") LocalDateTime now);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MessagingSysDB m SET m.senderEmail = :anonEmail, m.senderUsername = :anonName "
+        + "WHERE LOWER(m.senderEmail) = LOWER(:email)")
+    int anonymizeSender(@Param("email") String email,
+                        @Param("anonEmail") String anonEmail,
+                        @Param("anonName") String anonName);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MessagingSysDB m SET m.recipientEmail = :anonEmail, m.recipientUsername = :anonName "
+        + "WHERE LOWER(m.recipientEmail) = LOWER(:email)")
+    int anonymizeRecipient(@Param("email") String email,
+                           @Param("anonEmail") String anonEmail,
+                           @Param("anonName") String anonName);
 }
