@@ -10,6 +10,7 @@
     "icon": "./asset/app-icon.png",
     "ios": {
       "supportsTablet": false,
+      "buildNumber": "2",
       "bundleIdentifier": "com.dostah01.palrider",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
