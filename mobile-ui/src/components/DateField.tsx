@@ -1,15 +1,10 @@
 /**
- * Date entry that you can either type (MM/DD/YYYY) or pick from a calendar.
- * The typed value is parsed, validated against any min/max bounds, and stored
- * as a YYYY-MM-DD string — the same shape the calendar picker produces, so
- * callers don't care which input the user used. The calendar opens inline on
- * Android and inside a bottom-sheet modal on iOS.
+ * Typed date entry (MM/DD/YYYY). The typed value is parsed, validated against
+ * any min/max bounds, and stored as a YYYY-MM-DD string — the shape the backend
+ * expects — so callers never deal with the display format.
  */
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
 import React, { useEffect, useState } from "react";
-import { Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 interface DateFieldProps {
   label: string;
@@ -20,12 +15,7 @@ interface DateFieldProps {
   maximumDate?: Date;
   minimumDate?: Date;
 }
-const ACCENT = "#0A0A0A";
 
-function toDate(value: string): Date {
-  const parsed = value ? new Date(`${value}T00:00:00`) : new Date();
-  return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
-}
 function toIsoDate(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -83,14 +73,12 @@ export function DateField({
   maximumDate,
   minimumDate,
 }: DateFieldProps) {
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState<Date>(() => toDate(value));
   const [text, setText] = useState<string>(() => isoToDisplay(value));
   const [focused, setFocused] = useState(false);
   const [invalid, setInvalid] = useState(false);
 
-  // Keep the visible text in sync when the value changes from the outside
-  // (e.g. the calendar picker), but never fight the user mid-type.
+  // Keep the visible text in sync when the value changes from the outside,
+  // but never fight the user mid-type.
   useEffect(() => {
     if (!focused) {
       setText(isoToDisplay(value));
@@ -113,98 +101,28 @@ export function DateField({
     }
   };
 
-  const openPicker = () => {
-    setDraft(toDate(value));
-    setOpen(true);
-  };
-
-  const handlePickerChange = (event: DateTimePickerEvent, picked?: Date) => {
-    if (Platform.OS === "ios") {
-      if (picked) setDraft(picked);
-      return;
-    }
-    setOpen(false);
-    if (event.type === "set" && picked) onChange(toIsoDate(picked));
-  };
-
-  const confirmIos = () => {
-    onChange(toIsoDate(draft));
-    setOpen(false);
-  };
-
-  const picker = (
-    <DateTimePicker
-      value={Platform.OS === "ios" ? draft : toDate(value)}
-      mode="date"
-      display={Platform.OS === "ios" ? "inline" : "default"}
-      maximumDate={maximumDate}
-      minimumDate={minimumDate}
-      onChange={handlePickerChange}
-      accentColor={ACCENT}
-      themeVariant="light"
-    />
-  );
-
   return (
     <View>
       <Text className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted">
         {label}
       </Text>
-      <View
-        className={`h-14 flex-row items-center rounded-2xl border bg-cream pl-4 pr-2 ${
+      <TextInput
+        value={text}
+        onChangeText={handleType}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        placeholder={placeholder}
+        placeholderTextColor="#6B7076"
+        keyboardType="number-pad"
+        maxLength={10}
+        className={`h-14 rounded-2xl border bg-cream px-4 text-base text-ink ${
           invalid ? "border-coral" : "border-line"
         }`}
-      >
-        <TextInput
-          value={text}
-          onChangeText={handleType}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          placeholder={placeholder}
-          placeholderTextColor="#6B7076"
-          keyboardType="number-pad"
-          maxLength={10}
-          className="flex-1 text-base text-ink"
-        />
-        <Pressable
-          onPress={openPicker}
-          hitSlop={8}
-          accessibilityLabel="Open calendar"
-          className="h-10 w-10 items-center justify-center rounded-xl"
-        >
-          <Text className="text-lg">📅</Text>
-        </Pressable>
-      </View>
+      />
       {invalid ? (
         <Text className="mt-1.5 text-xs text-coral">Enter a valid date (MM/DD/YYYY).</Text>
       ) : hint ? (
         <Text className="mt-1.5 text-xs text-muted">{hint}</Text>
-      ) : null}
-
-      {open && Platform.OS !== "ios" ? picker : null}
-      {Platform.OS === "ios" ? (
-        <Modal
-          visible={open}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setOpen(false)}
-        >
-          <Pressable
-            className="flex-1 justify-end bg-ink/40"
-            onPress={() => setOpen(false)}
-          >
-            <Pressable className="rounded-t-3xl bg-cream px-5 pb-8 pt-4">
-              <View className="mb-1 flex-row justify-end">
-                <Pressable onPress={confirmIos} className="px-2 py-1">
-                  <Text className="text-base font-semibold text-coral-dk">
-                    Done
-                  </Text>
-                </Pressable>
-              </View>
-              {picker}
-            </Pressable>
-          </Pressable>
-        </Modal>
       ) : null}
     </View>
   );

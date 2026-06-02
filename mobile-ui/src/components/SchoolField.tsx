@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { University } from "@/api/types";
 
@@ -40,10 +40,22 @@ export function SchoolField({
   hint,
 }: SchoolFieldProps) {
   const [open, setOpen] = useState(false);
+  // Safe-area insets read here (inside the provider); a Modal renders outside
+  // the provider, so SafeAreaView there reports zero and the header collides
+  // with the notch. Apply the top inset to the modal content ourselves.
+  const insets = useSafeAreaInsets();
+
+  // Start each visit with a cleared search. Doing this on open (rather than on
+  // select) avoids swapping the short filtered list for the full universities
+  // list while the modal is mid-dismiss — that heavy re-render briefly froze
+  // the UI and swallowed the first tap after picking a school.
+  const openPicker = () => {
+    onQueryChange("");
+    setOpen(true);
+  };
 
   const select = (school: string) => {
     onChange(school);
-    onQueryChange("");
     setOpen(false);
   };
 
@@ -53,7 +65,7 @@ export function SchoolField({
         {label}
       </Text>
       <Pressable
-        onPress={() => setOpen(true)}
+        onPress={openPicker}
         className="h-14 flex-row items-center justify-between rounded-2xl border border-line bg-cream px-4"
       >
         <Text className={`text-base ${value ? "text-ink" : "text-muted"}`}>
@@ -68,7 +80,10 @@ export function SchoolField({
         animationType="slide"
         onRequestClose={() => setOpen(false)}
       >
-        <SafeAreaView className="flex-1 bg-cream">
+        <View
+          className="flex-1 bg-cream"
+          style={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom }}
+        >
           <View className="flex-1 px-6">
             <View className="flex-row items-center gap-1 py-3">
               <Pressable
@@ -129,7 +144,7 @@ export function SchoolField({
               />
             )}
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
     </View>
   );

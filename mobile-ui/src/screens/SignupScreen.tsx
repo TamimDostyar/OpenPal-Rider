@@ -57,7 +57,7 @@ export function SignupScreen() {
             label="Full name"
             value={fields.name}
             onChangeText={setName}
-            placeholder="Alex Rivera"
+            placeholder="Tamim Dostyar"
           />
           <TextField
             label="Campus email"
@@ -72,6 +72,7 @@ export function SignupScreen() {
             value={fields.dob}
             onChange={setDob}
             placeholder="MM/DD/YYYY"
+            hint="Example: 09/04/2001"
             maximumDate={new Date()}
           />
 
@@ -92,6 +93,7 @@ export function SignupScreen() {
             value={fields.graduationDate}
             onChange={setGraduationDate}
             placeholder="MM/DD/YYYY"
+            hint="Example: 05/01/2026"
           />
           <TextField
             label="Phone number"

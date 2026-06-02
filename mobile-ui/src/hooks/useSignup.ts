@@ -33,10 +33,10 @@ export function useSignup() {
   const validate = (): string | null => {
     if (!name.trim()) return "Enter your full name.";
     if (!email.includes("@")) return "Enter a valid email address.";
-    if (!DATE_PATTERN.test(dob)) return "Date of birth must be YYYY-MM-DD.";
+    if (!DATE_PATTERN.test(dob)) return "Date of birth must be MM/DD/YYYY.";
     if (!school.trim()) return "Pick your school from the list.";
     if (!DATE_PATTERN.test(graduationDate))
-      return "Graduation date must be YYYY-MM-DD.";
+      return "Graduation date must be MM/DD/YYYY.";
     if (!/^\d{10}$/.test(phoneNumber)) return "Phone number must be 10 digits.";
     if (password.length < 8) return "Password must be at least 8 characters.";
     return null;
