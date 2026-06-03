@@ -97,7 +97,6 @@ export function ProfileScreen() {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [refreshing, setRefreshing] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const reload = useCallback(
     async (mode: "initial" | "refresh" = "initial") => {
@@ -120,37 +119,6 @@ export function ProfileScreen() {
       void reload("refresh");
     }, [reload]),
   );
-
-  const performDelete = async () => {
-    if (!token || deleting) return;
-    setDeleting(true);
-    try {
-      await api.profile.deleteAccount(token);
-      // Account is gone server-side; drop the local session entirely.
-      await signOut();
-    } catch (e) {
-      setDeleting(false);
-      const message =
-        e instanceof ApiError ? e.message : "Couldn't delete your account. Please try again.";
-      Alert.alert("Delete failed", message);
-    }
-  };
-
-  const confirmDelete = () => {
-    Alert.alert(
-      "Delete account?",
-      "This permanently deletes your account, your posts, and your profile. " +
-        "This can't be undone, and you won't be able to sign in again.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete account",
-          style: "destructive",
-          onPress: () => void performDelete(),
-        },
-      ],
-    );
-  };
 
   const openBugReport = async () => {
     try {
@@ -231,9 +199,19 @@ export function ProfileScreen() {
       >
         <View className="flex-row items-center justify-between">
           <Text className="text-3xl font-bold tracking-tight text-ink">Profile</Text>
-          <Pressable onPress={signOut} hitSlop={8} className="py-2">
-            <Text className="text-xs font-semibold text-muted">Sign out</Text>
-          </Pressable>
+          <View className="flex-row items-center gap-4">
+            <Pressable
+              onPress={() => navigation.navigate("Settings")}
+              hitSlop={8}
+              accessibilityLabel="Settings"
+              className="h-9 w-9 items-center justify-center rounded-full border border-line bg-cream"
+            >
+              <Text className="text-base text-ink">⚙</Text>
+            </Pressable>
+            <Pressable onPress={signOut} hitSlop={8} className="py-2">
+              <Text className="text-xs font-semibold text-muted">Sign out</Text>
+            </Pressable>
+          </View>
         </View>
 
         <View className="flex-row items-center gap-4">
@@ -369,20 +347,15 @@ export function ProfileScreen() {
           </Text>
         </Pressable>
 
-        <View className="border-t border-line pt-4">
-          <Pressable
-            onPress={confirmDelete}
-            disabled={deleting}
-            className="items-center rounded-full border border-coral py-2.5"
-          >
-            <Text className="text-sm font-semibold text-coral">
-              {deleting ? "Deleting…" : "Delete account"}
-            </Text>
-          </Pressable>
-          <Text className="mt-2 text-center text-xs text-muted">
-            Permanently deletes your account and data. This can't be undone.
+        <Pressable
+          onPress={() => navigation.navigate("Settings")}
+          className="border-t border-line pt-4"
+        >
+          <Text className="text-sm font-semibold text-ink-2">Settings →</Text>
+          <Text className="text-xs text-muted">
+            Manage blocked users and delete your account.
           </Text>
-        </View>
+        </Pressable>
       </ScrollView>
 
       <EditBioModal

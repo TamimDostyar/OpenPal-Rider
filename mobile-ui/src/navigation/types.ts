@@ -23,4 +23,5 @@ export type RootStackParamList = {
   Vehicle: undefined;
   UserProfile: { username: string };
   Terms: undefined;
+  Settings: undefined;
 };

@@ -17,6 +17,7 @@ import { RateRideScreen } from "@/screens/RateRideScreen";
 import { ReportScreen } from "@/screens/ReportScreen";
 import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
 import { SearchScreen } from "@/screens/SearchScreen";
+import { SettingsScreen } from "@/screens/SettingsScreen";
 import { SignupScreen } from "@/screens/SignupScreen";
 import { TermsScreen } from "@/screens/TermsScreen";
 import { UpdatePostScreen } from "@/screens/UpdatePostScreen";
@@ -94,6 +95,11 @@ export function AppNavigator() {
           <Stack.Screen
             name="Terms"
             component={TermsScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={SettingsScreen}
             options={{ presentation: "modal" }}
           />
         </>
