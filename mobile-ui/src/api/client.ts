@@ -2,9 +2,12 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 import type {
+  BlockResponse,
   BookingEnvelope,
   BookingResponse,
   ConversationSummary,
+  CreateBlockEnvelope,
+  CreateBlockRequest,
   CreateBookingRequest,
   CreateFeedPostRequest,
   CreatePostEnvelope,
@@ -303,5 +306,23 @@ export const api = {
 
     mine: (token: string) =>
       request<import("./types").ReportResponse[]>("/api/reports/mine", { token }),
+  },
+
+  blocks: {
+    create: (token: string, payload: CreateBlockRequest) =>
+      request<CreateBlockEnvelope>("/api/blocks", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+
+    remove: (token: string, username: string) =>
+      request<{ message: string }>(
+        `/api/blocks/${encodeURIComponent(username)}`,
+        { method: "DELETE", token },
+      ),
+
+    mine: (token: string) =>
+      request<BlockResponse[]>("/api/blocks", { token }),
   },
 };

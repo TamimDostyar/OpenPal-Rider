@@ -280,3 +280,20 @@ export interface CreateReportEnvelope {
   message: string;
   report: ReportResponse;
 }
+
+export interface CreateBlockRequest {
+  username: string;
+  reason?: string;
+}
+
+export interface BlockResponse {
+  id: string;
+  blockedUsername: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface CreateBlockEnvelope {
+  message: string;
+  block?: BlockResponse;
+}

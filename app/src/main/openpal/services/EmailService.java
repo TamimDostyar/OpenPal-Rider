@@ -45,6 +45,13 @@ public class EmailService {
     private String fromName;
 
     /**
+     * Where moderation alerts (user blocks / objectionable content) are sent.
+     * Falls back to the from-address so we always have somewhere to notify.
+     */
+    @Value("${openpal.moderation.email:${MODERATION_EMAIL:}}")
+    private String moderationEmail;
+
+    /**
      * Sends the signup verification code. Unlike the notification emails below
      * this is synchronous and propagates failures: if we can't deliver the code
      * the caller must know, so signup can fail loudly instead of telling the
@@ -104,6 +111,29 @@ public class EmailService {
             "Your ride from " + origin + " to " + destination + " is complete.\n\n"
             + "Take a moment to rate @" + otherPartyUsername + " in OpenPal "
             + "so future riders and drivers know what to expect.");
+    }
+
+    /**
+     * Notifies the moderation inbox when a user blocks another user, so a human
+     * can review the potentially objectionable content. Best-effort: never
+     * throws, so blocking always succeeds for the user regardless of email.
+     */
+    @Async
+    public void sendUserBlockedAlert(String blockerUsername, String blockedUsername, String reason) {
+        String to = (moderationEmail != null && !moderationEmail.isBlank())
+                ? moderationEmail
+                : fromAddress;
+        if (to == null || to.isBlank()) {
+            System.out.println("[EmailService] no moderation address configured; "
+                + "user @" + blockerUsername + " blocked @" + blockedUsername
+                + (reason == null ? "" : " (reason: " + reason + ")"));
+            return;
+        }
+        String body = "@" + blockerUsername + " has blocked @" + blockedUsername + ".\n\n"
+            + "Reason: " + (reason == null || reason.isBlank() ? "(none given)" : reason) + "\n\n"
+            + "Please review @" + blockedUsername + "'s account and content for policy "
+            + "violations and take action if warranted.";
+        send(to, "User blocked: @" + blockedUsername + " (by @" + blockerUsername + ")", body);
     }
 
     /** Best-effort send for non-critical notifications: never throws. */

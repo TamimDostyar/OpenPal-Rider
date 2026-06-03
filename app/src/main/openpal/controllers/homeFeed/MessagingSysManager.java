@@ -17,6 +17,7 @@ import openpal.controllers.security.AuthSupport;
 import openpal.controllers.security.AuthSupport.AuthFailure;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
+import openpal.database.blocksDB.BlockRepository;
 import openpal.database.homeFeedDB.MessagingSysDB;
 import openpal.database.homeFeedDB.MessagingSysRepository;
 import openpal.services.EmailService;
@@ -28,16 +29,19 @@ public class MessagingSysManager {
 
     private final MessagingSysRepository messageRepo;
     private final ProfileRepository profileRepo;
+    private final BlockRepository blockRepo;
     private final AuthSupport auth;
     private final EmailService emailService;
 
     @Autowired
     public MessagingSysManager(MessagingSysRepository messageRepo,
                                ProfileRepository profileRepo,
+                               BlockRepository blockRepo,
                                AuthSupport auth,
                                EmailService emailService) {
         this.messageRepo = messageRepo;
         this.profileRepo = profileRepo;
+        this.blockRepo = blockRepo;
         this.auth = auth;
         this.emailService = emailService;
     }
@@ -73,6 +77,10 @@ public class MessagingSysManager {
         String recipientDomain = AuthSupport.emailDomain(recipient.getEmail());
         if (!senderDomain.equalsIgnoreCase(recipientDomain)) {
             return AuthSupport.error(HttpStatus.FORBIDDEN, "can only message users at your school");
+        }
+        if (blockRepo.existsBetween(sender.getEmail(), recipient.getEmail())) {
+            return AuthSupport.error(HttpStatus.FORBIDDEN,
+                    "you can't message this user");
         }
 
         MessagingSysDB saved = messageRepo.save(new MessagingSysDB(

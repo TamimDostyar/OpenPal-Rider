@@ -16,6 +16,7 @@ import openpal.database.account_mgt.ArchivedUserRepository;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
 import openpal.database.bookingsDB.BookingRepository;
+import openpal.database.blocksDB.BlockRepository;
 import openpal.database.homeFeedDB.FeedPostsRepository;
 import openpal.database.homeFeedDB.MessagingSysRepository;
 import openpal.database.ratingsDB.RatingRepository;
@@ -45,6 +46,7 @@ public class AccountManager {
     private final MessagingSysRepository messageRepo;
     private final RatingRepository ratingRepo;
     private final ReportRepository reportRepo;
+    private final BlockRepository blockRepo;
     private final AuthSupport auth;
 
     @Autowired
@@ -55,6 +57,7 @@ public class AccountManager {
                           MessagingSysRepository messageRepo,
                           RatingRepository ratingRepo,
                           ReportRepository reportRepo,
+                          BlockRepository blockRepo,
                           AuthSupport auth) {
         this.profileRepo = profileRepo;
         this.archivedRepo = archivedRepo;
@@ -63,6 +66,7 @@ public class AccountManager {
         this.messageRepo = messageRepo;
         this.ratingRepo = ratingRepo;
         this.reportRepo = reportRepo;
+        this.blockRepo = blockRepo;
         this.auth = auth;
     }
 
@@ -95,6 +99,9 @@ public class AccountManager {
         ratingRepo.anonymizeRater(email, anonEmail, ANON_NAME);
         ratingRepo.anonymizeRated(email, anonEmail, ANON_NAME);
         reportRepo.anonymizeReporter(email, anonEmail, ANON_NAME);
+
+        // Block rows reference real emails on both sides — just drop them.
+        blockRepo.deleteAllInvolving(email);
 
         // Finally, drop the account row itself (frees the unique email/username).
         profileRepo.delete(profile);

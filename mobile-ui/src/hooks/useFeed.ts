@@ -16,6 +16,7 @@ interface UseFeedResult {
   applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
   bookPost: (postId: string, seats: number) => Promise<boolean>;
+  blockUser: (username: string) => Promise<boolean>;
 }
 
 function emailFromToken(token: string): string | null {
@@ -168,6 +169,31 @@ export function useFeed(): UseFeedResult {
     [handleAuthFailure, token],
   );
 
+  const blockUser = useCallback(
+    async (username: string): Promise<boolean> => {
+      if (!token) return false;
+      const previous = posts;
+      // Instantly remove every post from this user from the feed.
+      setPosts((curr) =>
+        curr.filter((p) => p.username.toLowerCase() !== username.toLowerCase()),
+      );
+      try {
+        await api.blocks.create(token, { username });
+        return true;
+      } catch (err: unknown) {
+        setPosts(previous);
+        if (err instanceof ApiError) {
+          if (await handleAuthFailure(err)) return false;
+          setError(err.message);
+        } else {
+          setError("Couldn't block this user.");
+        }
+        return false;
+      }
+    },
+    [handleAuthFailure, posts, token],
+  );
+
   return {
     posts,
     loading,
@@ -179,5 +205,6 @@ export function useFeed(): UseFeedResult {
     applyFilters,
     deletePost,
     bookPost,
+    blockUser,
   };
 }

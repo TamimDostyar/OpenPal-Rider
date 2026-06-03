@@ -9,6 +9,7 @@ interface FeedPostCardProps {
   onDelete?: (id: string) => void;
   onBook?: (post: FeedPostResponse) => void;
   onReport?: (post: FeedPostResponse) => void;
+  onBlock?: (post: FeedPostResponse) => void;
   onMessage?: (post: FeedPostResponse) => void;
   onViewProfile?: (post: FeedPostResponse) => void;
   /** Tap the card body to open the full ride detail screen. */
@@ -113,6 +114,7 @@ export function FeedPostCard({
   onDelete,
   onBook,
   onReport,
+  onBlock,
   onMessage,
   onViewProfile,
   onOpen,
@@ -241,6 +243,11 @@ export function FeedPostCard({
             {onReport ? (
               <Pressable onPress={() => onReport(post)} hitSlop={8} className="px-2 py-1">
                 <Text className="text-xs text-muted">Report</Text>
+              </Pressable>
+            ) : null}
+            {onBlock ? (
+              <Pressable onPress={() => onBlock(post)} hitSlop={8} className="px-2 py-1">
+                <Text className="text-xs text-muted">Block</Text>
               </Pressable>
             ) : null}
             {onMessage ? (

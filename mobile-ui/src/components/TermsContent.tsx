@@ -73,7 +73,18 @@ export function TermsContent() {
         other person.
       </Section>
 
-      <Section title="7. No warranty">
+      <Section title="7. Community conduct, reporting, and blocking">
+        There is zero tolerance for objectionable content or abusive behavior on
+        OpenPal. You agree not to post content that is harassing, threatening,
+        hateful, sexually explicit, illegal, or otherwise objectionable, and not
+        to abuse other users. If you encounter content or a user that violates
+        these terms, use the “Report” option to flag it, or “Block” to instantly
+        stop seeing that user and prevent them from contacting you. Reports and
+        blocks are sent to us for review, and we may remove content or remove
+        users who violate these terms, typically within 24 hours.
+      </Section>
+
+      <Section title="8. No warranty">
         OpenPal is provided “as is.” We do our best to keep the app running and
         useful, but we do not promise that it will always be available,
         error-free, or that any ride you arrange will take place. To the extent
@@ -81,14 +92,14 @@ export function TermsContent() {
         results from using the app or from interactions with other users.
       </Section>
 
-      <Section title="8. Changes to these terms">
+      <Section title="9. Changes to these terms">
         We may update these terms from time to time. When we make a meaningful
         change, we will update the “last updated” date above and, where
         appropriate, notify you in the app. Continuing to use OpenPal after a
         change means you accept the updated terms.
       </Section>
 
-      <Section title="9. Contact">
+      <Section title="10. Contact">
         If you have questions about these terms or your information, you can reach
         us through the “Report an issue” option in your profile.
       </Section>

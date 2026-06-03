@@ -1,7 +1,7 @@
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 
 import { Spinner } from "@/components/Spinner";
 
@@ -60,6 +60,33 @@ export function UserProfileScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const onBlock = useCallback(() => {
+    Alert.alert(
+      `Block @${username}?`,
+      "You won't see their posts or receive messages from them, and they can't message you. We'll review their account.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            if (!token) return;
+            try {
+              await api.blocks.create(token, { username });
+              Alert.alert("Blocked", `You won't see @${username} anymore.`, [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } catch (e) {
+              setError(
+                e instanceof ApiError ? e.message : "Couldn't block this user.",
+              );
+            }
+          },
+        },
+      ],
+    );
+  }, [navigation, token, username]);
 
   // Use the most recent post to pull denormalized fields (name, school, verified).
   const primary = posts[0];
@@ -132,15 +159,19 @@ export function UserProfileScreen() {
             <Stat label="Reviews" value={String(ratingCount)} />
           </View>
 
-          <Pressable
-            onPress={() =>
-              navigation.navigate("Report", { kind: "user", username })
-            }
-            className="self-start"
-            hitSlop={6}
-          >
-            <Text className="text-xs font-semibold text-coral">Report this user</Text>
-          </Pressable>
+          <View className="flex-row items-center gap-4">
+            <Pressable
+              onPress={() =>
+                navigation.navigate("Report", { kind: "user", username })
+              }
+              hitSlop={6}
+            >
+              <Text className="text-xs font-semibold text-coral">Report this user</Text>
+            </Pressable>
+            <Pressable onPress={onBlock} hitSlop={6}>
+              <Text className="text-xs font-semibold text-coral">Block this user</Text>
+            </Pressable>
+          </View>
 
           <View className="gap-2 border-t border-line pt-4">
             <Text className="text-xs font-semibold uppercase tracking-wider text-muted">

@@ -20,6 +20,7 @@ import openpal.controllers.security.AuthSupport;
 import openpal.controllers.security.AuthSupport.AuthFailure;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
+import openpal.database.blocksDB.BlockRepository;
 import openpal.database.homeFeedDB.FeedPostsDB;
 import openpal.database.homeFeedDB.FeedPostsRepository;
 
@@ -28,14 +29,17 @@ public class FeedPostsManager {
 
     private final FeedPostsRepository feedRepo;
     private final ProfileRepository profileRepo;
+    private final BlockRepository blockRepo;
     private final AuthSupport auth;
 
     @Autowired
     public FeedPostsManager(FeedPostsRepository feedRepo,
                             ProfileRepository profileRepo,
+                            BlockRepository blockRepo,
                             AuthSupport auth) {
         this.feedRepo = feedRepo;
         this.profileRepo = profileRepo;
+        this.blockRepo = blockRepo;
         this.auth = auth;
     }
 
@@ -100,7 +104,7 @@ public class FeedPostsManager {
         }
         String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
         List<FeedPostsDB> posts = feedRepo.findByEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(suffix);
-        return ResponseEntity.ok(joinWithProfiles(posts));
+        return ResponseEntity.ok(joinWithProfiles(removeBlocked(posts, hiddenEmails(caller))));
     }
 
     public ResponseEntity<?> searchFeed(String authHeader, String destination,
@@ -115,8 +119,10 @@ public class FeedPostsManager {
         String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
         List<FeedPostsDB> posts = feedRepo.findByEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(suffix);
 
+        Set<String> hidden = hiddenEmails(caller);
         String needle = destination == null ? null : destination.trim().toLowerCase();
         List<FeedPostsDB> filtered = posts.stream().filter(p -> {
+            if (hidden.contains(p.getEmail().toLowerCase())) return false;
             if (needle != null && !needle.isEmpty()
                     && !p.getDestination().toLowerCase().contains(needle)) return false;
             if (dateFrom != null && p.getDepartureTime().isBefore(dateFrom)) return false;
@@ -139,7 +145,7 @@ public class FeedPostsManager {
         String suffix = "@" + AuthSupport.emailDomain(caller.getEmail());
         List<FeedPostsDB> posts = feedRepo
                 .findByUsernameAndEmailEndingWithIgnoreCaseOrderByCreatedAtDesc(username, suffix);
-        return ResponseEntity.ok(joinWithProfiles(posts));
+        return ResponseEntity.ok(joinWithProfiles(removeBlocked(posts, hiddenEmails(caller))));
     }
 
     public ResponseEntity<?> listMyRides(String authHeader) {
@@ -177,6 +183,24 @@ public class FeedPostsManager {
         Map<String, Object> body = new HashMap<>();
         body.put("message", "post deleted");
         return ResponseEntity.ok(body);
+    }
+
+    /**
+     * Emails whose posts must be hidden from this caller — anyone they've
+     * blocked, and anyone who has blocked them. Returned lowercased.
+     */
+    private Set<String> hiddenEmails(CreateProfileDB caller) {
+        Set<String> hidden = new java.util.HashSet<>();
+        for (String e : blockRepo.blockedEmailsBy(caller.getEmail())) hidden.add(e.toLowerCase());
+        for (String e : blockRepo.emailsBlocking(caller.getEmail())) hidden.add(e.toLowerCase());
+        return hidden;
+    }
+
+    private List<FeedPostsDB> removeBlocked(List<FeedPostsDB> posts, Set<String> hidden) {
+        if (hidden.isEmpty()) return posts;
+        return posts.stream()
+                .filter(p -> !hidden.contains(p.getEmail().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     private List<FeedPostResponse> joinWithProfiles(List<FeedPostsDB> posts) {

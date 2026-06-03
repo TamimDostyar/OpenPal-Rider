@@ -93,6 +93,39 @@ export function PostDetailScreen() {
 
   const close = () => navigation.goBack();
 
+  const onBlock = () => {
+    Alert.alert(
+      `Block @${post.username}?`,
+      "You won't see their posts or receive messages from them, and they can't message you. We'll review their account.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            if (!token) return;
+            try {
+              await api.blocks.create(token, { username: post.username });
+              Alert.alert("Blocked", `You won't see @${post.username} anymore.`, [
+                { text: "OK", onPress: close },
+              ]);
+            } catch (err: unknown) {
+              if (err instanceof ApiError) {
+                if (err.status === 401 || err.status === 403) {
+                  await signOut();
+                  return;
+                }
+                Alert.alert("Couldn't block", err.message);
+              } else {
+                Alert.alert("Couldn't block", "Please try again.");
+              }
+            }
+          },
+        },
+      ],
+    );
+  };
+
   // Booking is performed directly here (like ReportScreen) so we don't have to
   // pass a non-serializable callback through navigation params. The feed
   // refreshes on focus, so the booked post drops out when we return.
@@ -315,6 +348,9 @@ export function PostDetailScreen() {
             className="px-2 py-2"
           >
             <Text className="text-sm text-muted">Report</Text>
+          </Pressable>
+          <Pressable onPress={onBlock} hitSlop={8} className="px-2 py-2">
+            <Text className="text-sm text-muted">Block</Text>
           </Pressable>
           <View className="flex-1" />
           <Pressable

@@ -33,6 +33,7 @@ export function HomeScreen() {
     refresh,
     deletePost,
     bookPost,
+    blockUser,
     applyFilters,
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
@@ -89,6 +90,23 @@ export function HomeScreen() {
       postId: post.id,
       postSummary: `${post.origin} → ${post.destination}`,
     });
+
+  const onBlock = (post: FeedPostResponse) =>
+    Alert.alert(
+      `Block @${post.username}?`,
+      "You won't see their posts or receive messages from them, and they can't message you. We'll review their account.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Block",
+          style: "destructive",
+          onPress: async () => {
+            const ok = await blockUser(post.username);
+            if (ok) Alert.alert("Blocked", `You won't see @${post.username} anymore.`);
+          },
+        },
+      ],
+    );
 
   const onMessage = (post: FeedPostResponse) =>
     navigation.navigate("Conversation", {
@@ -165,6 +183,7 @@ export function HomeScreen() {
                 onDelete={deletePost}
                 onBook={onBook}
                 onReport={onReport}
+                onBlock={onBlock}
                 onMessage={onMessage}
                 onViewProfile={onViewProfile}
                 onOpen={onOpen}
