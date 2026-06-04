@@ -17,7 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* PalRider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PalRider.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* PalRiders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PalRiders.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OpenPalRider/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OpenPalRider/Info.plist; sourceTree = "<group>"; };
 		1633FEBD0E99B6D230280B7B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = OpenPalRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -108,7 +108,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* PalRider.app */,
+				13B07F961A680F5B00A75B9A /* PalRiders.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,9 +134,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* OpenPalRider */ = {
+		13B07F861A680F5B00A75B9A /* PalRiders */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "OpenPalRider" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "PalRiders" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
 				AC6E135477EC6C82B79FB68F /* [Expo] Configure project */,
@@ -151,9 +151,9 @@
 			);
 			dependencies = (
 			);
-			name = OpenPalRider;
+			name = PalRiders;
 			productName = OpenPalRider;
-			productReference = 13B07F961A680F5B00A75B9A /* PalRider.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* PalRiders.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -184,7 +184,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* OpenPalRider */,
+				13B07F861A680F5B00A75B9A /* PalRiders */,
 			);
 		};
 /* End PBXProject section */
@@ -367,8 +367,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.openpalteam;
-				PRODUCT_NAME = PalRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palrider;
+				PRODUCT_NAME = PalRiders;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -403,8 +403,8 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tamimdostyar.openpal;
-				PRODUCT_NAME = PalRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palriders;
+				PRODUCT_NAME = PalRiders;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -533,7 +533,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "OpenPalRider" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "PalRiders" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,

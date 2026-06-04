@@ -1,7 +1,3 @@
-/**
- * Step 1 of the signup flow: collects user profile fields and sends them to
- * the backend, which responds by emailing a verification code.
- */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
@@ -38,6 +34,7 @@ export function SignupScreen() {
     submit,
   } = useSignup();
 
+  
   return (
     <Screen>
       <ScrollView
