@@ -403,7 +403,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palriders;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palrider;
 				PRODUCT_NAME = PalRiders;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
