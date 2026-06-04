@@ -7,10 +7,13 @@ import React from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { TermsContent } from "@/components/TermsContent";
+import { LegalDocumentView } from "@/components/LegalDocumentView";
+import { TERMS_FALLBACK } from "@/components/TermsContent";
+import { useLegalDocument } from "@/hooks/useLegalDocument";
 
 export function TermsScreen() {
   const navigation = useNavigation();
+  const { doc } = useLegalDocument("terms", TERMS_FALLBACK);
   const insets = useSafeAreaInsets();
   // iOS pageSheet handles its own top inset; Android fullScreen needs ours.
   const headerTopPad = Platform.OS === "ios" ? 14 : Math.max(insets.top, 12) + 6;
@@ -39,7 +42,7 @@ export function TermsScreen() {
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <TermsContent />
+        <LegalDocumentView doc={doc} />
       </ScrollView>
     </SafeAreaView>
   );

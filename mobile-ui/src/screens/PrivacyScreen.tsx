@@ -8,10 +8,13 @@ import React from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { PrivacyContent } from "@/components/PrivacyContent";
+import { LegalDocumentView } from "@/components/LegalDocumentView";
+import { PRIVACY_FALLBACK } from "@/components/PrivacyContent";
+import { useLegalDocument } from "@/hooks/useLegalDocument";
 
 export function PrivacyScreen() {
   const navigation = useNavigation();
+  const { doc } = useLegalDocument("privacy", PRIVACY_FALLBACK);
   const insets = useSafeAreaInsets();
   // iOS pageSheet handles its own top inset; Android fullScreen needs ours.
   const headerTopPad = Platform.OS === "ios" ? 14 : Math.max(insets.top, 12) + 6;
@@ -40,7 +43,7 @@ export function PrivacyScreen() {
         contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <PrivacyContent />
+        <LegalDocumentView doc={doc} />
       </ScrollView>
     </SafeAreaView>
   );
