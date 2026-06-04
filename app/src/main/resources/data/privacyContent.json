@@ -1,0 +1,52 @@
+{
+  "title": "Privacy Policy",
+  "lastUpdated": "June 3, 2026",
+  "intro": "This Privacy Policy explains what information OpenPal collects, how we use it, who we share it with, how long we keep it, and the choices you have. OpenPal helps students find and share rides with other students at their school. We collect only what we need to run that service.",
+  "sections": [
+    {
+      "title": "1. Information you provide",
+      "body": "When you create an account we collect your full name, campus email address, date of birth, school, expected graduation date, and phone number, along with a password (which we store only as a salted hash, never in plain text). You may optionally add a short bio and vehicle details (make, model, color, license plate). When you use the app we also collect the ride posts you create (including the origin and destination places and their approximate map coordinates), the messages you send to other users, and the ratings and reports you submit."
+    },
+    {
+      "title": "2. How we use your information",
+      "body": "We use your information to operate OpenPal: to create and secure your account, verify your campus email, match you with other students at your school, show your ride posts, enable messaging and ratings, send you service notifications about your rides, and keep the community safe by reviewing reports and blocks. We do not use your data for advertising."
+    },
+    {
+      "title": "3. We do not sell your information",
+      "body": "We do not sell, rent, or trade your personal information, and we do not share it with advertisers or data brokers."
+    },
+    {
+      "title": "4. Service providers we share with",
+      "body": "We share limited data with a small number of providers strictly to run the app: an email provider (Brevo) to deliver verification codes and ride notifications, and OpenStreetMap-based services (Nominatim and OSRM) to turn the place names you type into map locations and routes. We do not send these providers more than is needed for those functions."
+    },
+    {
+      "title": "5. Location data",
+      "body": "OpenPal does not track your device's real-time location and does not request location permission. The only location information we store is the origin and destination you choose for a ride post, which you enter yourself."
+    },
+    {
+      "title": "6. Age requirement",
+      "body": "OpenPal is intended for students aged 16 and older. We do not knowingly collect information from anyone under 16. If you believe a child under 16 has created an account, contact us and we will remove it."
+    },
+    {
+      "title": "7. How long we keep your data",
+      "body": "We keep your information for as long as your account is active. When you delete your account, your profile and your ride posts are removed, and your identity is scrubbed from shared records (bookings, messages, ratings) so the other party's history stays intact. We retain only a minimal anonymized record for up to one year for security and counting purposes, after which it is purged automatically."
+    },
+    {
+      "title": "8. Your choices and rights",
+      "body": "You can edit your profile at any time, block or report other users, and permanently delete your account and data from Settings → Delete account. To ask questions about your data or request a copy or deletion, contact us at the email below."
+    },
+    {
+      "title": "9. Security",
+      "body": "We protect your data in transit using encrypted HTTPS connections and store passwords only as salted hashes. No system is perfectly secure, but we work to safeguard your information."
+    },
+    {
+      "title": "10. Changes to this policy",
+      "body": "We may update this policy from time to time. When we make a meaningful change we will update the “last updated” date above and, where appropriate, notify you in the app."
+    },
+    {
+      "title": "11. Contact",
+      "body": "For any privacy question or data request, email us at support@palriders.app."
+    }
+  ],
+  "footer": "By creating an account, you confirm that you have read and understood this Privacy Policy."
+}
