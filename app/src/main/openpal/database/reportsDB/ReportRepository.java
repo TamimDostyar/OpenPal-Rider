@@ -15,6 +15,10 @@ public interface ReportRepository extends JpaRepository<ReportDB, UUID> {
 
     List<ReportDB> findByReporterEmailIgnoreCaseOrderByCreatedAtDesc(String reporterEmail);
 
+    List<ReportDB> findAllByOrderByCreatedAtDesc();
+
+    List<ReportDB> findByStatusOrderByCreatedAtDesc(ReportStatus status);
+
     @Modifying
     @Transactional
     @Query("UPDATE ReportDB r SET r.reporterEmail = :anonEmail, r.reporterUsername = :anonName "

@@ -321,7 +321,7 @@ export function PostDetailScreen() {
                 {displayName}
               </Text>
               {post.driverVerified ? (
-                <Text className="text-[11px] font-semibold text-sage">✓ Verified</Text>
+                <Text className="text-[11px] font-semibold text-sage">Vehicle on file</Text>
               ) : null}
             </View>
             <Text className="text-xs text-muted" numberOfLines={1}>

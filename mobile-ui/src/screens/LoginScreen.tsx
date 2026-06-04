@@ -2,6 +2,8 @@
  * Email/password login form. Submits to the backend and stores the returned
  * JWT through the auth context on success.
  */
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -10,8 +12,12 @@ import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { useLogin } from "@/hooks/useLogin";
+import type { RootStackParamList } from "@/navigation/types";
+
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export function LoginScreen() {
+  const navigation = useNavigation<Nav>();
   const {
     email,
     setEmail,
@@ -63,6 +69,23 @@ export function LoginScreen() {
             New here? <Text className="font-semibold text-ink">Create an account</Text>
           </Text>
         </Pressable>
+        <Text className="text-center text-xs leading-5 text-muted">
+          By continuing, you agree to our{" "}
+          <Text
+            className="font-semibold text-ink underline"
+            onPress={() => navigation.navigate("Terms")}
+          >
+            Terms &amp; Conditions
+          </Text>{" "}
+          and{" "}
+          <Text
+            className="font-semibold text-ink underline"
+            onPress={() => navigation.navigate("Privacy")}
+          >
+            Privacy Policy
+          </Text>
+          .
+        </Text>
       </View>
     </Screen>
   );

@@ -26,6 +26,8 @@ interface SchoolFieldProps {
   query: string;
   onQueryChange: (next: string) => void;
   hint?: string;
+  /** Called when the user taps "My school isn't listed". */
+  onSelectOther?: () => void;
 }
 
 export function SchoolField({
@@ -38,17 +40,11 @@ export function SchoolField({
   query,
   onQueryChange,
   hint,
+  onSelectOther,
 }: SchoolFieldProps) {
   const [open, setOpen] = useState(false);
-  // Safe-area insets read here (inside the provider); a Modal renders outside
-  // the provider, so SafeAreaView there reports zero and the header collides
-  // with the notch. Apply the top inset to the modal content ourselves.
   const insets = useSafeAreaInsets();
 
-  // Start each visit with a cleared search. Doing this on open (rather than on
-  // select) avoids swapping the short filtered list for the full universities
-  // list while the modal is mid-dismiss — that heavy re-render briefly froze
-  // the UI and swallowed the first tap after picking a school.
   const openPicker = () => {
     onQueryChange("");
     setOpen(true);
@@ -57,6 +53,11 @@ export function SchoolField({
   const select = (school: string) => {
     onChange(school);
     setOpen(false);
+  };
+
+  const selectOther = () => {
+    setOpen(false);
+    onSelectOther?.();
   };
 
   return (
@@ -140,6 +141,18 @@ export function SchoolField({
                   <Text className="mt-8 text-center text-sm text-muted">
                     No schools match your search.
                   </Text>
+                }
+                ListFooterComponent={
+                  onSelectOther ? (
+                    <Pressable onPress={selectOther} className="py-3.5">
+                      <Text className="text-base font-semibold text-coral-dk">
+                        My school isn&apos;t listed
+                      </Text>
+                      <Text className="mt-0.5 text-xs text-muted">
+                        Add it using your campus .edu email.
+                      </Text>
+                    </Pressable>
+                  ) : null
                 }
               />
             )}

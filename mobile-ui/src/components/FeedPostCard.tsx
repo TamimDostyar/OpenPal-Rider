@@ -8,8 +8,8 @@ interface FeedPostCardProps {
   isOwner: boolean;
   onDelete?: (id: string) => void;
   onBook?: (post: FeedPostResponse) => void;
-  onReport?: (post: FeedPostResponse) => void;
-  onBlock?: (post: FeedPostResponse) => void;
+  /** Opens the overflow menu (report / block). Triggered by the ⋯ button or a long-press. */
+  onMore?: (post: FeedPostResponse) => void;
   onMessage?: (post: FeedPostResponse) => void;
   onViewProfile?: (post: FeedPostResponse) => void;
   /** Tap the card body to open the full ride detail screen. */
@@ -113,12 +113,12 @@ export function FeedPostCard({
   isOwner,
   onDelete,
   onBook,
-  onReport,
-  onBlock,
+  onMore,
   onMessage,
   onViewProfile,
   onOpen,
 }: FeedPostCardProps) {
+  const moreEnabled = !isOwner && !!onMore;
   const displayName = post.name ?? post.username;
   const initial = (displayName?.[0] ?? "?").toUpperCase();
   const postType = post.postType ?? "DRIVER";
@@ -133,9 +133,17 @@ export function FeedPostCard({
     <View className="rounded-2xl border border-line bg-cream p-4">
       <Pressable
         onPress={onOpen ? () => onOpen(post) : undefined}
-        disabled={!onOpen}
+        onLongPress={moreEnabled ? () => onMore!(post) : undefined}
+        delayLongPress={300}
+        disabled={!onOpen && !moreEnabled}
         accessibilityRole={onOpen ? "button" : undefined}
-        accessibilityHint={onOpen ? "Opens full ride details" : undefined}
+        accessibilityHint={
+          onOpen
+            ? moreEnabled
+              ? "Opens full ride details. Long-press for more options."
+              : "Opens full ride details"
+            : undefined
+        }
       >
       {/* Status strip */}
       <View className="mb-3 flex-row items-start gap-2">
@@ -220,11 +228,13 @@ export function FeedPostCard({
           </View>
           <View className="flex-1">
             <View className="flex-row items-center gap-1.5">
-              <Text className="text-[13px] font-semibold text-ink" numberOfLines={1}>
+              <Text className="shrink text-[13px] font-semibold text-ink" numberOfLines={1}>
                 {displayName}
               </Text>
               {post.driverVerified ? (
-                <Text className="text-[10px] font-semibold text-sage">✓</Text>
+                <Text className="shrink-0 text-[10px] font-semibold text-sage">
+                  Vehicle on file
+                </Text>
               ) : null}
             </View>
             <Text className="text-[11px] text-muted" numberOfLines={1}>
@@ -240,16 +250,6 @@ export function FeedPostCard({
           </Pressable>
         ) : (
           <>
-            {onReport ? (
-              <Pressable onPress={() => onReport(post)} hitSlop={8} className="px-2 py-1">
-                <Text className="text-xs text-muted">Report</Text>
-              </Pressable>
-            ) : null}
-            {onBlock ? (
-              <Pressable onPress={() => onBlock(post)} hitSlop={8} className="px-2 py-1">
-                <Text className="text-xs text-muted">Block</Text>
-              </Pressable>
-            ) : null}
             {onMessage ? (
               <Pressable
                 onPress={() => onMessage(post)}
@@ -267,6 +267,17 @@ export function FeedPostCard({
                 <Text className="text-xs font-semibold text-cream">
                   {isPassenger ? "Offer ride" : "Book"}
                 </Text>
+              </Pressable>
+            ) : null}
+            {moreEnabled ? (
+              <Pressable
+                onPress={() => onMore!(post)}
+                hitSlop={8}
+                accessibilityLabel="More options"
+                accessibilityHint="Report or block this person"
+                className="h-8 w-8 items-center justify-center rounded-full"
+              >
+                <Text className="text-base leading-none text-muted">⋯</Text>
               </Pressable>
             ) : null}
           </>

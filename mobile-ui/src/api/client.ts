@@ -22,6 +22,7 @@ import type {
   FeedPostResponse,
   FeedSearchParams,
   ForgotPasswordResponse,
+  LegalDocument,
   LoginRequest,
   LoginResponse,
   MyProfile,
@@ -154,6 +155,11 @@ export const api = {
     }),
 
   universities: () => request<UniversitiesResponse>("/api/universities"),
+
+  legal: {
+    terms: () => request<LegalDocument>("/api/legal/terms"),
+    privacy: () => request<LegalDocument>("/api/legal/privacy"),
+  },
 
   feed: {
     list: (token: string) =>

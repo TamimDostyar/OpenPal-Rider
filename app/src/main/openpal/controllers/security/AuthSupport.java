@@ -1,9 +1,13 @@
 package openpal.controllers.security;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,10 @@ public class AuthSupport {
 
     private final ProfileRepository profileRepo;
     private final JsonTokenWeb jsonTokenWeb;
+
+    /** Comma-separated allowlist of moderator/admin emails (env ADMIN_EMAILS). */
+    @Value("${openpal.admin.emails:}")
+    private String adminEmailsRaw;
 
     @Autowired
     public AuthSupport(ProfileRepository profileRepo, JsonTokenWeb jsonTokenWeb) {
@@ -50,6 +58,23 @@ public class AuthSupport {
         }
         if (!profile.isEmailVerified()) {
             throw new AuthFailure(HttpStatus.FORBIDDEN, "email not verified");
+        }
+        return profile;
+    }
+
+    /**
+     * Authenticates the caller and additionally requires that they are on the
+     * admin allowlist. Used to gate the moderation endpoints.
+     */
+    public CreateProfileDB requireAdmin(String authHeader) {
+        CreateProfileDB profile = authenticate(authHeader);
+        Set<String> admins = Arrays.stream(adminEmailsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        if (!admins.contains(profile.getEmail().toLowerCase())) {
+            throw new AuthFailure(HttpStatus.FORBIDDEN, "admin access required");
         }
         return profile;
     }

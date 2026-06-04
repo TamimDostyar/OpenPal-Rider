@@ -108,6 +108,17 @@ export function HomeScreen() {
       ],
     );
 
+  const onMore = (post: FeedPostResponse) =>
+    Alert.alert(
+      post.name ?? `@${post.username}`,
+      "What would you like to do?",
+      [
+        { text: "Report post", onPress: () => onReport(post) },
+        { text: "Block user", style: "destructive", onPress: () => onBlock(post) },
+        { text: "Cancel", style: "cancel" },
+      ],
+    );
+
   const onMessage = (post: FeedPostResponse) =>
     navigation.navigate("Conversation", {
       otherUsername: post.username,
@@ -182,8 +193,7 @@ export function HomeScreen() {
                 isOwner={!!myEmail && item.email.toLowerCase() === myEmail.toLowerCase()}
                 onDelete={deletePost}
                 onBook={onBook}
-                onReport={onReport}
-                onBlock={onBlock}
+                onMore={onMore}
                 onMessage={onMessage}
                 onViewProfile={onViewProfile}
                 onOpen={onOpen}

@@ -1,6 +1,8 @@
 package openpal.controllers.security;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +26,7 @@ import openpal.services.EmailService;
 public class SignupVerification {
 
     private static final long CODE_VALID_MINUTES = 10;
+    private static final int MIN_AGE_YEARS = 16;
 
     private final ProfileRepository profileRepository;
     private final EmailService emailService;
@@ -49,11 +52,28 @@ public class SignupVerification {
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             return SignupResult.error(400, "password is required");
         }
-        if (!Utils.isSchoolValid(request.getSchool())) {
-            return SignupResult.error(400, "school is not a recognized US university");
+        if (request.getDob() == null) {
+            return SignupResult.error(400, "date of birth is required");
+        }
+        if (Period.between(request.getDob(), LocalDate.now()).getYears() < MIN_AGE_YEARS) {
+            return SignupResult.error(400,
+                "you must be at least " + MIN_AGE_YEARS + " years old to use OpenPal");
+        }
+        String email = request.getEmail().trim();
+        String school = request.getSchool() == null ? "" : request.getSchool().trim();
+        if (school.isBlank()) {
+            return SignupResult.error(400, "school is required");
+        }
+        if (!Utils.isSchoolValid(school)) {
+            if (!isEduEmail(email)) {
+                return SignupResult.error(400,
+                    "school is not on the list; use your campus .edu email to add it");
+            }
+            if (school.length() > 100) {
+                return SignupResult.error(400, "school name is too long");
+            }
         }
 
-        String email = request.getEmail().trim();
         if (profileRepository.existsByEmail(email)) {
             return SignupResult.error(409, "an account with this email already exists");
         }
@@ -147,6 +167,24 @@ public class SignupVerification {
         response.put("emailVerified", saved.isEmailVerified());
         response.put("message", "email verified; account created");
         return SignupResult.ok(201, response);
+    }
+
+    /**
+     * True when the email belongs to a real .edu academic domain (e.g.
+     * {@code me@luther.edu}), not a public webmail provider. Gates the
+     * "Other / school not listed" signup path: an unrecognized school name is
+     * accepted only when proven by a .edu campus email.
+     */
+    private static boolean isEduEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        int at = email.lastIndexOf('@');
+        if (at < 0 || at == email.length() - 1) {
+            return false;
+        }
+        String domain = email.substring(at + 1).toLowerCase();
+        return domain.endsWith(".edu") && domain.length() > ".edu".length();
     }
 
     public SignupResult resendCode(String email) {

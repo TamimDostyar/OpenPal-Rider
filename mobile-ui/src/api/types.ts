@@ -297,3 +297,16 @@ export interface CreateBlockEnvelope {
   message: string;
   block?: BlockResponse;
 }
+
+export interface LegalSection {
+  title: string;
+  body: string;
+}
+
+export interface LegalDocument {
+  title: string;
+  lastUpdated: string;
+  intro?: string;
+  sections: LegalSection[];
+  footer?: string;
+}

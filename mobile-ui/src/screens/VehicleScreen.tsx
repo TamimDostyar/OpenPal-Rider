@@ -64,8 +64,9 @@ export function VehicleScreen() {
         <FormError message={localError ?? error} />
 
         <Text className="text-sm text-ink-2">
-          Submitting your vehicle marks you as a verified driver so riders trust
-          your posts.
+          Adding your vehicle shows a “Vehicle on file” note on your posts so
+          riders know what to look for. These details are self-reported and are
+          not verified by OpenPal.
         </Text>
 
         <TextField
@@ -107,7 +108,7 @@ export function VehicleScreen() {
 
         {info?.driverVerified ? (
           <Text className="pt-1 text-center text-xs text-sage">
-            ✓ You are a verified driver
+            Vehicle on file
           </Text>
         ) : null}
       </ScrollView>

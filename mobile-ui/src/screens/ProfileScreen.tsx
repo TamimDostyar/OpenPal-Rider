@@ -199,19 +199,9 @@ export function ProfileScreen() {
       >
         <View className="flex-row items-center justify-between">
           <Text className="text-3xl font-bold tracking-tight text-ink">Profile</Text>
-          <View className="flex-row items-center gap-4">
-            <Pressable
-              onPress={() => navigation.navigate("Settings")}
-              hitSlop={8}
-              accessibilityLabel="Settings"
-              className="h-9 w-9 items-center justify-center rounded-full border border-line bg-cream"
-            >
-              <Text className="text-base text-ink">⚙</Text>
-            </Pressable>
-            <Pressable onPress={signOut} hitSlop={8} className="py-2">
-              <Text className="text-xs font-semibold text-muted">Sign out</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={signOut} hitSlop={8} className="py-2">
+            <Text className="text-xs font-semibold text-muted">Sign out</Text>
+          </Pressable>
         </View>
 
         <View className="flex-row items-center gap-4">
@@ -269,7 +259,7 @@ export function ProfileScreen() {
 
         {vehicle?.driverVerified ? (
           <View className="self-start rounded-full bg-sage px-3 py-1">
-            <Text className="text-[10px] font-semibold text-white">✓ verified driver</Text>
+            <Text className="text-[10px] font-semibold text-white">Vehicle on file</Text>
           </View>
         ) : null}
 
@@ -344,6 +334,16 @@ export function ProfileScreen() {
           <Text className="text-sm font-semibold text-ink-2">Terms &amp; Conditions →</Text>
           <Text className="text-xs text-muted">
             How we use your information and what you're responsible for.
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => navigation.navigate("Privacy")}
+          className="border-t border-line pt-4"
+        >
+          <Text className="text-sm font-semibold text-ink-2">Privacy Policy →</Text>
+          <Text className="text-xs text-muted">
+            What data we collect, how we use it, and your choices.
           </Text>
         </Pressable>
 
@@ -547,7 +547,6 @@ function EditBioBody({
                 {(displayName[0] ?? "?").toUpperCase()}
               </Text>
             </View>
-            <Text className="text-xs text-muted">Profile photo coming soon</Text>
           </View>
 
           {err ? <FormError message={err} /> : null}

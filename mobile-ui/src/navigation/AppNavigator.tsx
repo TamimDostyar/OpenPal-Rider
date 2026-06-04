@@ -13,6 +13,7 @@ import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
 import { LoginScreen } from "@/screens/LoginScreen";
 import { PostDetailScreen } from "@/screens/PostDetailScreen";
+import { PrivacyScreen } from "@/screens/PrivacyScreen";
 import { RateRideScreen } from "@/screens/RateRideScreen";
 import { ReportScreen } from "@/screens/ReportScreen";
 import { ResetPasswordScreen } from "@/screens/ResetPasswordScreen";
@@ -98,6 +99,11 @@ export function AppNavigator() {
             options={{ presentation: "modal" }}
           />
           <Stack.Screen
+            name="Privacy"
+            component={PrivacyScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
             name="Settings"
             component={SettingsScreen}
             options={{ presentation: "modal" }}
@@ -117,6 +123,11 @@ export function AppNavigator() {
           <Stack.Screen
             name="Terms"
             component={TermsScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="Privacy"
+            component={PrivacyScreen}
             options={{ presentation: "modal" }}
           />
         </>

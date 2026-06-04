@@ -136,7 +136,7 @@ export function UserProfileScreen() {
                 </Text>
                 {driverVerified ? (
                   <View className="rounded-full bg-sage px-2 py-0.5">
-                    <Text className="text-[10px] font-semibold text-white">✓ verified</Text>
+                    <Text className="text-[10px] font-semibold text-white">Vehicle on file</Text>
                   </View>
                 ) : null}
               </View>

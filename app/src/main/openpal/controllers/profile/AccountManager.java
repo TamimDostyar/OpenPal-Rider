@@ -79,6 +79,21 @@ public class AccountManager {
             return AuthSupport.error(f.status, f.getMessage());
         }
 
+        purgeUser(profile);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", "account deleted");
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * Tears down a user account and all data the platform owns for them. Used by
+     * both self-service deletion (guideline 5.1.1(v)) and moderator ejection
+     * (guideline 1.2). Records a counterparty still relies on (bookings,
+     * messages, ratings) are anonymized; the rest is removed.
+     */
+    @Transactional
+    public void purgeUser(CreateProfileDB profile) {
         String email = profile.getEmail();
         // Per-user sentinel so two deleted users never collapse into one another
         // in a counterparty's conversation/booking history.
@@ -105,9 +120,5 @@ public class AccountManager {
 
         // Finally, drop the account row itself (frees the unique email/username).
         profileRepo.delete(profile);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("message", "account deleted");
-        return ResponseEntity.ok(body);
     }
 }

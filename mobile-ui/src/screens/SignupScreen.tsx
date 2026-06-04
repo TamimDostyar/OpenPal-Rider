@@ -29,6 +29,9 @@ export function SignupScreen() {
     setGraduationDate,
     setPhoneNumber,
     setPassword,
+    otherSchool,
+    chooseOtherSchool,
+    chooseSchoolFromList,
     universities,
     error,
     submitting,
@@ -76,17 +79,36 @@ export function SignupScreen() {
             maximumDate={new Date()}
           />
 
-          <SchoolField
-            label="School"
-            value={fields.school}
-            onChange={setSchool}
-            schools={universities.results}
-            loading={universities.loading}
-            error={universities.error}
-            query={universities.query}
-            onQueryChange={universities.setQuery}
-            hint="Only recognized US schools can be selected."
-          />
+          {otherSchool ? (
+            <View>
+              <TextField
+                label="School"
+                value={fields.school}
+                onChangeText={setSchool}
+                placeholder="Your school's name"
+                autoCapitalize="words"
+                hint="Use your campus .edu email above so we can add your school."
+              />
+              <Pressable onPress={chooseSchoolFromList} className="mt-1.5">
+                <Text className="text-xs font-semibold text-coral-dk">
+                  ← Choose from the list instead
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <SchoolField
+              label="School"
+              value={fields.school}
+              onChange={setSchool}
+              schools={universities.results}
+              loading={universities.loading}
+              error={universities.error}
+              query={universities.query}
+              onQueryChange={universities.setQuery}
+              onSelectOther={chooseOtherSchool}
+              hint="Pick from the list, or add a school not listed."
+            />
+          )}
 
           <DateField
             label="Graduation date"
@@ -126,6 +148,13 @@ export function SignupScreen() {
               onPress={() => navigation.navigate("Terms")}
             >
               Terms &amp; Conditions
+            </Text>{" "}
+            and{" "}
+            <Text
+              className="font-semibold text-ink underline"
+              onPress={() => navigation.navigate("Privacy")}
+            >
+              Privacy Policy
             </Text>
             .
           </Text>
