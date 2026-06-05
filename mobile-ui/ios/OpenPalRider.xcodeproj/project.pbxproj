@@ -349,7 +349,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenPalRider/OpenPalRider.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -390,7 +390,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenPalRider/OpenPalRider.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				INFOPLIST_FILE = OpenPalRider/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PalRider;

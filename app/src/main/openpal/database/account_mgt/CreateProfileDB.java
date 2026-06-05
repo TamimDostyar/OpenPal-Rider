@@ -32,7 +32,7 @@ public class CreateProfileDB {
     private Long phoneNumber;
 
     private String password;
-
+    
     @Column(unique = true)
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
