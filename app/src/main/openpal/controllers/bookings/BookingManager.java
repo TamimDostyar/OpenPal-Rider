@@ -49,6 +49,10 @@ public class BookingManager {
         } catch (AuthFailure f) {
             return AuthSupport.error(f.status, f.getMessage());
         }
+        if (caller.getUsername() == null || caller.getUsername().isBlank()) {
+            return AuthSupport.error(HttpStatus.BAD_REQUEST,
+                    "you must set a username before booking a ride");
+        }
         if (request == null || request.getPostId() == null) {
             return AuthSupport.error(HttpStatus.BAD_REQUEST, "postId is required");
         }

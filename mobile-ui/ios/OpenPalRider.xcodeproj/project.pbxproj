@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03C30C9B9EC9EBBB8BD1ED63 /* libPods-PalRiders.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A4372065343CABB02909B56 /* libPods-PalRiders.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		3727730C85F49EA47E3FA02E /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D96312EED32750E34B5D06 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		7A4151A27DE81090D44646B2 /* libPods-OpenPalRider.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 29E06CDB7F9B56400ABE680E /* libPods-OpenPalRider.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C85BDB066B91FA486752D886 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1633FEBD0E99B6D230280B7B /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FE875C9BD9BD0252510F98BF /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19DFC17A8D1AA30588C566E1 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,9 +21,11 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = OpenPalRider/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = OpenPalRider/Info.plist; sourceTree = "<group>"; };
 		1633FEBD0E99B6D230280B7B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = OpenPalRider/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		19DFC17A8D1AA30588C566E1 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-OpenPalRider/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		1D08E0106B8B95A111B1C18E /* Pods-OpenPalRider.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenPalRider.debug.xcconfig"; path = "Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider.debug.xcconfig"; sourceTree = "<group>"; };
-		29E06CDB7F9B56400ABE680E /* libPods-OpenPalRider.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OpenPalRider.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		35D96312EED32750E34B5D06 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-PalRiders/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		451F47A8EDB8D85DAA71977B /* Pods-PalRiders.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PalRiders.debug.xcconfig"; path = "Target Support Files/Pods-PalRiders/Pods-PalRiders.debug.xcconfig"; sourceTree = "<group>"; };
+		78033289A1E0152E89D4F90D /* Pods-PalRiders.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PalRiders.release.xcconfig"; path = "Target Support Files/Pods-PalRiders/Pods-PalRiders.release.xcconfig"; sourceTree = "<group>"; };
+		7A4372065343CABB02909B56 /* libPods-PalRiders.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PalRiders.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		874250764166A91298B2ECB1 /* Pods-OpenPalRider.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OpenPalRider.release.xcconfig"; path = "Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider.release.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = OpenPalRider/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
@@ -37,21 +39,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7A4151A27DE81090D44646B2 /* libPods-OpenPalRider.a in Frameworks */,
+				03C30C9B9EC9EBBB8BD1ED63 /* libPods-PalRiders.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0DC80722C68F838A64F10AB6 /* OpenPalRider */ = {
-			isa = PBXGroup;
-			children = (
-				19DFC17A8D1AA30588C566E1 /* ExpoModulesProvider.swift */,
-			);
-			name = OpenPalRider;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* OpenPalRider */ = {
 			isa = PBXGroup;
 			children = (
@@ -70,7 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				29E06CDB7F9B56400ABE680E /* libPods-OpenPalRider.a */,
+				7A4372065343CABB02909B56 /* libPods-PalRiders.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -78,7 +72,7 @@
 		686B7C4B7BF150987FD89AF4 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				0DC80722C68F838A64F10AB6 /* OpenPalRider */,
+				934B4A31FA3F951B63585F1A /* PalRiders */,
 			);
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
@@ -113,6 +107,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		934B4A31FA3F951B63585F1A /* PalRiders */ = {
+			isa = PBXGroup;
+			children = (
+				35D96312EED32750E34B5D06 /* ExpoModulesProvider.swift */,
+			);
+			name = PalRiders;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +129,8 @@
 			children = (
 				1D08E0106B8B95A111B1C18E /* Pods-OpenPalRider.debug.xcconfig */,
 				874250764166A91298B2ECB1 /* Pods-OpenPalRider.release.xcconfig */,
+				451F47A8EDB8D85DAA71977B /* Pods-PalRiders.debug.xcconfig */,
+				78033289A1E0152E89D4F90D /* Pods-PalRiders.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -236,7 +240,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OpenPalRider-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-PalRiders-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -249,7 +253,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-PalRiders/Pods-PalRiders-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
@@ -262,7 +266,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PalRiders/Pods-PalRiders-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -271,7 +275,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-PalRiders/Pods-PalRiders-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXApplication/ExpoApplication_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
@@ -294,7 +298,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OpenPalRider/Pods-OpenPalRider-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PalRiders/Pods-PalRiders-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		AC6E135477EC6C82B79FB68F /* [Expo] Configure project */ = {
@@ -309,17 +313,17 @@
 				"$(SRCROOT)/.xcode.env",
 				"$(SRCROOT)/.xcode.env.local",
 				"$(SRCROOT)/OpenPalRider/OpenPalRider.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-OpenPalRider/expo-configure-project.sh",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-PalRiders/expo-configure-project.sh",
 			);
 			name = "[Expo] Configure project";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-OpenPalRider/ExpoModulesProvider.swift",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-PalRiders/ExpoModulesProvider.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-OpenPalRider/expo-configure-project.sh\"\n";
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-PalRiders/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -329,7 +333,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				FE875C9BD9BD0252510F98BF /* ExpoModulesProvider.swift in Sources */,
+				3727730C85F49EA47E3FA02E /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,14 +342,14 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1D08E0106B8B95A111B1C18E /* Pods-OpenPalRider.debug.xcconfig */;
+			baseConfigurationReference = 451F47A8EDB8D85DAA71977B /* Pods-PalRiders.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OpenPalRider/OpenPalRider.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -379,14 +383,14 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 874250764166A91298B2ECB1 /* Pods-OpenPalRider.release.xcconfig */;
+			baseConfigurationReference = 78033289A1E0152E89D4F90D /* Pods-PalRiders.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = OpenPalRider/OpenPalRider.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = LLZUFSFG9V;
 				INFOPLIST_FILE = OpenPalRider/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = PalRider;
@@ -403,7 +407,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dostah01.palrider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tamimdostyar.openpal;
 				PRODUCT_NAME = PalRiders;
 				SWIFT_OBJC_BRIDGING_HEADER = "OpenPalRider/OpenPalRider-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
