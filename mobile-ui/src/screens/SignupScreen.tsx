@@ -68,11 +68,11 @@ export function SignupScreen() {
             keyboardType="email-address"
           />
           <DateField
-            label="Date of birth"
+            label="Date of birth (optional)"
             value={fields.dob}
             onChange={setDob}
             placeholder="MM/DD/YYYY"
-            hint="Example: 09/04/2001"
+            hint="Optional. Example: 09/04/2001"
             maximumDate={new Date()}
           />
 

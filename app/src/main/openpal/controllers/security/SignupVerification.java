@@ -52,13 +52,6 @@ public class SignupVerification {
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             return SignupResult.error(400, "password is required");
         }
-        if (request.getDob() == null) {
-            return SignupResult.error(400, "date of birth is required");
-        }
-        if (Period.between(request.getDob(), LocalDate.now()).getYears() < MIN_AGE_YEARS) {
-            return SignupResult.error(400,
-                "you must be at least " + MIN_AGE_YEARS + " years old to use OpenPal");
-        }
         String email = request.getEmail().trim();
         String school = request.getSchool() == null ? "" : request.getSchool().trim();
         if (school.isBlank()) {
@@ -80,7 +73,7 @@ public class SignupVerification {
 
         Integer specialNumber = ProfileController.numberGenerator();
         String username = ProfileController.generateUsername(
-            request.getName(), request.getDob(), specialNumber);
+            request.getName(), specialNumber);
 
         String code = GoogleStep.generateCode();
         PendingRegistration registration = new PendingRegistration(
@@ -88,7 +81,6 @@ public class SignupVerification {
             specialNumber,
             username,
             email,
-            request.getDob(),
             request.getSchool().trim(),
             request.getGraduationDate(),
             request.getPhoneNumber(),
@@ -144,7 +136,6 @@ public class SignupVerification {
             registration.getSpecialNumber(),
             registration.getUsername(),
             registration.getEmail(),
-            registration.getDob(),
             registration.getSchool(),
             registration.getGraduationDate(),
             registration.getPhoneNumber(),
@@ -160,7 +151,6 @@ public class SignupVerification {
         response.put("userSpecialNumber", saved.getUserSpecialNumber());
         response.put("username", saved.getUsername());
         response.put("email", saved.getEmail());
-        response.put("dob", saved.getDob());
         response.put("school", saved.getSchool());
         response.put("graduationDate", saved.getGraduationDate());
         response.put("PhoneNumber", saved.getPhoneNumber());

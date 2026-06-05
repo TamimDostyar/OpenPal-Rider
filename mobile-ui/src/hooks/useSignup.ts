@@ -63,9 +63,13 @@ export function useSignup() {
   const validate = (): string | null => {
     if (!name.trim()) return "Enter your full name.";
     if (!email.includes("@")) return "Enter a valid email address.";
-    if (!DATE_PATTERN.test(dob)) return "Date of birth must be MM/DD/YYYY.";
-    if (ageFromDob(dob) < MIN_AGE_YEARS)
-      return `You must be at least ${MIN_AGE_YEARS} to use OpenPal.`;
+    // Date of birth is optional. If provided, it must be valid and meet the
+    // minimum age; if left blank, skip the check entirely.
+    if (dob.trim()) {
+      if (!DATE_PATTERN.test(dob)) return "Date of birth must be MM/DD/YYYY.";
+      if (ageFromDob(dob) < MIN_AGE_YEARS)
+        return `You must be at least ${MIN_AGE_YEARS} to use OpenPal.`;
+    }
     if (otherSchool) {
       if (!school.trim()) return "Enter your school's name.";
       if (!isEduEmail(email))
@@ -93,7 +97,7 @@ export function useSignup() {
       const res = await api.createUser({
         name: name.trim(),
         email: email.trim(),
-        dob,
+        ...(dob.trim() ? { dob } : {}),
         school: school.trim(),
         graduationDate,
         phoneNumber: Number(phoneNumber),

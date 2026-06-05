@@ -3,12 +3,11 @@ package openpal.controllers.profile;
 import java.util.Random;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 
 
 /**
  * Helpers for profile creation: generates the random "special number" and the
- * server-assigned username derived from the user's name, birth month, and number.
+ * server-assigned username derived from the user's name and number.
  */
 public class ProfileController {
 
@@ -30,11 +29,10 @@ public class ProfileController {
         return number;
     }
 
-    public static String generateUsername(String name, LocalDate dob, Integer specialNumber) {
+    public static String generateUsername(String name, Integer specialNumber) {
         String letters = name == null ? "" : name.trim().toLowerCase().replaceAll("[^a-z]", "");
         String prefix = letters.length() >= 3 ? letters.substring(0, 3) : letters;
-        String month = dob == null ? "00" : String.format("%02d", dob.getMonthValue());
-        return prefix + month + specialNumber;
+        return prefix + specialNumber;
     }
 
     Boolean isValidPerson(){

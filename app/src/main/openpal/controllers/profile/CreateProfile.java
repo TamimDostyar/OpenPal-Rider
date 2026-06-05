@@ -11,9 +11,6 @@ public class CreateProfile {
     private String name;
     private String email;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate dob;
-
     private String school;
     private Long phoneNumber;
     private String password;
@@ -24,12 +21,11 @@ public class CreateProfile {
     public CreateProfile() {
     }
 
-    public CreateProfile(String name, String email, LocalDate dob,
+    public CreateProfile(String name, String email,
                          String school, LocalDate graduationDate,
                         Long phoneNumber) {
         this.name = name;
         this.email = email;
-        this.dob = dob;
         this.school = school;
         this.graduationDate = graduationDate;
         this.phoneNumber = phoneNumber;
@@ -47,12 +43,6 @@ public class CreateProfile {
     }
     public void setEmail(String email) {
         this.email = email;
-    }
-    public LocalDate getDob() {
-        return this.dob;
-    }
-    public void setDob(LocalDate dob) {
-        this.dob = dob;
     }
     public String getSchool() {
         return this.school;

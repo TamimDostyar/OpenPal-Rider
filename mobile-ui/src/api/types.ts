@@ -1,7 +1,8 @@
 export interface CreateUserRequest {
   name: string;
   email: string;
-  dob: string;
+  /** Optional — users may sign up without providing a date of birth. */
+  dob?: string;
   school: string;
   graduationDate: string;
   phoneNumber: number;
