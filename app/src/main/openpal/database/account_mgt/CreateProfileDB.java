@@ -27,7 +27,6 @@ public class CreateProfileDB {
     @Column(unique = true)
     private String email;
 
-    private LocalDate dob;
     private String school;
     private LocalDate graduationDate;
     private Long phoneNumber;
@@ -59,13 +58,12 @@ public class CreateProfileDB {
     }
 
     public CreateProfileDB(String name, Integer userSpecialNumber, String username, String email,
-                           LocalDate dob, String school, LocalDate graduationDate,
+                           String school, LocalDate graduationDate,
                            Long phoneNumber, String password) {
         this.name = name;
         this.userSpecialNumber = userSpecialNumber;
         this.username = username;
         this.email = email;
-        this.dob = dob;
         this.school = school;
         this.graduationDate = graduationDate;
         this.phoneNumber = phoneNumber;
@@ -98,12 +96,6 @@ public class CreateProfileDB {
     }
     public void setEmail(String email) {
         this.email = email;
-    }
-    public LocalDate getDob() {
-        return this.dob;
-    }
-    public void setDob(LocalDate dob) {
-        this.dob = dob;
     }
     public String getSchool() {
         return this.school;

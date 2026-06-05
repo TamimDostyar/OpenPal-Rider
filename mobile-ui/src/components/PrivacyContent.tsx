@@ -15,7 +15,7 @@ export const PRIVACY_FALLBACK: LegalDocument = {
   sections: [
     {
       title: "1. Information you provide",
-      body: "When you create an account we collect your full name, campus email address, date of birth, school, expected graduation date, and phone number, along with a password (which we store only as a salted hash, never in plain text). You may optionally add a short bio and vehicle details (make, model, color, license plate). When you use the app we also collect the ride posts you create (including the origin and destination places and their approximate map coordinates), the messages you send to other users, and the ratings and reports you submit.",
+      body: "When you create an account we collect your full name, campus email address, school, expected graduation date, and phone number, along with a password (which we store only as a salted hash, never in plain text). You may optionally add a short bio and vehicle details (make, model, color, license plate). When you use the app we also collect the ride posts you create (including the origin and destination places and their approximate map coordinates), the messages you send to other users, and the ratings and reports you submit.",
     },
     {
       title: "2. How we use your information",

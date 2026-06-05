@@ -1,8 +1,6 @@
 export interface CreateUserRequest {
   name: string;
   email: string;
-  /** Optional — users may sign up without providing a date of birth. */
-  dob?: string;
   school: string;
   graduationDate: string;
   phoneNumber: number;
@@ -25,7 +23,6 @@ export interface VerifyEmailResponse {
   userSpecialNumber: number;
   username: string;
   email: string;
-  dob: string;
   school: string;
   graduationDate: string;
   PhoneNumber: number;

@@ -1,8 +1,6 @@
 package openpal.controllers.security;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +24,6 @@ import openpal.services.EmailService;
 public class SignupVerification {
 
     private static final long CODE_VALID_MINUTES = 10;
-    private static final int MIN_AGE_YEARS = 16;
 
     private final ProfileRepository profileRepository;
     private final EmailService emailService;
@@ -195,7 +192,6 @@ public class SignupVerification {
             existing.getSpecialNumber(),
             existing.getUsername(),
             existing.getEmail(),
-            existing.getDob(),
             existing.getSchool(),
             existing.getGraduationDate(),
             existing.getPhoneNumber(),

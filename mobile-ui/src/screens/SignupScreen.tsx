@@ -20,7 +20,6 @@ export function SignupScreen() {
     fields,
     setName,
     setEmail,
-    setDob,
     setSchool,
     setGraduationDate,
     setPhoneNumber,
@@ -67,15 +66,6 @@ export function SignupScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          <DateField
-            label="Date of birth (optional)"
-            value={fields.dob}
-            onChange={setDob}
-            placeholder="MM/DD/YYYY"
-            hint="Optional. Example: 09/04/2001"
-            maximumDate={new Date()}
-          />
-
           {otherSchool ? (
             <View>
               <TextField
