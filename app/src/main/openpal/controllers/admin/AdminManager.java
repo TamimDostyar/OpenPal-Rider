@@ -28,7 +28,6 @@ import openpal.database.reportsDB.ReportStatus;
  * Moderation actions for admins: review reports, remove content, and eject
  * abusive users. Satisfies Apple guideline 1.2's requirement for a mechanism to
  * remove objectionable content and eject the users behind it. Every method is
- * gated by {@link AuthSupport#requireAdmin}.
  */
 @Component
 public class AdminManager {
