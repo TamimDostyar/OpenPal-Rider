@@ -83,3 +83,6 @@ mobile-ui/goal/
 /coverage/
 mobile-ui/goal
 marketing
+
+OPENPAL_OVERVIEW.md
+test/
