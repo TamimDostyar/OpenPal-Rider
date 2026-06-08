@@ -36,14 +36,6 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 }
 
-testing {
-    suites {
-        test {
-            useJUnitJupiter()
-        }
-    }
-}
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -53,14 +45,13 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main']
+            srcDirs = ['src/']
+        }
+        resources {
+            srcDirs = ['src/resources']
         }
     }
-    test {
-        java {
-            srcDirs = ['src/test']
-        }
-    }
+
 }
 
 application {
