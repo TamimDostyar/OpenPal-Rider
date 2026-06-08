@@ -1,5 +1,7 @@
 package openpal.database.account_mgt;
 
+
+import openpal.dto.security.Login;
 import java.util.Optional;
 
 /**

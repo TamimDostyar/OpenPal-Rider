@@ -9,6 +9,5 @@ public class DatabaseConfig {
     boolean loadEnv() {
         return databasePath != null && pw != null && dbName != null;
     }
-
-    
+   
 }
