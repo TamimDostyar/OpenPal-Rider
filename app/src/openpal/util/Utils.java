@@ -31,6 +31,19 @@ public class Utils {
         return getSchools().contains(name.trim().toLowerCase());
     }
 
+    public static String schoolUrl(String name) {
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        String key = name.trim().toLowerCase();
+        for (Map<String, String> university : getUniversities()) {
+            if (key.equals(university.get("name").trim().toLowerCase())) {
+                return university.get("url");
+            }
+        }
+        return null;
+    }
+
     public static List<Map<String, String>> getUniversities() {
         List<Map<String, String>> local = universities;
         if (local == null) {
