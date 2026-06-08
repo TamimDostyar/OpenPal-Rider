@@ -20,11 +20,12 @@ public class AllSystemsEndpoints {
     @GetMapping("/api/all-endpoints")
     public List<String> allEndpoints(){
         return handleMapping.getHandlerMethods().keySet().stream()
+    
                 .flatMap(info -> info.getPathPatternsCondition()
                         .getPatterns().stream()
-                        .map(p -> info.getMethodsCondition() + " " + p))
-                .sorted()
-                .collect(Collectors.toList());
+                        .map(p -> info.getMethodsCondition() + " " + p)
+
+                ).sorted().collect(Collectors.toList());
     }
 
 }
