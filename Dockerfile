@@ -1,6 +1,4 @@
 # syntax=docker/dockerfile:1
-
-################################################################################
 # Build stage — compile the Spring Boot fat jar with Gradle.
 FROM eclipse-temurin:21-jdk-jammy AS build
 
@@ -23,7 +21,6 @@ RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew :app:bootJar --no-daemon -x test \
     && cp build/app/libs/*.jar /workspace/app.jar
 
-################################################################################
 # Runtime stage — minimal JRE image.
 FROM eclipse-temurin:21-jre-jammy AS final
 
