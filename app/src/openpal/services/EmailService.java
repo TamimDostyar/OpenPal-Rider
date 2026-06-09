@@ -64,6 +64,12 @@ public class EmailService {
             + "It expires in 10 minutes. If you didn't sign up, you can ignore this email.");
     }
 
+    public void sendReminder(String toEmail, String name) {
+        sendOrThrow(toEmail, "Hi " + name,
+            "We wanted to remind you of a password reset\n\n"
+            + "Someone has reset your password, if this was you, please ignore otherwise reply to this email with your phone number so that we can follow up.");
+    }
+
     /**
      * Sends a password-reset token. Best-effort: never throws. The reset flow
      * returns the same neutral message whether or not the address exists, so a

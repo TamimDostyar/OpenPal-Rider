@@ -74,7 +74,7 @@ public class ForgotPasswordSystem {
         CreateProfileDB user = profile.get();
         if (user.getResetTokenExpiry() == null
                 || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
-            return SignupResult.error(400, "invalid or expired reset token");
+            return SignupResult.error(400, "invalid or expired reset personal code");
         }
 
         user.setPassword(PasswordHasher.hash(newPassword));
@@ -84,6 +84,7 @@ public class ForgotPasswordSystem {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "password has been reset");
+        emailService.sendReminder(user.getEmail(), user.getName());
         return SignupResult.ok(200, response);
     }
 
