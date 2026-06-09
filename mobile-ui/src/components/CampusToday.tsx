@@ -29,7 +29,7 @@ interface CampusUtil {
 
 // Only the categories the backend can actually scrape today.
 export const CAMPUS_UTILS: CampusUtil[] = [
-  { category: "meal", label: "Dining", subtitle: "Today's menu", dot: "bg-sun" },
+  { category: "dining", label: "Dining", subtitle: "Hours & today's menu", dot: "bg-sun" },
   { category: "gym-hours", label: "Gym", subtitle: "Hours & facilities", dot: "bg-sky" },
   { category: "library", label: "Library", subtitle: "Hours today", dot: "bg-sage" },
   { category: "news", label: "News", subtitle: "Campus announcements", dot: "bg-ink" },

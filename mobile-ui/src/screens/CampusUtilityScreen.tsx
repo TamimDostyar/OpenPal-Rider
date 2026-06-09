@@ -15,7 +15,11 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ApiError, api } from "@/api/client";
-import type { CampusCategory, ScrapeItem } from "@/api/types";
+import type {
+  CampusCategory,
+  MenuDaypart,
+  ScrapeItem,
+} from "@/api/types";
 import { FormError } from "@/components/FormError";
 import { Spinner } from "@/components/Spinner";
 import type { RootStackParamList } from "@/navigation/types";
@@ -40,16 +44,27 @@ export function CampusUtilityScreen() {
   const insets = useSafeAreaInsets();
   const headerTopPad = Platform.OS === "ios" ? 14 : Math.max(insets.top, 12) + 6;
 
+  // Dining is a composite (café hours + today's menu); every other category is a
+  // flat scrape feed. We keep one state slot for each and switch on the category.
   const [items, setItems] = useState<ScrapeItem[] | null>(null);
+  const [dining, setDining] = useState<DiningData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const result = await api.schools.byCategory(school, category);
-      setItems(result);
+      if (category === "dining") {
+        const [menu, hours] = await Promise.all([
+          api.schools.menu(school),
+          api.schools.cafeHours(school),
+        ]);
+        setDining({ menu, hours });
+      } else {
+        setItems(await api.schools.byCategory(school, category));
+      }
     } catch (e) {
-      setItems([]);
+      if (category === "dining") setDining({ menu: [], hours: [] });
+      else setItems([]);
       if (e instanceof ApiError) setError(e.message);
       else setError("Couldn't load this right now.");
     }
@@ -58,6 +73,12 @@ export function CampusUtilityScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loading = category === "dining" ? dining === null : items === null;
+  const isEmpty =
+    category === "dining"
+      ? !!dining && dining.menu.length === 0 && dining.hours.length === 0
+      : !!items && items.length === 0;
 
   return (
     <SafeAreaView
@@ -80,7 +101,7 @@ export function CampusUtilityScreen() {
         <View className="min-w-[64px]" />
       </View>
 
-      {items === null ? (
+      {loading ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -92,13 +113,15 @@ export function CampusUtilityScreen() {
 
           {error ? <FormError message={error} /> : null}
 
-          {!error && items.length === 0 ? (
+          {!error && isEmpty ? (
             <View className="items-center py-12">
               <Text className="text-sm text-muted">Nothing to show right now.</Text>
             </View>
-          ) : (
+          ) : category === "dining" ? (
+            dining ? <DiningView data={dining} /> : null
+          ) : items ? (
             <CategoryBody category={category} items={items} />
-          )}
+          ) : null}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -119,8 +142,8 @@ function CategoryBody({
       return <GymView items={items} />;
     case "library":
       return <LibraryView items={items} />;
-    case "meal":
-      return <MealView items={items} />;
+    case "dining":
+      return null; // dining is rendered by DiningView, not from a flat feed
   }
 }
 
@@ -330,28 +353,106 @@ function LibraryView({ items }: { items: ScrapeItem[] }) {
   );
 }
 
-/* --------------------------------- meal --------------------------------- */
+/* -------------------------------- dining -------------------------------- */
 
-function MealView({ items }: { items: ScrapeItem[] }) {
-  // The feed is a flat list of dish names (no dayparts, no hours). Dedupe so
-  // repeated station items don't clutter the menu.
-  const seen = new Set<string>();
-  const dishes: string[] = [];
-  for (const item of items) {
-    const name = item.text.trim();
-    if (name && !seen.has(name.toLowerCase())) {
-      seen.add(name.toLowerCase());
-      dishes.push(name);
-    }
-  }
+interface DiningData {
+  menu: MenuDaypart[];
+  hours: ScrapeItem[];
+}
 
+// Café-hours feed comes back as one line per café, e.g. "The Caf Closed" or
+// "Nordic Brew Tomorrow: Coffee Shop From 7:30 am to 11:00 am". Split the café
+// name from its status, which always begins at one of these words.
+const CAFE_STATUS_RE = /\b(Closed|Open|Today|Tomorrow|From)\b/;
+
+function splitCafe(text: string): { name: string; status: string } {
+  const m = text.match(CAFE_STATUS_RE);
+  if (!m || m.index === undefined) return { name: text.trim(), status: "" };
+  return {
+    name: text.slice(0, m.index).trim(),
+    status: text.slice(m.index).trim(),
+  };
+}
+
+// "07:30" → "7:30 am"; passes through anything that isn't a 24h time.
+function formatTime(t: string): string {
+  const m = t.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return t;
+  const h = Number(m[1]);
+  const suffix = h < 12 ? "am" : "pm";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${m[2]} ${suffix}`;
+}
+
+function DietaryTags({ tags }: { tags: string[] }) {
+  if (tags.length === 0) return null;
+  return (
+    <View className="mt-1 flex-row flex-wrap gap-1.5">
+      {tags.map((t, i) => (
+        <View key={i} className="rounded-full bg-cream-2 px-2 py-0.5">
+          <Text className="text-[10px] font-medium text-ink-2">{t}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function DiningView({ data }: { data: DiningData }) {
+  const { menu, hours } = data;
   return (
     <View className="gap-3">
-      <SectionCard title={`On the menu · ${dishes.length} items`}>
-        {dishes.map((d, i) => (
-          <HoursRow key={i} label={d} value="" last={i === dishes.length - 1} />
-        ))}
-      </SectionCard>
+      {hours.length > 0 ? (
+        <SectionCard title="Café hours">
+          {hours.map((item, i) => {
+            const { name, status } = splitCafe(item.text);
+            return (
+              <HoursRow
+                key={i}
+                label={name}
+                value={status || "—"}
+                last={i === hours.length - 1}
+              />
+            );
+          })}
+        </SectionCard>
+      ) : null}
+
+      {menu.map((dp, di) => (
+        <SectionCard
+          key={di}
+          title={
+            dp.start && dp.end
+              ? `${dp.label} · ${formatTime(dp.start)} – ${formatTime(dp.end)}`
+              : dp.label
+          }
+        >
+          {dp.stations.map((st, si) => (
+            <View key={si} className={si === 0 ? "" : "mt-3"}>
+              {st.name ? (
+                <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">
+                  {st.name}
+                </Text>
+              ) : null}
+              {st.items.map((dish, ii) => (
+                <View
+                  key={ii}
+                  className={`py-2.5 ${
+                    ii === st.items.length - 1 ? "" : "border-b border-line-2"
+                  }`}
+                >
+                  <View className="flex-row items-start justify-between">
+                    <Text className="flex-1 pr-3 text-sm text-ink-2">{dish.name}</Text>
+                    {dish.price ? (
+                      <Text className="text-sm font-semibold text-ink">${dish.price}</Text>
+                    ) : null}
+                  </View>
+                  <DietaryTags tags={dish.dietary} />
+                </View>
+              ))}
+            </View>
+          ))}
+        </SectionCard>
+      ))}
     </View>
   );
 }

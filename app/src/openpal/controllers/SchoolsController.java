@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import openpal.dto.schools.MenuDaypart;
 import openpal.dto.schools.ScrapeItem;
 import openpal.services.schoolsScrape.SchoolRegistry;
 
@@ -30,9 +31,14 @@ public class SchoolsController {
         return registry.get(school).scrapeGymHours();
     }
 
-    @GetMapping("/meal")
-    public List<ScrapeItem> meal(@PathVariable String school) {
-        return registry.get(school).scrapeMeal();
+    @GetMapping("/cafe-hours")
+    public List<ScrapeItem> cafeHours(@PathVariable String school) {
+        return registry.get(school).scrapeCafeHours();
+    }
+
+    @GetMapping("/menu")
+    public List<MenuDaypart> menu(@PathVariable String school) {
+        return registry.get(school).scrapeMenu();
     }
 
     @GetMapping("/library")

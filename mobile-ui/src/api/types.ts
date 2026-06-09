@@ -58,12 +58,38 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-export type CampusCategory = "news" | "gym-hours" | "meal" | "library";
+// Campus endpoints that return a flat list of scraped items.
+export type ScrapeCategory = "news" | "gym-hours" | "cafe-hours" | "library";
+// What the "On campus today" strip shows. "dining" is a composite card backed by
+// the café hours + today's grouped menu rather than a single scrape endpoint.
+export type CampusCategory = "news" | "gym-hours" | "dining" | "library";
 
 export interface ScrapeItem {
   text: string;
   link: string | null;
   image: string | null;
+}
+
+// Today's menu, grouped by meal period → station → dish (see /api/schools/{school}/menu).
+export interface MenuDish {
+  name: string;
+  /** Price as published, e.g. "7.25"; blank when the item is free/unpriced. */
+  price: string;
+  /** Dietary/allergen labels, e.g. ["Vegan", "Wheat/Gluten"]. */
+  dietary: string[];
+}
+
+export interface MenuStation {
+  name: string;
+  items: MenuDish[];
+}
+
+export interface MenuDaypart {
+  label: string;
+  /** 24h start/end as published by the café, e.g. "07:30"; may be blank. */
+  start: string;
+  end: string;
+  stations: MenuStation[];
 }
 
 export interface University {

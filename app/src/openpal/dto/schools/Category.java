@@ -4,6 +4,6 @@ package openpal.dto.schools;
 public enum Category {
     NEWS,
     GYM_HOURS,
-    MEAL,
+    CAFE_HOURS,
     LIBRARY
 }

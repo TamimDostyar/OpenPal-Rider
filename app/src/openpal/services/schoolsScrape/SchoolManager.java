@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import openpal.dto.schools.Category;
 import openpal.dto.schools.HtmlTarget;
 import openpal.dto.schools.JsonTarget;
+import openpal.dto.schools.MenuDaypart;
 import openpal.dto.schools.ScrapeItem;
 import openpal.dto.schools.ScrapeTarget;
 import openpal.util.Utils;
@@ -31,11 +32,17 @@ public class SchoolManager {
     private final String school;
     private final String baseUrl;
     private final Map<Category, ScrapeTarget> targets;
+    private final MenuProvider menu;
 
     protected SchoolManager(String school, Map<Category, ScrapeTarget> targets) {
+        this(school, targets, null);
+    }
+
+    protected SchoolManager(String school, Map<Category, ScrapeTarget> targets, MenuProvider menu) {
         this.school = school;
         this.baseUrl = Utils.schoolUrl(school);
         this.targets = targets;
+        this.menu = menu;
     }
 
     /** Canonical school name, matching a profile's {@code school} field. */
@@ -43,8 +50,16 @@ public class SchoolManager {
 
     public List<ScrapeItem> scrapeNews()     { return scrape(Category.NEWS); }
     public List<ScrapeItem> scrapeGymHours() { return scrape(Category.GYM_HOURS); }
-    public List<ScrapeItem> scrapeMeal()     { return scrape(Category.MEAL); }
-    public List<ScrapeItem> scrapeLibrary()  { return scrape(Category.LIBRARY); }
+    public List<ScrapeItem> scrapeCafeHours() { return scrape(Category.CAFE_HOURS); }
+    public List<ScrapeItem> scrapeLibrary()   { return scrape(Category.LIBRARY); }
+
+    /**
+     * Today's menu, grouped by meal period. Backed by whatever {@link MenuProvider}
+     * the school wired up (Bon Appétit, etc.); empty for schools without one.
+     */
+    public List<MenuDaypart> scrapeMenu() {
+        return menu == null ? List.of() : menu.fetch();
+    }
 
     private List<ScrapeItem> scrape(Category category) {
         if (baseUrl == null || baseUrl.isBlank()) {

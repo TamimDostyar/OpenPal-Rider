@@ -26,10 +26,12 @@ import type {
   LegalDocument,
   LoginRequest,
   LoginResponse,
+  MenuDaypart,
   MyProfile,
   ResendCodeResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  ScrapeCategory,
   ScrapeItem,
   SendMessageEnvelope,
   SendMessageRequest,
@@ -324,12 +326,14 @@ export const api = {
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/news`),
     gymHours: (school: string) =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/gym-hours`),
-    meal: (school: string) =>
-      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/meal`),
+    cafeHours: (school: string) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/cafe-hours`),
+    menu: (school: string) =>
+      request<MenuDaypart[]>(`/api/schools/${encodeURIComponent(school)}/menu`),
     library: (school: string) =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/library`),
 
-    byCategory: (school: string, category: CampusCategory) =>
+    byCategory: (school: string, category: ScrapeCategory) =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/${category}`),
   },
 
