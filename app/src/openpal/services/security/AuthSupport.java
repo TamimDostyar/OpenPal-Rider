@@ -61,11 +61,6 @@ public class AuthSupport {
         }
         return profile;
     }
-
-    /**
-     * Authenticates the caller and additionally requires that they are on the
-     * admin allowlist. Used to gate the moderation endpoints.
-     */
     public CreateProfileDB requireAdmin(String authHeader) {
         CreateProfileDB profile = authenticate(authHeader);
         Set<String> admins = Arrays.stream(adminEmailsRaw.split(","))

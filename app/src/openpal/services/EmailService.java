@@ -64,6 +64,18 @@ public class EmailService {
             + "It expires in 10 minutes. If you didn't sign up, you can ignore this email.");
     }
 
+    /**
+     * Sends a password-reset token. Synchronous and propagates failures like the
+     * signup code: if we can't deliver the token the caller must know, rather than
+     * telling the user "check your email" when nothing was sent.
+     */
+    public void sendPasswordResetToken(String toEmail, String token) {
+        sendOrThrow(toEmail, "Reset your OpenPal password",
+            "We received a request to reset your OpenPal password.\n\n"
+            + "Your reset token is: " + token + "\n\n"
+            + "It expires in 30 minutes. If you didn't request this, you can ignore this email.");
+    }
+
     @Async
     public void sendBookingRequested(String driverEmail, String riderUsername,
                                      String origin, String destination, int seats) {

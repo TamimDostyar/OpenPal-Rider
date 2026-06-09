@@ -170,7 +170,7 @@ public class SignupVerification {
      * "Other / school not listed" signup path: an unrecognized school name is
      * accepted only when proven by a .edu campus email.
      */
-    private static boolean isEduEmail(String email) {
+    static boolean isEduEmail(String email) {
         if (email == null) {
             return false;
         }
@@ -190,7 +190,7 @@ public class SignupVerification {
 
             return SignupResult.error(400, "your email is not .edu");
         } 
-        
+
         else{
             String key = email.trim().toLowerCase();
             PendingRegistration existing = pending.get(key);
