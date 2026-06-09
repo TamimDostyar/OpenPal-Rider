@@ -55,7 +55,9 @@ public class SignupVerification {
         }
         String email = request.getEmail().trim();
         if (!email.endsWith(".edu")){return SignupResult.error(400, "Provide an educational email");}
-        
+
+
+
         String school = request.getSchool() == null ? "" : request.getSchool().trim();
         if (school.isBlank()) {
             return SignupResult.error(400, "school is required");
@@ -181,42 +183,49 @@ public class SignupVerification {
     }
 
     public SignupResult resendCode(String email) {
-        if (email == null || email.isBlank()) {
+        if (email == null || email.isBlank() || !isEduEmail(email)) {
             return SignupResult.error(400, "email is required");
         }
+        if (!isEduEmail(email)){
 
-        String key = email.trim().toLowerCase();
-        PendingRegistration existing = pending.get(key);
-        if (existing == null) {
-            return SignupResult.error(404,
-                "no pending signup for that email; start again at /api/user/create-user");
+            return SignupResult.error(400, "your email is not .edu");
+        } 
+        
+        else{
+            String key = email.trim().toLowerCase();
+            PendingRegistration existing = pending.get(key);
+            if (existing == null) {
+                return SignupResult.error(404,
+                    "no pending signup for that email; start again at /api/user/create-user");
+            }
+
+            String code = GoogleStep.generateCode();
+            PendingRegistration refreshed = new PendingRegistration(
+                existing.getName(),
+                existing.getSpecialNumber(),
+                existing.getUsername(),
+                existing.getEmail(),
+                existing.getSchool(),
+                existing.getGraduationDate(),
+                existing.getPhoneNumber(),
+                existing.getPasswordHash(),
+                code,
+                LocalDateTime.now().plusMinutes(CODE_VALID_MINUTES)
+            );
+            try {
+                emailService.sendVerificationCode(existing.getEmail(), code);
+            } catch (Exception e) {
+                System.err.println("[SignupVerification] could not resend code to "
+                    + existing.getEmail() + ": " + e.getMessage());
+                return SignupResult.error(502,
+                    "we couldn't send the verification email right now; please try again in a moment");
+            }
+            pending.put(key, refreshed);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "a new 4-digit verification code has been sent to your email");
+            return SignupResult.ok(200, response);
         }
 
-        String code = GoogleStep.generateCode();
-        PendingRegistration refreshed = new PendingRegistration(
-            existing.getName(),
-            existing.getSpecialNumber(),
-            existing.getUsername(),
-            existing.getEmail(),
-            existing.getSchool(),
-            existing.getGraduationDate(),
-            existing.getPhoneNumber(),
-            existing.getPasswordHash(),
-            code,
-            LocalDateTime.now().plusMinutes(CODE_VALID_MINUTES)
-        );
-        try {
-            emailService.sendVerificationCode(existing.getEmail(), code);
-        } catch (Exception e) {
-            System.err.println("[SignupVerification] could not resend code to "
-                + existing.getEmail() + ": " + e.getMessage());
-            return SignupResult.error(502,
-                "we couldn't send the verification email right now; please try again in a moment");
-        }
-        pending.put(key, refreshed);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "a new 4-digit verification code has been sent to your email");
-        return SignupResult.ok(200, response);
     }
 }
