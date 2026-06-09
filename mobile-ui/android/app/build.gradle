@@ -89,7 +89,7 @@ android {
 
     namespace 'com.dostah01.palrider'
     defaultConfig {
-        applicationId 'com.dostah01.palrider'
+        applicationId 'com.tamimdostyar.openpal'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

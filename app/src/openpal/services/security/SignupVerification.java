@@ -54,6 +54,8 @@ public class SignupVerification {
             return SignupResult.error(400, "password is required");
         }
         String email = request.getEmail().trim();
+        if (!email.endsWith(".edu")){return SignupResult.error(400, "Provide an educational email");}
+        
         String school = request.getSchool() == null ? "" : request.getSchool().trim();
         if (school.isBlank()) {
             return SignupResult.error(400, "school is required");

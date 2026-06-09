@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import type { FeedPostResponse } from "@/api/types";
+import { CampusToday } from "@/components/CampusToday";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
@@ -29,6 +30,7 @@ export function HomeScreen() {
     refreshing,
     error,
     myEmail,
+    school,
     filters,
     refresh,
     deletePost,
@@ -40,8 +42,6 @@ export function HomeScreen() {
   const { colorScheme } = useColorScheme();
   const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
 
-  // useFeed loads on mount; skip that first focus and only refresh when we
-  // return to the feed (e.g. after booking from the post detail screen).
   const firstFocus = useRef(true);
   useFocusEffect(
     useCallback(() => {
@@ -53,8 +53,11 @@ export function HomeScreen() {
     }, [refresh]),
   );
 
-  const schoolDomain = myEmail?.split("@")[1] ?? null;
-
+  let schoolDomain = myEmail?.split("@")[1] ?? null;
+  if (schoolDomain?.endsWith(".edu")) {
+    schoolDomain = schoolDomain.slice(0, -".edu".length)
+  }
+  
   const onBook = async (post: FeedPostResponse) => {
     const isPassengerPost = post.postType === "PASSENGER";
     const title = isPassengerPost ? "Offer this ride?" : "Book seat?";
@@ -210,6 +213,9 @@ export function HomeScreen() {
             paddingBottom: 32,
             gap: 10,
           }}
+          ListHeaderComponent={
+            filters ? null : <CampusToday school={school} />
+          }
           ItemSeparatorComponent={() => <View className="h-0" />}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={refreshTint} />

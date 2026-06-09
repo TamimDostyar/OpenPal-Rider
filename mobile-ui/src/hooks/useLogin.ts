@@ -26,6 +26,8 @@ export function useLogin() {
       setError("Enter a valid email address.");
       return;
     }
+    if (!email.endsWith(".edu")){return "Please enter your school email!"}
+    
     if (!password) {
       setError("Enter your password.");
       return;

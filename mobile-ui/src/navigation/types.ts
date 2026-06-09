@@ -1,4 +1,8 @@
-import type { BookingResponse, FeedPostResponse } from "@/api/types";
+import type {
+  BookingResponse,
+  CampusCategory,
+  FeedPostResponse,
+} from "@/api/types";
 
 export type TabKey = "home" | "bookings" | "messages" | "profile";
 
@@ -15,6 +19,12 @@ export type RootStackParamList = {
   UpdatePost: { post: FeedPostResponse };
   PostDetail: { post: FeedPostResponse; isOwner: boolean };
   Search: undefined;
+  CampusUtility: {
+    category: CampusCategory;
+    title: string;
+    subtitle: string;
+    school: string;
+  };
   Conversation: { otherUsername: string; otherName?: string; bookingId?: string };
   RateRide: { booking: BookingResponse };
   Report:

@@ -49,6 +49,8 @@ export function useSignup() {
   const validate = (): string | null => {
     if (!name.trim()) return "Enter your full name.";
     if (!email.includes("@")) return "Enter a valid email address.";
+    if (!email.endsWith(".edu")) return "Only education email - provide an email that ends with .edu please!";
+    
     if (otherSchool) {
       if (!school.trim()) return "Enter your school's name.";
       if (!isEduEmail(email))
