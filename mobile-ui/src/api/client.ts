@@ -5,6 +5,7 @@ import type {
   BlockResponse,
   BookingEnvelope,
   BookingResponse,
+  CampusCategory,
   ConversationSummary,
   CreateBlockEnvelope,
   CreateBlockRequest,
@@ -29,6 +30,7 @@ import type {
   ResendCodeResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  ScrapeItem,
   SendMessageEnvelope,
   SendMessageRequest,
   UniversitiesResponse,
@@ -312,6 +314,23 @@ export const api = {
 
     mine: (token: string) =>
       request<import("./types").ReportResponse[]>("/api/reports/mine", { token }),
+  },
+
+  // Read-only campus info scraped live from the school's own site. These
+  // endpoints are public (no token), keyed by the school name the user
+  // registered with (e.g. "Luther College").
+  schools: {
+    news: (school: string) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/news`),
+    gymHours: (school: string) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/gym-hours`),
+    meal: (school: string) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/meal`),
+    library: (school: string) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/library`),
+
+    byCategory: (school: string, category: CampusCategory) =>
+      request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/${category}`),
   },
 
   blocks: {

@@ -8,6 +8,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { useOnboarding } from "@/auth/OnboardingContext";
 import { AuthedTabsScreen } from "@/screens/AuthedTabsScreen";
 import { PermissionsScreen } from "@/screens/PermissionsScreen";
+import { CampusUtilityScreen } from "@/screens/CampusUtilityScreen";
 import { ConversationScreen } from "@/screens/ConversationScreen";
 import { CreatePostScreen } from "@/screens/CreatePostScreen";
 import { ForgotPasswordScreen } from "@/screens/ForgotPasswordScreen";
@@ -74,6 +75,11 @@ export function AppNavigator() {
           <Stack.Screen
             name="Search"
             component={SearchScreen}
+            options={{ presentation: "modal" }}
+          />
+          <Stack.Screen
+            name="CampusUtility"
+            component={CampusUtilityScreen}
             options={{ presentation: "modal" }}
           />
           <Stack.Screen name="Conversation" component={ConversationScreen} />

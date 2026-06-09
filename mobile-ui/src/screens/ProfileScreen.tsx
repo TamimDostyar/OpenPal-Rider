@@ -36,6 +36,36 @@ const BUG_REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSe3zd3k3IRQ-rh_Y12asBzfg4OK1nXxY_6eUa6CdP-KQ1fWxQ/viewform?usp=publish-editor";
 const BIO_MAX = 200;
 
+// The official OpenPal links surfaced on every profile. Read-only — they just
+// open in the browser.
+const OPENPAL_LINKS: { label: string; caption: string; url: string }[] = [
+  {
+    label: "OpenPal on the web",
+    caption: "openpal.dev/palriders",
+    url: "https://openpal.dev/palriders",
+  },
+  {
+    label: "Follow on Instagram",
+    caption: "@openpal.dev",
+    url: "https://www.instagram.com/openpal.dev/",
+  },
+  {
+    label: "Follow on LinkedIn",
+    caption: "OpenPal",
+    url: "https://www.linkedin.com/company/openpal",
+  },
+];
+
+async function openUrl(url: string) {
+  try {
+    const ok = await Linking.canOpenURL(url);
+    if (ok) await Linking.openURL(url);
+    else Alert.alert("Can't open link", url);
+  } catch {
+    Alert.alert("Can't open link", url);
+  }
+}
+
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
@@ -120,15 +150,7 @@ export function ProfileScreen() {
     }, [reload]),
   );
 
-  const openBugReport = async () => {
-    try {
-      const ok = await Linking.canOpenURL(BUG_REPORT_URL);
-      if (ok) await Linking.openURL(BUG_REPORT_URL);
-      else Alert.alert("Can't open link", BUG_REPORT_URL);
-    } catch {
-      Alert.alert("Can't open link", BUG_REPORT_URL);
-    }
-  };
+  const openBugReport = () => void openUrl(BUG_REPORT_URL);
 
   if (state.kind === "loading") {
     return (
@@ -280,6 +302,29 @@ export function ProfileScreen() {
               />
             ))
           )}
+        </View>
+
+        <View className="gap-2 border-t border-line pt-4">
+          <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
+            OpenPal
+          </Text>
+          <View className="overflow-hidden rounded-2xl border border-line bg-cream">
+            {OPENPAL_LINKS.map((link, i) => (
+              <Pressable
+                key={link.url}
+                onPress={() => void openUrl(link.url)}
+                className={`flex-row items-center gap-3 px-4 py-3.5 ${
+                  i > 0 ? "border-t border-line-2" : ""
+                }`}
+              >
+                <View className="flex-1">
+                  <Text className="text-sm font-semibold text-ink">{link.label}</Text>
+                  <Text className="mt-0.5 text-xs text-muted">{link.caption}</Text>
+                </View>
+                <Text className="text-sm text-muted">↗</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         {ratings && ratings.count > 0 ? (

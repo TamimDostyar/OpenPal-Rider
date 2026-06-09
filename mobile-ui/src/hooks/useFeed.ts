@@ -11,6 +11,8 @@ interface UseFeedResult {
   refreshing: boolean;
   error: string | null;
   myEmail: string | null;
+  /** The school the user registered with, used to scope campus utilities. */
+  school: string | null;
   filters: FeedSearchParams | null;
   refresh: () => Promise<void>;
   applyFilters: (filters: FeedSearchParams | null) => void;
@@ -47,8 +49,28 @@ export function useFeed(): UseFeedResult {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [school, setSchool] = useState<string | null>(null);
 
   const myEmail = token ? emailFromToken(token) : null;
+
+  // The school name (e.g. "Luther College") scopes the campus utilities strip.
+  // A failure here is non-fatal — the strip just hides until it loads.
+  useEffect(() => {
+    if (!token) {
+      setSchool(null);
+      return;
+    }
+    let cancelled = false;
+    api.profile
+      .me(token)
+      .then((profile) => {
+        if (!cancelled) setSchool(profile.school);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const handleAuthFailure = useCallback(
     async (err: ApiError) => {
@@ -200,6 +222,7 @@ export function useFeed(): UseFeedResult {
     refreshing,
     error,
     myEmail,
+    school,
     filters,
     refresh,
     applyFilters,

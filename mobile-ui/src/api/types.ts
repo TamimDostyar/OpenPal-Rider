@@ -58,6 +58,14 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+export type CampusCategory = "news" | "gym-hours" | "meal" | "library";
+
+export interface ScrapeItem {
+  text: string;
+  link: string | null;
+  image: string | null;
+}
+
 export interface University {
   name: string;
   url: string;
