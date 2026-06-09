@@ -17,11 +17,7 @@ import openpal.database.account_mgt.PasswordHasher;
 import openpal.database.account_mgt.ProfileRepository;
 import openpal.services.EmailService;
 
-/**
- * Password-reset flow: issue a one-time reset token to the account's email and
- * consume it to set a new password hash. The token is delivered out-of-band by
- * email and is never returned in the HTTP response.
- */
+
 @Component
 public class ForgotPasswordSystem {
 
@@ -92,7 +88,7 @@ public class ForgotPasswordSystem {
     }
 
     private static String generateToken() {
-        byte[] bytes = new byte[32];
+        byte[] bytes = new byte[4];
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }

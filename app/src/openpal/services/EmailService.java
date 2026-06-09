@@ -65,9 +65,11 @@ public class EmailService {
     }
 
     /**
-     * Sends a password-reset token. Synchronous and propagates failures like the
-     * signup code: if we can't deliver the token the caller must know, rather than
-     * telling the user "check your email" when nothing was sent.
+     * Sends a password-reset token. Best-effort: never throws. The reset flow
+     * returns the same neutral message whether or not the address exists, so a
+     * delivery failure must not surface to the caller (a thrown error would leak
+     * account existence and expose internals). The token is already persisted,
+     * so the user can simply request another reset if delivery fails.
      */
     public void sendPasswordResetToken(String toEmail, String token) {
         sendOrThrow(toEmail, "Reset your OpenPal password",
