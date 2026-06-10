@@ -48,18 +48,18 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs = ['main/src']
+            srcDirs = ['src/main']
         }
         resources {
-            srcDirs = ['main/src/resources']
+            srcDirs = ['src/main/resources']
         }
     }
     test {
         java {
-            srcDirs = ['test/src']
+            srcDirs = ['src/test/src']
         }
         resources {
-            srcDirs = ['test/src/resources']
+            srcDirs = ['src/test/resources']
         }
     }
 
@@ -71,6 +71,10 @@ application {
 
 tasks.named('test') {
     useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+        events 'passed', 'skipped', 'failed'
+    }
 }
 
 tasks.named('bootRun') {

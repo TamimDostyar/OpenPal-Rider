@@ -14,8 +14,10 @@
 | Run a single test **method** | `./gradlew :app:test --tests "openpal.controllers.AllSystemsEndpointTest.homeRouteTest"` |
 | Run tests matching a wildcard | `./gradlew :app:test --tests "openpal.controllers.*"` |
 | Run tests + see full output / stacktraces | `./gradlew :app:test --info` |
+| Show `System.out.println` output (one-off) | `./gradlew :app:test --rerun-tasks --info` |
+| Show println + PASSED/FAILED per test (always) | already enabled via `testLogging { showStandardStreams = true }` in `app/build.gradle` — just run `./gradlew :app:test --rerun-tasks` |
 | Open the HTML test report | open `build/app/reports/tests/test/index.html` |
-
+| This is the simples version  ./gradlew :app:test --rerun-tasks --no-daemon 
 ## Backend — Run (dev / test mode)
 
 | What | Command |

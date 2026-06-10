@@ -18,6 +18,7 @@ public class AllSystemsEndpointTest {
 
     @Test
     void homeRouteTest() throws Exception {
+        System.out.println("Running home route me");
         mockMvc.perform(get("/api/home-route"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.Success").value("Hey bro"));
@@ -25,6 +26,7 @@ public class AllSystemsEndpointTest {
 
     @Test
     void answerMeTest() throws Exception {
+        System.out.println("Running answer me");
         mockMvc.perform(get("/api/answer"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.Success")
