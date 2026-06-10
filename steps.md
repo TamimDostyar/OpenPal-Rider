@@ -81,3 +81,17 @@
 | `--no-daemon` | run without the background Gradle daemon (used in CI) |
 | `--info` / `--debug` | increase log verbosity |
 | `clean` | delete previous build outputs before running |
+
+## API — curl examples
+
+> Base URL assumed to be `http://localhost:8080` — change host/port to match your environment.
+
+| Method | Endpoint | What | curl |
+|---|---|---|---|
+| POST | `/forgot-password` | Issue a one-time reset token (emailed) for an account | `curl -X POST http://localhost:8080/forgot-password -H "Content-Type: application/json" -d '{"email": "user@example.com"}'` |
+| POST | `/reset-password` | Consume a reset token and set a new password | `curl -X POST http://localhost:8080/reset-password -H "Content-Type: application/json" -d '{"token": "Token", "newPassword": "myNewPassword123"}'` |
+| GET | `/posts` | List home posts | `curl http://localhost:8080/posts` |
+| GET | `/search` | Search with query params | `curl "http://localhost:8080/search?q=keyword"` |
+| GET | `/posts/user/{username}` | Posts for a given user (path variable) | `curl http://localhost:8080/posts/user/jdoe` |
+
+> Add an auth header on protected endpoints, e.g. `-H "Authorization: Bearer <token>"`. Use `-i` for response headers or `-v` for verbose debugging.
