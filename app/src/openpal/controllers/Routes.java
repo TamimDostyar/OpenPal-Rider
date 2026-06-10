@@ -5,10 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 
 
-/**
- * Default API routes mounted under /api. Returns simple status payloads
- * used as health/landing endpoints.
- */
 @RestController
 @RequestMapping("api")
 public class Routes {

@@ -45,7 +45,6 @@ public class SchoolManager {
         this.menu = menu;
     }
 
-    /** Canonical school name, matching a profile's {@code school} field. */
     public String school() { return school; }
 
     public List<ScrapeItem> scrapeNews()     { return scrape(Category.NEWS); }
@@ -53,10 +52,6 @@ public class SchoolManager {
     public List<ScrapeItem> scrapeCafeHours() { return scrape(Category.CAFE_HOURS); }
     public List<ScrapeItem> scrapeLibrary()   { return scrape(Category.LIBRARY); }
 
-    /**
-     * Today's menu, grouped by meal period. Backed by whatever {@link MenuProvider}
-     * the school wired up (Bon Appétit, etc.); empty for schools without one.
-     */
     public List<MenuDaypart> scrapeMenu() {
         return menu == null ? List.of() : menu.fetch();
     }

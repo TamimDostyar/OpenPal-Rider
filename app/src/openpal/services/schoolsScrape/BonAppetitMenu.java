@@ -34,7 +34,6 @@ public final class BonAppetitMenu implements MenuProvider {
         this.cafeUrl = cafeUrl;
     }
 
-    /** Fetch the café page and return today's menu grouped by meal period. */
     @Override
     public List<MenuDaypart> fetch() {
         try {
@@ -110,11 +109,7 @@ public final class BonAppetitMenu implements MenuProvider {
             dietary);
     }
 
-    /**
-     * Returns the JSON object literal that begins at the first {@code '{'} at or after
-     * {@code from}, matched by brace depth (and string-aware so braces inside quoted
-     * strings don't count). Null if there's no balanced object.
-     */
+
     private static String extractObject(String html, int from) {
         if (from < 0) {
             return null;
