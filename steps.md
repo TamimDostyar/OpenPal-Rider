@@ -17,7 +17,7 @@
 | Show `System.out.println` output (one-off) | `./gradlew :app:test --rerun-tasks --info` |
 | Show println + PASSED/FAILED per test (always) | already enabled via `testLogging { showStandardStreams = true }` in `app/build.gradle` — just run `./gradlew :app:test --rerun-tasks` |
 | Open the HTML test report | open `build/app/reports/tests/test/index.html` |
-| This is the simples version  ./gradlew :app:test --rerun-tasks --no-daemon 
+| This is the simples version | `./gradlew :app:test --rerun-tasks --no-daemon` |
 ## Backend — Run (dev / test mode)
 
 | What | Command |
