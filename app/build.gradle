@@ -48,10 +48,18 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/']
+            srcDirs = ['main/src']
         }
         resources {
-            srcDirs = ['src/resources']
+            srcDirs = ['main/src/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test/src']
+        }
+        resources {
+            srcDirs = ['test/src/resources']
         }
     }
 
@@ -59,6 +67,10 @@ sourceSets {
 
 application {
     mainClass = 'openpal.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
 tasks.named('bootRun') {
