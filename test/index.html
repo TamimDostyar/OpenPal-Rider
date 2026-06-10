@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenPal — Campus Board vision</title>
+<style>
+  /* ---- Palette from mobile-ui/src/theme/ThemeContext.tsx (LIGHT) ---- */
+  :root{
+    --cream:#ffffff; --cream-2:#f5f5f7; --canvas:#f0f0f3;
+    --ink:#0a0a0a; --ink-2:#1f2024; --muted:#6b7076;
+    --line:#e4e4e7; --line-2:#eeeef1;
+    --rides:#0e7c66; --food:#c2410c; --events:#9f1239; --market:#475569;
+    --roommates:#7c3aed; --walk:#2563eb; --news:#0a0a0a;
+    --ig:#d6249f; --li:#0a66c2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%,#e9eef0 0%,transparent 60%),var(--canvas);
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 16px;color:var(--ink);
+  }
+  .blurb{max-width:390px;text-align:center;margin-bottom:22px}
+  .blurb h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .blurb p{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
+
+  .phone{width:390px;height:800px;background:var(--cream);border-radius:42px;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,.35),0 0 0 11px #111,0 0 0 12px #2a2a2a;
+    overflow:hidden;display:flex;flex-direction:column;position:relative}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:138px;height:26px;background:#111;border-radius:0 0 16px 16px;z-index:30}
+
+  header{padding:46px 20px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .title h2{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .title span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
+  .h-actions{display:flex;gap:8px}
+  .icon-btn{width:40px;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+  .post-btn{height:40px;padding:0 16px;border-radius:999px;background:var(--ink);color:var(--cream);border:none;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;cursor:pointer}
+
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 20px 12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;height:32px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--cream);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .chip .dot{width:7px;height:7px;border-radius:999px}
+  .chip[aria-selected="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+
+  .scroll{flex:1;overflow-y:auto;background:var(--cream-2);scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+  .feed{padding:4px 16px 16px;display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .card .top{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+  .card .cat{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .card .cdot{width:6px;height:6px;border-radius:999px}
+  .card .time{margin-left:auto;font-size:11px;color:var(--muted)}
+  .card h3{font-size:15.5px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+  .card .sub{font-size:13px;color:var(--ink-2);margin-top:7px;line-height:1.45}
+  .card .meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:11px}
+  .pill{font-size:12px;font-weight:600;color:var(--ink-2);background:var(--cream-2);border:1px solid var(--line);padding:4px 9px;border-radius:999px}
+  .pill.strong{color:var(--ink);font-weight:700}
+  .sep{width:3px;height:3px;border-radius:999px;background:var(--line)}
+  .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+
+  /* ---- profile ---- */
+  .prof{padding:8px 16px 20px}
+  .prof .me{display:flex;align-items:center;gap:13px;padding:14px;background:var(--cream);border:1px solid var(--line);border-radius:16px}
+  .avatar{width:54px;height:54px;border-radius:999px;background:linear-gradient(135deg,#0e7c66,#475569);color:#fff;display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800}
+  .me b{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .me small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+  .sec-label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin:20px 6px 8px}
+  .group{background:var(--cream);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .row{display:flex;align-items:center;gap:12px;padding:14px 14px;cursor:pointer;border-bottom:1px solid var(--line-2)}
+  .row:last-child{border-bottom:none}
+  .row:active{background:var(--cream-2)}
+  .row .ri{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex:0 0 auto}
+  .row .rt{flex:1}
+  .row .rt b{font-size:14px;font-weight:600}
+  .row .rt small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+  .row .rx{font-size:14px;color:var(--muted)}
+  .vchip{font-size:11px;font-weight:700;color:var(--rides);background:rgba(14,124,102,.1);padding:3px 8px;border-radius:999px}
+  .reddot{width:8px;height:8px;border-radius:999px;background:var(--coral,#dc2626);background:#dc2626}
+
+  /* ---- "On campus today" utility strip ---- */
+  .util-wrap{padding:2px 0 8px;background:var(--cream-2)}
+  .util-label{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:6px 20px 7px}
+  .utils{display:flex;gap:9px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none}
+  .utils::-webkit-scrollbar{display:none}
+  .util{flex:0 0 auto;width:128px;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer;transition:.15s}
+  .util:active{background:var(--cream-2)}
+  .util .uh{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .util .ui{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .util .un{font-size:11.5px;font-weight:700;color:var(--ink-2)}
+  .util .uv{font-size:16px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+  .util .us{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .udot{width:6px;height:6px;border-radius:999px}
+
+  /* utility detail rows */
+  .ud-card{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:11px}
+  .ud-card h5{font-size:14.5px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+  .ud-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:13px}
+  .ud-row:last-child{border-bottom:none}
+  .ud-row .l{flex:1;color:var(--ink-2)}
+  .ud-row .r{font-weight:700}
+  .bar{height:8px;border-radius:999px;background:var(--line-2);overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;border-radius:999px}
+
+  /* messages placeholder */
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);text-align:center;padding:0 40px}
+  .empty .ic{font-size:34px}
+
+  nav{height:66px;border-top:1px solid var(--line);background:var(--cream);display:flex;align-items:center;justify-content:space-around;padding-bottom:6px}
+  .nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);cursor:pointer;position:relative}
+  .nav-item.active{color:var(--ink);font-weight:600}
+  .nav-item .ic{font-size:19px}
+  .nav-item .nd{position:absolute;top:-2px;right:6px;width:8px;height:8px;border-radius:999px;background:#dc2626;border:1.5px solid var(--cream)}
+
+  /* sheet + slide-over */
+  .scrim{position:absolute;inset:0;background:rgba(10,10,10,.4);opacity:0;pointer-events:none;transition:.2s;z-index:40;display:flex;align-items:flex-end}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .sheet{width:100%;background:var(--cream);border-radius:24px 24px 0 0;padding:14px 16px 26px;transform:translateY(100%);transition:.25s cubic-bezier(.2,.8,.2,1)}
+  .scrim.open .sheet{transform:translateY(0)}
+  .grab{width:38px;height:4px;border-radius:999px;background:var(--line);margin:2px auto 12px}
+  .sheet h4{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .sheet p{font-size:12.5px;color:var(--muted);margin:3px 0 14px}
+  .types{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .type{border:1px solid var(--line);border-radius:14px;padding:13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+  .type:hover{background:var(--cream-2)}
+  .type .ti{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff}
+  .type b{font-size:13.5px;font-weight:700;display:block}
+  .type small{font-size:11px;color:var(--muted)}
+
+  /* full slide-over screen (What's new / About) */
+  .over{position:absolute;inset:0;background:var(--cream-2);z-index:50;transform:translateX(100%);transition:.25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+  .over.open{transform:translateX(0)}
+  .over .obar{padding:46px 16px 12px;display:flex;align-items:center;gap:10px;background:var(--cream);border-bottom:1px solid var(--line)}
+  .over .back{font-size:15px;cursor:pointer;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:5px}
+  .over .obar h3{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .over .obody{flex:1;overflow-y:auto;padding:16px;scrollbar-width:none}
+  .news{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:11px}
+  .news .nh{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .news .ver{font-size:11px;font-weight:800;color:#fff;background:var(--news);padding:3px 8px;border-radius:6px}
+  .news .nd2{font-size:11.5px;color:var(--muted);margin-left:auto}
+  .news h5{font-size:14.5px;font-weight:800;letter-spacing:-.01em}
+  .news ul{margin:8px 0 0 2px;list-style:none}
+  .news li{font-size:12.5px;color:var(--ink-2);line-height:1.55;padding-left:16px;position:relative}
+  .news li:before{content:"›";position:absolute;left:2px;color:var(--rides);font-weight:800}
+</style>
+</head>
+<body>
+  <div class="blurb">
+    <h1>OpenPal · campus board + OpenPal news</h1>
+    <p>Tap the bottom tabs. <b>Feed</b> = peer campus posts. <b>Profile</b> holds the official “OpenPal” section — What’s New (synced from your site) and Follow buttons. The campus feed stays pure; company news lives on its own.</p>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- dynamic header -->
+    <header id="hdr"></header>
+
+    <!-- FEED screen -->
+    <div id="screen-feed" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="chips" id="chips"></div>
+      <div class="scroll">
+        <div class="util-wrap">
+          <div class="util-label">On campus · today</div>
+          <div class="utils" id="utils"></div>
+        </div>
+        <div class="feed" id="feed"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE screen -->
+    <div id="screen-profile" class="scroll" style="display:none">
+      <div class="prof">
+        <div class="me">
+          <div class="avatar">T</div>
+          <div><b>Tamim Dostyar</b><small>@tamim4821 · stanford.edu</small></div>
+          <span class="vchip" style="margin-left:auto">★ 4.9</span>
+        </div>
+
+        <div class="sec-label">OpenPal</div>
+        <div class="group">
+          <div class="row" onclick="openNews()">
+            <div class="ri" style="background:var(--news)">📣</div>
+            <div class="rt"><b>What’s new</b><small>Updates from the OpenPal family</small></div>
+            <span class="vchip" style="color:#fff;background:var(--rides)">v6</span>
+            <span class="reddot" style="margin-left:8px"></span>
+          </div>
+          <div class="row" onclick="openAbout()">
+            <div class="ri" style="background:var(--market)">ℹ️</div>
+            <div class="rt"><b>About OpenPal</b><small>Our mission & the team</small></div>
+            <span class="rx">›</span>
+          </div>
+          <div class="row" onclick="follow('instagram')">
+            <div class="ri" style="background:var(--ig)">📸</div>
+            <div class="rt"><b>Follow on Instagram</b><small>@openpal.app</small></div>
+            <span class="rx">↗</span>
+          </div>
+          <div class="row" onclick="follow('linkedin')">
+            <div class="ri" style="background:var(--li)">💼</div>
+            <div class="rt"><b>Follow on LinkedIn</b><small>OpenPal</small></div>
+            <span class="rx">↗</span>
+          </div>
+        </div>
+
+        <div class="sec-label">Account</div>
+        <div class="group">
+          <div class="row"><div class="ri" style="background:#6b7076">🚗</div><div class="rt"><b>My rides & posts</b></div><span class="rx">›</span></div>
+          <div class="row"><div class="ri" style="background:#6b7076">⚙️</div><div class="rt"><b>Settings</b></div><span class="rx">›</span></div>
+          <div class="row"><div class="ri" style="background:#6b7076">📄</div><div class="rt"><b>Terms & Privacy</b></div><span class="rx">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES placeholder -->
+    <div id="screen-messages" class="scroll" style="display:none">
+      <div class="empty"><div class="ic">✉️</div><b style="color:var(--ink);font-size:15px">No messages yet</b><span style="font-size:13px">Replies to your posts show up here.</span></div>
+    </div>
+
+    <!-- bottom nav (3 tabs, forever) -->
+    <nav id="nav"></nav>
+
+    <!-- create sheet -->
+    <div class="scrim" id="scrim" onclick="if(event.target===this)closeSheet()">
+      <div class="sheet">
+        <div class="grab"></div>
+        <h4>What are you posting?</h4>
+        <p>One create screen — pick a type and we show the right fields.</p>
+        <div class="types" id="types"></div>
+      </div>
+    </div>
+
+    <!-- slide-over: What's new / About -->
+    <div class="over" id="over">
+      <div class="obar"><span class="back" onclick="closeOver()">‹ Back</span><h3 id="overTitle"></h3></div>
+      <div class="obody" id="overBody"></div>
+    </div>
+  </div>
+
+<script>
+const CATS=[
+  {key:"all",label:"All",color:"#0a0a0a",icon:"✦"},
+  {key:"rides",label:"Rides",color:"var(--rides)",icon:"🚗",tip:"offer / find a ride"},
+  {key:"food",label:"Food",color:"var(--food)",icon:"🍕",tip:"free food + deliveries"},
+  {key:"events",label:"Events",color:"var(--events)",icon:"🎉",tip:"parties, BBQ, study"},
+  {key:"market",label:"Market",color:"var(--market)",icon:"🏷️",tip:"sell / donate stuff"},
+  {key:"roommates",label:"Roommates",color:"var(--roommates)",icon:"🏠",tip:"sublets & roommates"},
+  {key:"walk",label:"Walk",color:"var(--walk)",icon:"🌙",tip:"night walk buddy"},
+  {key:"news",label:"News",color:"var(--news)",icon:"📣",tip:"campus announcements"},
+];
+const catOf=k=>CATS.find(c=>c.key===k);
+
+const POSTS=[
+  {cat:"food",time:"now",title:"🔥 Free pizza @ Gates B12 — leftover from CS talk",sub:"~6 boxes, first come. Grab a slice before facilities clears it.",badge:{t:"FREE",c:"var(--food)"},meta:["Gates · B12","ends ~20 min"]},
+  {cat:"rides",time:"4m",title:"Ride to SFO airport — Fri 2pm",sub:"Leaving from Wilbur, 3 seats. Splitting gas + tolls.",meta:["Wilbur → SFO","$15 / seat","3 seats"]},
+  {cat:"events",time:"12m",title:"Rooftop BBQ at EVGR-A tonight 6pm 🌭",sub:"Bring a friend. Veggie + halal options. Music + cornhole.",meta:["EVGR-A roof","6:00 PM","32 going"]},
+  {cat:"roommates",time:"31m",title:"Sublet: 1 room in 2BR, summer quarter",sub:"Furnished, 8 min to campus, utilities included.",badge:{t:"SUBLET",c:"var(--roommates)"},meta:["Escondido Village","$1,150 / mo","Jun–Sep"]},
+  {cat:"food",time:"38m",title:"Chipotle run — I'll grab your order ($4)",sub:"Heading there at 7. Drop your order in chat.",badge:{t:"DELIVERY",c:"var(--food)"},meta:["from Tresidder","$4 fee","by 7:30"]},
+  {cat:"market",time:"1h",title:"Selling: IKEA desk + lamp, great condition",sub:"Graduating, must go this week. Pickup from Rains.",meta:["Rains Houses","$25","pickup"]},
+  {cat:"walk",time:"1h",title:"Walking Green Library → Roble at 11pm, same way?",sub:"Prefer not to walk alone. Leaving in ~15 min.",badge:{t:"SAFETY",c:"var(--walk)"},meta:["Library → Roble","11:00 PM"]},
+  {cat:"news",time:"2h",title:"📣 Caltrain schedule changes start Monday",sub:"Weekday southbound now departs Palo Alto :07 and :37.",meta:["Transit","official"]},
+  {cat:"events",time:"4h",title:"CHEM 31A study jam before midterm 📚",sub:"Group review in Lathrop. Bring your problem sets.",meta:["Lathrop 282","Thu 4PM","11 going"]},
+];
+
+/* OpenPal news = company updates, synced from your website (here: seeded). */
+const OPENPAL_NEWS=[
+  {ver:"v6",date:"Jun 2026",title:"Campus Board is here 🎉",items:["Rides is now one of many post types","Added Food, Events, Market, Roommates, Walk Buddy & News","Faster feed + pull-to-refresh everywhere"]},
+  {ver:"v5",date:"Apr 2026",title:"Safer & smoother",items:["Report & block tools for every post","Email-verified, school-only accounts","Dark mode polish"]},
+  {ver:"v4",date:"Feb 2026",title:"Ratings & trust",items:["Rate riders and drivers after each trip","Profile badges show your reputation"]},
+];
+
+/* Daily utilities — checked every day regardless of social activity.
+   value/sub are live-ish data (here seeded; real app would fetch each). */
+const UTILS=[
+  {key:"dining",icon:"🍽️",color:"var(--food)",name:"Dining",value:"Lunch",sub:"Open · till 2:00",dot:"#16a34a",
+    title:"Wilbur Dining · Lunch",body:`
+    <div class="ud-card"><h5>Today's menu</h5>
+      <div class="ud-row"><span class="l">🌱 Roasted veg grain bowl</span><span class="r">Vegan</span></div>
+      <div class="ud-row"><span class="l">🍗 Herb chicken + rice</span><span class="r">Halal</span></div>
+      <div class="ud-row"><span class="l">🍝 Pesto pasta</span><span class="r">Veg</span></div>
+      <div class="ud-row"><span class="l">🥗 Build-your-own salad bar</span><span class="r"></span></div>
+    </div>
+    <div class="ud-card"><h5>Hours today</h5>
+      <div class="ud-row"><span class="l">Breakfast</span><span class="r">7:30 – 10:00</span></div>
+      <div class="ud-row"><span class="l">Lunch</span><span class="r">11:00 – 2:00</span></div>
+      <div class="ud-row"><span class="l">Dinner</span><span class="r">5:00 – 8:30</span></div>
+    </div>`},
+  {key:"shuttle",icon:"🚐",color:"var(--rides)",name:"Shuttle",value:"4 min",sub:"Line P · Wilbur",dot:"#16a34a",
+    title:"Marguerite Shuttle · Line P",body:`
+    <div class="ud-card"><h5>Next arrivals — Wilbur stop</h5>
+      <div class="ud-row"><span class="l">Line P · → Caltrain</span><span class="r" style="color:var(--rides)">4 min</span></div>
+      <div class="ud-row"><span class="l">Line P · → Caltrain</span><span class="r">19 min</span></div>
+      <div class="ud-row"><span class="l">Line X · → Med School</span><span class="r">11 min</span></div>
+    </div>
+    <div class="ud-card"><h5>Caltrain · Palo Alto SB</h5>
+      <div class="ud-row"><span class="l">#137 Local</span><span class="r">2:07</span></div>
+      <div class="ud-row"><span class="l">#139 Limited</span><span class="r">2:37</span></div>
+    </div>`},
+  {key:"gym",icon:"🏋️",color:"var(--market)",name:"Gym",value:"62%",sub:"Arrillaga · busy",dot:"#f59e0b",
+    title:"Arrillaga Gym · occupancy",body:`
+    <div class="ud-card"><h5>Right now</h5>
+      <div class="ud-row"><span class="l">Weight room</span><span class="r" style="color:#f59e0b">62% full</span></div>
+      <div class="bar"><i style="width:62%;background:#f59e0b"></i></div>
+      <div class="ud-row" style="margin-top:6px"><span class="l">Cardio deck</span><span class="r" style="color:#16a34a">34% full</span></div>
+      <div class="bar"><i style="width:34%;background:#16a34a"></i></div>
+    </div>
+    <div class="ud-card"><h5>Quietest times today</h5>
+      <div class="ud-row"><span class="l">Early morning</span><span class="r">7–9 AM</span></div>
+      <div class="ud-row"><span class="l">Late night</span><span class="r">after 9 PM</span></div>
+    </div>`},
+  {key:"library",icon:"📚",color:"var(--walk)",name:"Library",value:"till 2 AM",sub:"Green · open",dot:"#16a34a",
+    title:"Green Library · hours",body:`
+    <div class="ud-card"><h5>Open now · closes 2:00 AM</h5>
+      <div class="ud-row"><span class="l">Mon – Thu</span><span class="r">8 AM – 2 AM</span></div>
+      <div class="ud-row"><span class="l">Friday</span><span class="r">8 AM – 10 PM</span></div>
+      <div class="ud-row"><span class="l">Weekend</span><span class="r">10 AM – 12 AM</span></div>
+    </div>
+    <div class="ud-card"><h5>Study rooms</h5>
+      <div class="ud-row"><span class="l">Available now</span><span class="r" style="color:var(--rides)">5 of 12</span></div>
+    </div>`},
+  {key:"laundry",icon:"🧺",color:"var(--roommates)",name:"Laundry",value:"3 free",sub:"Your dorm",dot:"#16a34a",
+    title:"Wilbur Laundry · live status",body:`
+    <div class="ud-card"><h5>Washers</h5>
+      <div class="ud-row"><span class="l">#1 · #4 · #6</span><span class="r" style="color:var(--rides)">Free</span></div>
+      <div class="ud-row"><span class="l">#2</span><span class="r">12 min left</span></div>
+      <div class="ud-row"><span class="l">#3 · #5</span><span class="r">In use</span></div>
+    </div>
+    <div class="ud-card"><h5>Dryers</h5>
+      <div class="ud-row"><span class="l">#1 · #2</span><span class="r" style="color:var(--rides)">Free</span></div>
+      <div class="ud-row"><span class="l">#3</span><span class="r">24 min left</span></div>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:11.5px">Notify me when a washer frees up →</p>`},
+];
+
+let active="all", screen="feed";
+const SOCIAL={instagram:"https://instagram.com/openpal.app",linkedin:"https://linkedin.com/company/openpal"};
+
+function renderHeader(){
+  const h=document.getElementById("hdr");
+  if(screen==="feed"){
+    h.innerHTML=`<div class="title"><h2>Campus</h2><span>@stanford.edu</span></div>
+      <div class="h-actions"><div class="icon-btn" title="Search">⌕</div>
+      <button class="post-btn" onclick="openSheet()">+ Post</button></div>`;
+  }else if(screen==="profile"){
+    h.innerHTML=`<div class="title"><h2>Profile</h2><span>Your account & OpenPal</span></div>`;
+  }else{
+    h.innerHTML=`<div class="title"><h2>Messages</h2><span>Replies & chats</span></div>`;
+  }
+}
+function renderChips(){
+  const el=document.getElementById("chips");el.innerHTML="";
+  CATS.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="chip";b.setAttribute("aria-selected",c.key===active);
+    b.onclick=()=>{active=c.key;renderChips();renderFeed();};
+    b.innerHTML=c.key==="all"?c.label:`<span class="dot" style="background:${c.color}"></span>${c.label}`;
+    el.appendChild(b);
+  });
+}
+function renderFeed(){
+  const el=document.getElementById("feed");el.innerHTML="";
+  const list=POSTS.filter(p=>active==="all"||p.cat===active);
+  if(!list.length){el.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">Nothing here yet — be the first to post.</div>`;return;}
+  list.forEach(p=>{
+    const c=catOf(p.cat);
+    const meta=(p.meta||[]).map((m,i)=>`${i?'<span class="sep"></span>':''}<span class="pill${i?' strong':''}">${m}</span>`).join("");
+    const badge=p.badge?`<span class="badge" style="background:${p.badge.c}">${p.badge.t}</span>`:"";
+    const d=document.createElement("div");d.className="card";
+    d.innerHTML=`<div class="top"><span class="cdot" style="background:${c.color}"></span>
+      <span class="cat" style="color:${c.color}">${c.label}</span><span class="time">${p.time}</span></div>
+      <h3>${p.title}</h3><div class="sub">${p.sub}</div><div class="meta">${badge}${meta}</div>`;
+    el.appendChild(d);
+  });
+}
+function renderUtils(){
+  const el=document.getElementById("utils");el.innerHTML="";
+  UTILS.forEach(u=>{
+    const d=document.createElement("div");d.className="util";
+    d.onclick=()=>openUtil(u.key);
+    d.innerHTML=`<div class="uh"><div class="ui" style="background:${u.color}">${u.icon}</div><span class="un">${u.name}</span></div>
+      <div class="uv">${u.value}</div>
+      <div class="us"><span class="udot" style="background:${u.dot}"></span>${u.sub}</div>`;
+    el.appendChild(d);
+  });
+}
+function openUtil(key){
+  const u=UTILS.find(x=>x.key===key);
+  document.getElementById("overTitle").textContent=u.title;
+  document.getElementById("overBody").innerHTML=u.body;
+  document.getElementById("over").classList.add("open");
+}
+function renderTypes(){
+  const el=document.getElementById("types");el.innerHTML="";
+  CATS.filter(c=>c.key!=="all").forEach(c=>{
+    const d=document.createElement("div");d.className="type";
+    d.onclick=()=>{active=c.key;closeSheet();go("feed");renderChips();renderFeed();};
+    d.innerHTML=`<div class="ti" style="background:${c.color}">${c.icon}</div><div><b>${c.label}</b><small>${c.tip}</small></div>`;
+    el.appendChild(d);
+  });
+}
+function renderNav(){
+  const tabs=[["feed","🏠","Feed"],["messages","✉️","Messages"],["profile","👤","Profile"]];
+  const n=document.getElementById("nav");n.innerHTML="";
+  tabs.forEach(([k,ic,lbl])=>{
+    const d=document.createElement("div");d.className="nav-item"+(screen===k?" active":"");
+    d.onclick=()=>go(k);
+    const dot=(k==="profile")?'<span class="nd"></span>':'';
+    d.innerHTML=`<span class="ic">${ic}</span>${lbl}${dot}`;
+    n.appendChild(d);
+  });
+}
+function go(s){
+  screen=s;
+  document.getElementById("screen-feed").style.display=s==="feed"?"flex":"none";
+  document.getElementById("screen-profile").style.display=s==="profile"?"block":"none";
+  document.getElementById("screen-messages").style.display=s==="messages"?"block":"none";
+  renderHeader();renderNav();
+}
+
+/* OpenPal news slide-over */
+function openNews(){
+  document.getElementById("overTitle").textContent="What's new";
+  document.getElementById("overBody").innerHTML=OPENPAL_NEWS.map(n=>`
+    <div class="news"><div class="nh"><span class="ver">${n.ver}</span><span class="nd2">${n.date}</span></div>
+    <h5>${n.title}</h5><ul>${n.items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`).join("")
+    + `<p style="text-align:center;color:var(--muted);font-size:11.5px;margin-top:6px">Synced from openpal.app/news</p>`;
+  document.getElementById("over").classList.add("open");
+}
+function openAbout(){
+  document.getElementById("overTitle").textContent="About OpenPal";
+  document.getElementById("overBody").innerHTML=`
+    <div class="news"><h5>Our mission</h5>
+    <p style="font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:8px">
+    OpenPal is the campus board for everything students do for each other — rides, food,
+    events, stuff, housing and looking out for one another. Built by students, for students.</p></div>
+    <div class="news"><h5>Follow the family</h5>
+    <div class="row" style="border:none;padding:10px 0" onclick="follow('instagram')"><div class="ri" style="background:var(--ig)">📸</div><div class="rt"><b>Instagram</b><small>@openpal.app</small></div><span class="rx">↗</span></div>
+    <div class="row" style="border:none;padding:10px 0" onclick="follow('linkedin')"><div class="ri" style="background:var(--li)">💼</div><div class="rt"><b>LinkedIn</b><small>OpenPal</small></div><span class="rx">↗</span></div>
+    </div>`;
+  document.getElementById("over").classList.add("open");
+}
+function closeOver(){document.getElementById("over").classList.remove("open");}
+function follow(net){window.open(SOCIAL[net],"_blank");}
+
+function openSheet(){document.getElementById("scrim").classList.add("open");}
+function closeSheet(){document.getElementById("scrim").classList.remove("open");}
+
+renderHeader();renderChips();renderUtils();renderFeed();renderTypes();renderNav();
+</script>
+</body>
+</html>
