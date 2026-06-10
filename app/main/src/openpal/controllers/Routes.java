@@ -8,21 +8,24 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("api")
 public class Routes {
+    HashMap<String, String> data = new HashMap<String, String>();
 
-    @GetMapping("/")
+    @GetMapping("/home-route")
     public HashMap<String, String> homeRoute(){
-        HashMap<String, String> data = new HashMap<String, String>();
         data.put("Success", "Hey bro");
-
         return data;
-
     }
 
 
-    public HashMap<String, String> altRoute(){
-        HashMap<String, String> data = new HashMap<String, String>();
-        data.put("success", "alt routes");
+    // public HashMap<String, String> altRoute(){
+    //     HashMap<String, String> data = new HashMap<String, String>();
+    //     data.put("success", "alt routes");
 
+    //     return data;
+    // }
+    @GetMapping("/answer")
+    public HashMap<String, String> answerMe(){
+        data.put("Success", "So you got no other life, bro? stop playing");
         return data;
     }
 }
