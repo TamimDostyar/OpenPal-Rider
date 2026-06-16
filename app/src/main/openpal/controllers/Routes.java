@@ -16,13 +16,6 @@ public class Routes {
         return data;
     }
 
-
-    // public HashMap<String, String> altRoute(){
-    //     HashMap<String, String> data = new HashMap<String, String>();
-    //     data.put("success", "alt routes");
-
-    //     return data;
-    // }
     @GetMapping("/answer")
     public HashMap<String, String> answerMe(){
         data.put("Success", "So you got no other life, bro? stop playing");
