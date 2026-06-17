@@ -7,6 +7,10 @@ export interface CreateUserRequest {
   password: string;
 }
 
+export interface HomeRouter{
+  name: string;
+}
+
 export interface CreateUserResponse {
   email: string;
   message: string;
