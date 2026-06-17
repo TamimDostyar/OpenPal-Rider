@@ -63,5 +63,24 @@ const updateBioService: string = baseURL + "/bio";
 const deleteAccountService: string = baseURL + "/account";
 
 // profile schools controller
-
 const shoolService = (school: string): string => baseURL + `/api/schools/${school}`;
+
+
+export {
+    baseURL, 
+    landingURLService, listReportsService, 
+    updateReportsService, removeReportsService, 
+    banUserService, blockServices,
+    unblockUsernameService, bookingService,
+    requestBookingService, acceptRequestService,
+    declineRequestService, cancleRequestService,
+    termService, completeRequestService, 
+    mineRequestService, incomingRequestService,
+    forgotPassword, loginServices, legalService,
+    privacyService, homeServiceFeed, createPostService,
+    listPostService, searchFeedService, listByUsernameService,
+    listMyRidesService, deletePostsByIDService, messagingSystemService,
+    sendMessageService, conversationService, withUsernameService,
+    deleteWithIDService, profileMeService, profileService, updateBioService, deleteAccountService,
+    shoolService
+}
