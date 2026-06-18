@@ -17,34 +17,34 @@ import {
 } from '../configuration/config';
 
 // this is for testing, alright?
-class SystemEndpoints {    
-    async landingPageService(){
-        const response = await fetch(landingURLService);
-        if (!response.ok){
-            return {"error": "response is not okay"};
-        }
-        const data = (await response.json());
-        return data;
-    }
+// class SystemEndpoints {    
+//     async landingPageService(){
+//         const response = await fetch(landingURLService);
+//         if (!response.ok){
+//             return {"error": "response is not okay"};
+//         }
+//         const data = (await response.json());
+//         return data;
+//     }
 
-}
-class FeedSystems{
-    // homeServiceFeed
-    async getFeedData(jwtCode: string){
-        fetch(homeServiceFeed,
-            {
-                method: 'POST',
-                body: JSON.stringify({
+// }
+// class FeedSystems{
+//     // homeServiceFeed
+//     async getFeedData(jwtCode: string){
+//         fetch(homeServiceFeed,
+//             {
+//                 method: 'POST',
+//                 body: JSON.stringify({
                     
-                })
-            }
+//                 })
+//             }
 
 
-        )
-    }
-}
+//         )
+//     }
+// }
 
-const systemEndpoint = new SystemEndpoints();
-systemEndpoint.landingPageService()
-    .then(data =>console.log(data))
-    .catch(error => console.log(error));
+// const systemEndpoint = new SystemEndpoints();
+// systemEndpoint.landingPageService()
+//     .then(data =>console.log(data))
+//     .catch(error => console.log(error));

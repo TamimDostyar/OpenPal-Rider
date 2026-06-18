@@ -1,4 +1,4 @@
-const baseURL: string = process.env.BASE_URL || "http://localhost:8080";
+const baseURL: string = import.meta.env?.VITE_BASE_URL || "http://localhost:8080";
 
 // landing repsonse
 // const response = await fetch(baseURL+"/api/home-route");
@@ -27,8 +27,8 @@ const mineRequestService: string = bookingService + "/mine";
 const incomingRequestService: string = bookingService + "/incoming";
 
 // forgot password
-const forgotPassword: string = baseURL + "/forgot-password"
-
+const forgotPassword: string = baseURL + "/forgot-password";
+const resetPassword: string = baseURL + "/reset-password";
 
 // login services
 const loginServices: string = baseURL + "/login-user";
@@ -67,7 +67,7 @@ const shoolService = (school: string): string => baseURL + `/api/schools/${schoo
 
 
 export {
-    baseURL, 
+    baseURL, resetPassword,
     landingURLService, listReportsService, 
     updateReportsService, removeReportsService, 
     banUserService, blockServices,
