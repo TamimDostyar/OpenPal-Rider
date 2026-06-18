@@ -7,13 +7,10 @@ const authenticate = new Authentication();
 export const useAuth = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const handleLogin = async () => {
-
         try {
             const token = await authenticate.logIntoSystem(email, password);
             setError('');
@@ -25,5 +22,4 @@ export const useAuth = () => {
     }
 
     return { email, setEmail, password, setPassword, handleLogin, error, success};
-
 }
