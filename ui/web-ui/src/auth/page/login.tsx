@@ -45,7 +45,7 @@ export const LogIn = () => {
                         Remember for 30 days
                     </label>
                     </div>
-                    <a href="#" className="forgot-pass-link">
+                    <a href="/forgot-password" className="forgot-pass-link">
                     Forgot password?
                     </a>
                 </div>
@@ -59,7 +59,7 @@ export const LogIn = () => {
             </div>
 
             <p className="login-bottom-p">
-                Don't have an account? <a href="#">Sign Up</a>
+                Don't have an account? <a href="/signup">Sign Up</a>
             </p>
             </div>
         </div>
