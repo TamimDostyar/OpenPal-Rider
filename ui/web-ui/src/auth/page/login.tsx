@@ -5,11 +5,13 @@ import Image from "../../../assets/image.png";
 import Logo from "../../../assets/logo.png";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
+import { useNavigate } from 'react-router-dom';
 
 
 export const LogIn = () => {
+    const navigate = useNavigate();
 
-    const {email, setEmail, password, setPassword, handleLogin, error, success} = useAuth();
+    const {email, setEmail, password, setPassword, handleLogin, error} = useAuth();
     const [ showPassword, setShowPassword ] = useState(false);
 
     return (
@@ -49,12 +51,8 @@ export const LogIn = () => {
                     Forgot password?
                     </a>
                 </div>
-
-                <div className="login-center-buttons">
-                    <button type="button" onClick={handleLogin}>Log In</button>
-                </div>
-                {error && <p style={{color: 'red'}}>{error}</p>}
-                {success && <p style={{color: 'green'}}>{success}</p>}
+                    <button type="button" onClick={() => handleLogin().then(ok => { if (ok) navigate('/home'); })}>Log In</button>
+                    {error && <p style={{color:'red'}}>{error}</p>}
                 </form>
             </div>
 
