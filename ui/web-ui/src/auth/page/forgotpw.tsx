@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { AuthLayout } from '@/components/ui/AuthLayout';
-import { Button } from '@/components/ui/Button';
-import { TextField } from '@/components/ui/TextField';
+import { useAuth } from '../access';
 
 export const ForgotPW = () => {
+  const { email, setEmail, error, message, handleForget } = useAuth();
   return (
     <AuthLayout
       footer={
@@ -20,20 +20,32 @@ export const ForgotPW = () => {
           </p>
         </div>
 
-        <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-          <TextField
-            label="Email"
-            type="email"
-            placeholder="you@school.edu"
-          />
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-300 rounded px-3 py-2"
+        />
 
-          <div className="flex flex-col gap-3 pt-2">
-            <Button>Send reset token</Button>
-            <Link to="/reset-password">
-              <Button variant="ghost">I have a token</Button>
-            </Link>
-          </div>
-        </form>
+        <button
+          onClick={handleForget}
+          className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          Get a code
+        </button>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        {message && <p className="text-sm text-green-600">{message}</p>}
+
+        {message && (
+          <Link
+            to="/verify-email"
+            className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors text-center"
+          >
+            I have a token
+          </Link>
+        )}
       </div>
     </AuthLayout>
   );

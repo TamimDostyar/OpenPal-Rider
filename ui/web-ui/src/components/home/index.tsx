@@ -17,7 +17,7 @@ const Index = () => {
             className="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-sm"
           />
           <div>
-            <p className="mb-3 text-xs uppercase tracking-widest text-muted">·001 · students only</p>
+            <p className="mb-3 text-xs uppercase tracking-widest text-muted">students only</p>
             <h1 className="text-4xl font-semibold leading-tight text-ink">
               Student community — get a ride from your school friends!
             </h1>

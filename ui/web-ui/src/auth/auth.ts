@@ -3,7 +3,7 @@ import {forgotPassword, loginServices, resetPassword} from '../configuration/con
 // this is for the authentication
 export class Authentication{
 
-    async forgotPassword(email: string): Promise<string>{
+    async forgotPassword(email: string){
         const response = await fetch(forgotPassword, {
             method: 'POST',
             headers: {
@@ -22,7 +22,7 @@ export class Authentication{
         return data;
     }
 
-    async resetPassword(token: string, newPassword: string): Promise<string>{
+    async resetPassword(token: string, newPassword: string){
         const response = await fetch(resetPassword, {
             method: 'POST',
             headers: {
@@ -67,6 +67,7 @@ export class Authentication{
             return data.token;
 
         }
+
 }
 
 

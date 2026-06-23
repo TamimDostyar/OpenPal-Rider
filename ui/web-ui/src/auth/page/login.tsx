@@ -9,7 +9,7 @@ import { TextField } from '@/components/ui/TextField';
 
 export const LogIn = () => {
   const navigate = useNavigate();
-  const { email, setEmail, password, setPassword, handleLogin, error } = useAuth();
+  const { email, setEmail, password, setPassword, handleLogin, error, handleForget} = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   return (

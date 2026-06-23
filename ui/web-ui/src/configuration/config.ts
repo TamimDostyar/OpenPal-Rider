@@ -29,7 +29,6 @@ const incomingRequestService: string = bookingService + "/incoming";
 // forgot password
 const forgotPassword: string = baseURL + "/forgot-password";
 const resetPassword: string = baseURL + "/reset-password";
-
 // login services
 const loginServices: string = baseURL + "/login-user";
 
