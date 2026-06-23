@@ -13,6 +13,7 @@ interface UseFeedResult {
   myEmail: string | null;
   school: string | null;
   filters: FeedSearchParams | null;
+  hasData: boolean,
   refresh: () => Promise<void>;
   applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
@@ -48,6 +49,7 @@ export function useFeed(): UseFeedResult {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [school, setSchool] = useState<string | null>(null);
+  const [hasData, setHasData] = useState(false);
 
   const myEmail = token ? emailFromToken(token) : null;
 
@@ -67,6 +69,13 @@ export function useFeed(): UseFeedResult {
       cancelled = true;
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!school) return;
+    api.schools.news(school)
+      .then((res) => setHasData(res.length > 0))
+      .catch(() => setHasData(false));
+  }, [school]);
 
   const handleAuthFailure = useCallback(
     async (err: ApiError) => {
@@ -243,5 +252,6 @@ export function useFeed(): UseFeedResult {
     deletePost,
     bookPost,
     blockUser,
+    hasData
   };
 }

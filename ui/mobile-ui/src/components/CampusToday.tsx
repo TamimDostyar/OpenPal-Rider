@@ -1,12 +1,3 @@
-/**
- * "On campus today" — a horizontal strip of read-only campus utilities pulled
- * live from the school's own website (dining, gym, library, news). Tapping a
- * card opens the full list on CampusUtilityScreen. The whole strip is a pure
- * presenter: it shows what the backend scrapes and never posts anything.
- *
- * The school name is the one the user registered with (e.g. "Luther College"),
- * which the backend uses to pick the right site to scrape.
- */
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
@@ -19,15 +10,10 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 interface CampusUtil {
   category: CampusCategory;
-  /** Short card label. */
   label: string;
-  /** One-line caption under the title on the detail screen. */
   subtitle: string;
-  /** Accent dot color class (a semantic theme color). */
   dot: string;
 }
-
-// Only the categories the backend can actually scrape today.
 export const CAMPUS_UTILS: CampusUtil[] = [
   { category: "dining", label: "Dining", subtitle: "Hours & today's menu", dot: "bg-sun" },
   { category: "gym-hours", label: "Gym", subtitle: "Hours & facilities", dot: "bg-sky" },
@@ -35,11 +21,10 @@ export const CAMPUS_UTILS: CampusUtil[] = [
   { category: "news", label: "News", subtitle: "Campus announcements", dot: "bg-ink" },
 ];
 
-export function CampusToday({ school }: { school: string | null }) {
+export function CampusToday({ school, hasData }: { school: string | null, hasData: boolean}) {
   const navigation = useNavigation<Nav>();
 
-  // Without a school we can't target the scraper, so don't show the strip.
-  if (!school) return null;
+  if (!school || !hasData) return null;
 
   return (
     <View className="pb-3">

@@ -37,6 +37,7 @@ export function HomeScreen() {
     bookPost,
     blockUser,
     applyFilters,
+    hasData
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
   const { colorScheme } = useColorScheme();
@@ -214,7 +215,7 @@ export function HomeScreen() {
             gap: 10,
           }}
           ListHeaderComponent={
-            filters ? null : <CampusToday school={school} />
+            filters ? null : <CampusToday school={school} hasData={!!hasData} />
           }
           ItemSeparatorComponent={() => <View className="h-0" />}
           refreshControl={
