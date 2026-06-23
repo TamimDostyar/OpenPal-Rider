@@ -1,0 +1,16 @@
+export { default as appIcon } from './app-icon.png';
+export { default as icon } from './icon.png';
+export { default as hero } from './hero.png';
+export { default as heroAuth } from './hero-auth.svg';
+export { default as logoMark } from './logo-mark.svg';
+export { default as socialIcons } from './social-icons.svg';
+export { default as tabFeed } from './icons/tab-feed.svg';
+export { default as tabBookings } from './icons/tab-bookings.svg';
+export { default as tabMessages } from './icons/tab-messages.svg';
+export { default as tabProfile } from './icons/tab-profile.svg';
+export { default as iconInstagram } from './icons/instagram.svg';
+export { default as iconLinkedin } from './icons/linkedin.svg';
+export { default as iconGlobe } from './icons/globe.svg';
+export { default as iconSearch } from './icons/search.svg';
+export { default as iconCar } from './icons/car.svg';
+export { default as iconCampus } from './icons/campus.svg';

@@ -1,202 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "tailwindcss";
 
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
 
-*{
-  box-sizing: border-box;
-  padding: 0px;
-  margin: 0px;
+  --color-cream: rgb(var(--c-cream));
+  --color-cream-2: rgb(var(--c-cream-2));
+  --color-canvas: rgb(var(--c-canvas));
+  --color-ink: rgb(var(--c-ink));
+  --color-ink-2: rgb(var(--c-ink-2));
+  --color-muted: rgb(var(--c-muted));
+  --color-line: rgb(var(--c-line));
+  --color-line-2: rgb(var(--c-line-2));
+  --color-coral: rgb(var(--c-coral));
+  --color-coral-dk: rgb(var(--c-coral-dk));
+  --color-sage: rgb(var(--c-sage));
+  --color-sage-2: rgb(var(--c-sage-2));
+  --color-sun: rgb(var(--c-sun));
+  --color-sky: rgb(var(--c-sky));
+  --color-driver: rgb(var(--c-driver));
+  --color-driver-bg: rgb(var(--c-driver-bg));
+  --color-driver-border: rgb(var(--c-driver-border));
+  --color-passenger: rgb(var(--c-passenger));
+  --color-passenger-bg: rgb(var(--c-passenger-bg));
+  --color-passenger-border: rgb(var(--c-passenger-border));
 }
 
-html{
-  font-size: 10px;
+:root {
+  --c-cream: 255 255 255;
+  --c-cream-2: 245 245 247;
+  --c-canvas: 240 240 243;
+  --c-ink: 10 10 10;
+  --c-ink-2: 31 32 36;
+  --c-muted: 107 112 118;
+  --c-line: 228 228 231;
+  --c-line-2: 238 238 241;
+  --c-coral: 220 38 38;
+  --c-coral-dk: 185 28 28;
+  --c-sage: 14 124 102;
+  --c-sage-2: 10 92 77;
+  --c-sun: 194 65 12;
+  --c-sky: 71 85 105;
+  --c-driver: 14 124 102;
+  --c-driver-bg: 230 244 240;
+  --c-driver-border: 194 226 217;
+  --c-passenger: 220 38 38;
+  --c-passenger-bg: 254 231 231;
+  --c-passenger-border: 244 194 194;
 }
 
-body{
-  font-family: "Poppins", sans-serif;
-  height: 100vh;
-
-}
-
-.login-main{
-  display: flex;
-}
-
-.login-left{
-  flex-grow: 1;
-  height: 100vh;
-  background-color: #E9E9E9;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-left img{
-  width: 400px;
-}
-
-.login-right{
-
-  height: 100vh;
-
-  flex-grow: 1;
-
-
-}
-
-.login-right-container{
-  height: 100%;
-  width: 80%;
-  margin: 0 auto;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-}
-
-.login-right form{
-  display: flex;
-  flex-direction: column;
-}
-
-.login-logo{
-  align-self: center;
-  padding-top: 50px;
-}
-
-.login-center{
-  margin: auto 0;
-}
-
-.login-logo img{
-  width: 50px;
-}
-
-.login-center h2{
-  font-size: 3.5rem;
-}
-
-.login-center{
-  text-align: center;
-}
-
-.login-center p{
-  font-weight: 400;
-  font-size: 2rem;
-  margin-bottom: 40px;
-}
-
-form input[type='email'],
-form input[type='password'],
-form input[type='text']
- {
-  width: 100%;
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 0px;
-  border-bottom: 1px solid black;
-  outline: none;
+* {
   box-sizing: border-box;
 }
 
-.pass-input-div{
-  position: relative;
-}
-
-.pass-input-div svg{
-  font-size: 20px;
-  position: absolute;
-  right: 10px;
-  bottom: 35px;
-  cursor: pointer;
-  outline: none;
-}
-
-form button[type='button'] {
-  width: 100%;
-  padding: 16px;
-  border: none;
-  border-radius: 4px;
+html {
   font-size: 16px;
-  cursor: pointer;
-  border-radius: 30px;
-  font-weight: 600;
 }
 
-
-.login-center-options{
-  display: flex;
-  justify-content: space-between;
+body {
+  font-family: var(--font-sans);
+  background-color: rgb(var(--c-cream));
+  color: rgb(var(--c-ink));
+  min-height: 100vh;
+  margin: 0;
 }
 
-.remember-div{
-  display:flex;
-  align-items: center;
-  column-gap: 5px;
+#root {
+  min-height: 100vh;
 }
 
-.remember-div label{
-  font-size: 1.3rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 2px;
+@keyframes route-car {
+  0% { offset-distance: 0%; }
+  45% { offset-distance: 100%; }
+  55% { offset-distance: 100%; }
+  100% { offset-distance: 0%; }
 }
 
-.forgot-pass-link{
-  text-decoration: none;
-  font-size: 1.3rem;
+.route-car {
+  offset-path: path("M 8 62 L 80 18 L 152 62 L 224 18 L 296 62 L 368 18");
+  animation: route-car 6s ease-in-out infinite;
 }
 
-.forgot-pass-link:hover{
-  text-decoration: underline;
-}
-
-.login-center-buttons{
-  margin-top: 40px;
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-}
-
-.login-center-buttons button:nth-child(1){
-  background-color: black;
-  color: white;
-  border: 3px solid black;
-}
-
-.login-center-buttons button:nth-child(1):hover{
-  color: #333;
-  background-color: white;
-}
-
-.login-center-buttons button:nth-child(2){
-  background-color: #F0F0F0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: 10px;
-}
-
-.login-center-buttons button:nth-child(2) img{
-  width: 30px;
-}
-
-.login-center-buttons button:nth-child(2):hover{
-  background-color: #c4c4c457;
-}
-
-.login-bottom-p{
-  text-align: center;
-  font-size: 1.5rem;
-  padding-bottom: 40px;
-}
-
-.login-bottom-p a{
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.login-bottom-p a:hover{
-  text-decoration: underline;
+@media (max-width: 900px) {
+  .auth-split-left {
+    display: none;
+  }
 }
