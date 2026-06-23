@@ -8,25 +8,29 @@ interface FeedPostCardProps {
   isOwner: boolean;
   onDelete?: (id: string) => void;
   onBook?: (post: FeedPostResponse) => void;
-  /** Opens the overflow menu (report / block). Triggered by the ⋯ button or a long-press. */
   onMore?: (post: FeedPostResponse) => void;
   onMessage?: (post: FeedPostResponse) => void;
   onViewProfile?: (post: FeedPostResponse) => void;
-  /** Tap the card body to open the full ride detail screen. */
   onOpen?: (post: FeedPostResponse) => void;
 }
 
-function formatDeparture(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+function formatDeparture(value: any): string {
+  let d: Date;
+  
+  if (Array.isArray(value)) {
+    d = new Date(value[0], value[1] - 1, value[2], value[3], value[4]);
+  } else {
+    d = new Date(typeof value === "number" ? value * 1000 : value);
+  }
+
+  if (Number.isNaN(d.getTime())) return String(value);
   return d.toLocaleString(undefined, {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
+    weekday: "long", month: "long", day: "numeric",
+    hour: "numeric", minute: "2-digit",
   });
 }
+
+
 
 function formatPrice(value: number): string {
   return `$${Number(value).toFixed(0)}`;
@@ -49,8 +53,15 @@ interface Countdown {
   past: boolean;
 }
 
-function countdownTo(iso: string): Countdown | null {
-  const target = new Date(iso).getTime();
+function parseDepTime(value: any): Date {
+  if (Array.isArray(value)) {
+    return new Date(value[0], value[1] - 1, value[2], value[3] ?? 0, value[4] ?? 0);
+  }
+  return new Date(typeof value === "number" ? value * 1000 : value);
+}
+
+function countdownTo(iso: any): Countdown | null {
+  const target = parseDepTime(iso).getTime();
   if (Number.isNaN(target)) return null;
   const diffMs = target - Date.now();
 
@@ -206,13 +217,6 @@ export function FeedPostCard({
           {post.description}
         </Text>
       ) : null}
-
-      {/* Vehicle hint for drivers */}
-      {!isPassenger && post.vehicleInfo ? (
-        <Text className="mb-3 text-xs text-muted" numberOfLines={1}>
-          {post.vehicleInfo}
-        </Text>
-      ) : null}
       </Pressable>
 
       {/* Footer: poster + actions */}
@@ -231,11 +235,6 @@ export function FeedPostCard({
               <Text className="shrink text-[13px] font-semibold text-ink" numberOfLines={1}>
                 {displayName}
               </Text>
-              {post.driverVerified ? (
-                <Text className="shrink-0 text-[10px] font-semibold text-sage">
-                  Vehicle on file
-                </Text>
-              ) : null}
             </View>
             <Text className="text-[11px] text-muted" numberOfLines={1}>
               @{post.username}

@@ -11,7 +11,6 @@ interface UseFeedResult {
   refreshing: boolean;
   error: string | null;
   myEmail: string | null;
-  /** The school the user registered with, used to scope campus utilities. */
   school: string | null;
   filters: FeedSearchParams | null;
   refresh: () => Promise<void>;
@@ -36,10 +35,9 @@ function emailFromToken(token: string): string | null {
   }
 }
 
-// A booking in any of these states means "this post is mine for now" — hide it
-// from the feed. DECLINED / CANCELLED let the post come back so the user can
-// try again.
+
 const ACTIVE_BOOKING_STATES = new Set(["REQUESTED", "ACCEPTED", "COMPLETED"]);
+
 
 export function useFeed(): UseFeedResult {
   const { token, signOut } = useAuth();
@@ -53,8 +51,6 @@ export function useFeed(): UseFeedResult {
 
   const myEmail = token ? emailFromToken(token) : null;
 
-  // The school name (e.g. "Luther College") scopes the campus utilities strip.
-  // A failure here is non-fatal — the strip just hides until it loads.
   useEffect(() => {
     if (!token) {
       setSchool(null);
@@ -110,12 +106,31 @@ export function useFeed(): UseFeedResult {
             : bookedPostIds;
         setBookedPostIds(bookedIds);
 
+
+
+        const searchBasedOnTimePosted = () => {
+        const now = new Date();
+        const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDay()).getTime();
+        
         const filtered = next.filter((post) => {
           if (myEmail && post.email.toLowerCase() === myEmail.toLowerCase()) return false;
           if (bookedIds.has(post.id)) return false;
           return true;
         });
-        setPosts(filtered);
+
+        return filtered.map((post) => {
+          const [year, month, day] = post.departureTime;
+          const departMS = new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+          const difference = (todayMs - departMS) / (1000 * 60 * 60 * 24);
+          return {...post, difference};
+        }
+      )
+
+              
+      }
+      const sorted = searchBasedOnTimePosted();
+      setPosts(sorted);
+
       } catch (err: unknown) {
         if (err instanceof ApiError) {
           if (await handleAuthFailure(err)) return;
@@ -144,6 +159,7 @@ export function useFeed(): UseFeedResult {
     [setFilters],
   );
 
+
   const deletePost = useCallback(
     async (id: string) => {
       if (!token) return;
@@ -169,8 +185,6 @@ export function useFeed(): UseFeedResult {
       if (!token) return false;
       try {
         await api.bookings.request(token, { postId, seatsRequested: seats });
-        // Optimistically hide the post and remember it as booked, so it stays
-        // hidden even before the next bookings.mine reload settles.
         setBookedPostIds((curr) => {
           const next = new Set(curr);
           next.add(postId);

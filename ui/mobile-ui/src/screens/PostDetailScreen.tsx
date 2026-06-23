@@ -1,13 +1,3 @@
-/**
- * PostDetailScreen is the full-screen read view for a single feed post. It
- * expands everything the compact FeedPostCard truncates — full description,
- * vehicle, schedule, poster — and renders the origin → destination route on a
- * free OpenStreetMap-based map (see RouteMap).
- *
- * Actions (book / message / report / view profile / delete) are passed through
- * navigation params as the route's own callbacks so the screen stays a pure
- * presenter and the feed remains the single source of truth for mutations.
- */
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useState } from "react";
@@ -23,15 +13,19 @@ import type { RootStackParamList } from "@/navigation/types";
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, "PostDetail">;
 
-function formatDeparture(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+function formatDeparture(value: any): string {
+  let d: Date;
+  
+  if (Array.isArray(value)) {
+    d = new Date(value[0], value[1] - 1, value[2], value[3], value[4]);
+  } else {
+    d = new Date(typeof value === "number" ? value * 1000 : value);
+  }
+
+  if (Number.isNaN(d.getTime())) return String(value);
   return d.toLocaleString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
+    weekday: "long", month: "long", day: "numeric",
+    hour: "numeric", minute: "2-digit",
   });
 }
 
@@ -39,8 +33,14 @@ function formatPrice(value: number): string {
   return `$${Number(value).toFixed(0)}`;
 }
 
+function parseDepTime(value: any): Date {
+  if (Array.isArray(value)) {
+    return new Date(value[0], value[1] - 1, value[2], value[3] ?? 0, value[4] ?? 0);
+  }
+  return new Date(typeof value === "number" ? value * 1000 : value);
+}
 function countdownLabel(iso: string): string | null {
-  const target = new Date(iso).getTime();
+  const target = parseDepTime(iso).getTime();
   if (Number.isNaN(target)) return null;
   const diffMs = target - Date.now();
   if (diffMs <= 0) return "Departed";
@@ -126,9 +126,6 @@ export function PostDetailScreen() {
     );
   };
 
-  // Booking is performed directly here (like ReportScreen) so we don't have to
-  // pass a non-serializable callback through navigation params. The feed
-  // refreshes on focus, so the booked post drops out when we return.
   const onBook = () => {
     if (!token || booking) return;
     const title = isPassenger ? "Offer this ride?" : "Book seat?";
@@ -254,6 +251,7 @@ export function PostDetailScreen() {
             </Text>
             <Text className="mt-1 text-sm font-semibold text-ink">
               {formatDeparture(post.departureTime)}
+              
             </Text>
           </View>
           {!isPassenger ? (
@@ -297,7 +295,7 @@ export function PostDetailScreen() {
           </View>
         ) : null}
 
-        {/* Vehicle */}
+        {/* Vehicle
         {!isPassenger && post.vehicleInfo ? (
           <View className="gap-1.5">
             <Text className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -305,7 +303,7 @@ export function PostDetailScreen() {
             </Text>
             <Text className="text-sm text-ink-2">{post.vehicleInfo}</Text>
           </View>
-        ) : null}
+        ) : null} */}
 
         {/* Poster */}
         <Pressable

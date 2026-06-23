@@ -123,12 +123,6 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 export const api = {
   health: () => request<{ Success: string }>("/api/"),
 
-  // getHomeRoute: () =>{
-  //   fetch("/api/home-route", {
-  //     method: "GET",
-  //   })
-  // },
-
   createUser: (payload: CreateUserRequest) =>
     request<CreateUserResponse>("/api/user/create-user", {
       method: "POST",

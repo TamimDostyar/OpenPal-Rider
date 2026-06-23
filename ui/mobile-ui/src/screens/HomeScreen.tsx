@@ -151,7 +151,7 @@ export function HomeScreen() {
           hitSlop={6}
           className="h-10 w-10 items-center justify-center rounded-full border border-line bg-cream"
         >
-          <Text className="text-base text-ink">{filters ? "●" : "⌕"}</Text>
+          <Text className="text-base text-ink">{filters ? "●" : "⬱"}</Text>
         </Pressable>
         <Pressable
           onPress={() => navigation.navigate("CreatePost")}
