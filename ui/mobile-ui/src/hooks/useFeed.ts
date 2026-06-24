@@ -14,7 +14,7 @@ interface UseFeedResult {
   school: string | null;
   filters: FeedSearchParams | null;
   hasData: boolean,
-  announcement: string
+  announcement: String | null
   refresh: () => Promise<void>;
   applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
