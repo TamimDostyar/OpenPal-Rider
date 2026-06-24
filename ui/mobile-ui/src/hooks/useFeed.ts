@@ -14,6 +14,7 @@ interface UseFeedResult {
   school: string | null;
   filters: FeedSearchParams | null;
   hasData: boolean,
+  announcement: string
   refresh: () => Promise<void>;
   applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
@@ -39,7 +40,10 @@ function emailFromToken(token: string): string | null {
 
 const ACTIVE_BOOKING_STATES = new Set(["REQUESTED", "ACCEPTED", "COMPLETED"]);
 
-
+async function getAnnouncementNews(){
+  const announcement = await api.announcementNews();
+  return announcement;
+}
 export function useFeed(): UseFeedResult {
   const { token, signOut } = useAuth();
   const { filters, setFilters } = useFeedFilters();
@@ -50,8 +54,24 @@ export function useFeed(): UseFeedResult {
   const [error, setError] = useState<string | null>(null);
   const [school, setSchool] = useState<string | null>(null);
   const [hasData, setHasData] = useState(false);
-
+  const [announcement, setAnnouncement] = useState<String | null>(null);
   const myEmail = token ? emailFromToken(token) : null;
+
+  useEffect(() => {
+    if (!token){
+      setAnnouncement(null);
+      return;
+
+    }
+    async function fetchAnnouncements() {
+      const announcement = await getAnnouncementNews();
+      const data = announcement.success;
+      const currentNews = data[0];
+      setAnnouncement(currentNews["announcement"]);
+    }
+
+    fetchAnnouncements();
+  }, [])
 
   useEffect(() => {
     if (!token) {
@@ -252,6 +272,7 @@ export function useFeed(): UseFeedResult {
     deletePost,
     bookPost,
     blockUser,
-    hasData
+    hasData,
+    announcement
   };
 }

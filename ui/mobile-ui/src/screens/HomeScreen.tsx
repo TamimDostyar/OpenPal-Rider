@@ -37,12 +37,13 @@ export function HomeScreen() {
     bookPost,
     blockUser,
     applyFilters,
-    hasData
+    hasData,
+    announcement
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
   const { colorScheme } = useColorScheme();
   const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
-
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
   const firstFocus = useRef(true);
   useFocusEffect(
     useCallback(() => {
@@ -162,6 +163,22 @@ export function HomeScreen() {
           <Text className="text-sm font-semibold text-cream">Post</Text>
         </Pressable>
       </View>
+
+
+    {announcement ? (
+      <Pressable
+        className="mx-5 mb-3 rounded-2xl border border-line bg-cream p-3"
+        onPress={() => setShowAnnouncement(prev => !prev)}
+      >
+        <View className="flex-row items-center justify-between">
+          <Text className="text-xs font-semibold text-ink">Read Me - Announcement!</Text>
+          <Text className="text-xs text-muted">{showAnnouncement ? "Hide ▲" : "Show ▼"}</Text>
+        </View>
+        {showAnnouncement ? (
+          <Text className="text-sm leading-5 text-ink mt-2">{announcement}</Text>
+        ) : null}
+      </Pressable>
+      ) : null}
 
       {filters ? (
         <View className="mx-5 mb-3 flex-row items-center justify-between rounded-full border border-line bg-cream-2 px-4 py-2">

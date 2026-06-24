@@ -122,7 +122,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export const api = {
   health: () => request<{ Success: string }>("/api/"),
-
+  announcementNews: async () => request<{success: []}>("/api/announcements/read-news"),
   createUser: (payload: CreateUserRequest) =>
     request<CreateUserResponse>("/api/user/create-user", {
       method: "POST",
@@ -158,6 +158,8 @@ export const api = {
       method: "POST",
       body: payload,
     }),
+
+
 
   universities: () => request<UniversitiesResponse>("/api/universities"),
 
