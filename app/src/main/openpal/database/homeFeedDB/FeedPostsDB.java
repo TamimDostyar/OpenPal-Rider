@@ -7,10 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * JPA entity for a feed/ride post in the "feeds" table. Stores poster
- * identity, ride details, and audit timestamps maintained on insert/update.
- */
+
 @Entity
 @Table(
     name = "feeds",
