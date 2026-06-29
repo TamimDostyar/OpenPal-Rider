@@ -36,8 +36,6 @@ const BUG_REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSe3zd3k3IRQ-rh_Y12asBzfg4OK1nXxY_6eUa6CdP-KQ1fWxQ/viewform?usp=publish-editor";
 const BIO_MAX = 200;
 
-// The official OpenPal links surfaced on every profile. Read-only — they just
-// open in the browser.
 const OPENPAL_LINKS: { label: string; caption: string; url: string }[] = [
   {
     label: "OpenPal on the web",
@@ -368,7 +366,7 @@ export function ProfileScreen() {
         </View>
 
         <Pressable onPress={openBugReport} className="mt-2 border-t border-line pt-4">
-          <Text className="text-sm font-semibold text-ink-2">Report an issue / bug →</Text>
+          <Text className="text-sm font-semibold text-ink-2">Report an issue / bug or share what you think should be added →</Text>
           <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
         </Pressable>
 

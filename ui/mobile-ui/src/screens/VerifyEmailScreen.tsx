@@ -21,8 +21,8 @@ export function VerifyEmailScreen() {
         <Text className="text-xs uppercase tracking-widest text-muted">
           Step 2 of 2 · verify
         </Text>
-        <Text className="text-4xl font-semibold leading-tight text-ink">
-          Check your inbox.
+        <Text className="text-2xl font-semibold leading-tight text-ink">
+          Check your INBOX or your SPAM!
         </Text>
         <Text className="text-base leading-relaxed text-ink-2">
           We sent a 4-digit code to{" "}

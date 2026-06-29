@@ -4,9 +4,8 @@
  */
 import React from "react";
 import { Pressable, Text } from "react-native";
-
 import { Spinner } from "@/components/Spinner";
-
+import { ViewStyle } from 'react-native';
 type Variant = "ink" | "coral" | "sage" | "ghost";
 
 interface ButtonProps {
@@ -15,6 +14,7 @@ interface ButtonProps {
   variant?: Variant;
   loading?: boolean;
   disabled?: boolean;
+  viewStyle?: ViewStyle;
 }
 
 const BACKGROUND: Record<Variant, string> = {
@@ -37,12 +37,14 @@ export function Button({
   variant = "ink",
   loading = false,
   disabled = false,
+  viewStyle,
 }: ButtonProps) {
   const blocked = loading || disabled;
   return (
     <Pressable
       onPress={onPress}
       disabled={blocked}
+      style={viewStyle}
       className={`h-14 flex-row items-center justify-center rounded-full ${BACKGROUND[variant]} ${
         blocked ? "opacity-40" : ""
       }`}

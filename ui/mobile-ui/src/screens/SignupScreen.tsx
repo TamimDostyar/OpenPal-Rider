@@ -124,7 +124,7 @@ export function SignupScreen() {
         <View className="gap-3 py-6">
           <Button
             label="Send verification code"
-            variant="coral"
+            variant="ink"
             onPress={submit}
             loading={submitting}
           />
