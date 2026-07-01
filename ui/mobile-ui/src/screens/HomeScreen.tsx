@@ -54,11 +54,6 @@ export function HomeScreen() {
     }, [refresh]),
   );
 
-  let schoolDomain = myEmail?.split("@")[1] ?? null;
-  if (schoolDomain?.endsWith(".edu")) {
-    schoolDomain = schoolDomain.slice(0, -".edu".length)
-  }
-  
   const onBook = async (post: FeedPostResponse) => {
     const isPassengerPost = post.postType === "PASSENGER";
     const title = isPassengerPost ? "Offer this ride?" : "Book seat?";
@@ -141,12 +136,6 @@ export function HomeScreen() {
   return (
     <Screen className="px-0">
       <View className="flex-row items-end justify-between gap-3 px-5 pb-4 pt-2">
-        <View className="flex-1">
-          <Text className="text-3xl font-bold tracking-tight text-ink">Rides</Text>
-          {schoolDomain ? (
-            <Text className="mt-0.5 text-xs text-muted">@{schoolDomain}</Text>
-          ) : null}
-        </View>
         <Pressable
           onPress={() => navigation.navigate("Search")}
           hitSlop={6}
