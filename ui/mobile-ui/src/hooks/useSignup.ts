@@ -13,15 +13,6 @@ import { useUniversities } from "./useUniversities";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-function isEduEmail(email: string): boolean {
-  const at = email.lastIndexOf("@");
-  if (at < 0 || at === email.length - 1) return false;
-  const domain = email.slice(at + 1).toLowerCase();
-  return domain.endsWith(".edu") && domain.length > ".edu".length;
-}
-
 export function useSignup() {
   const navigation = useNavigation<Nav>();
   const universities = useUniversities();
@@ -53,13 +44,9 @@ export function useSignup() {
     
     if (otherSchool) {
       if (!school.trim()) return "Enter your school's name.";
-      if (!isEduEmail(email))
-        return "To add a school that isn't listed, use your campus .edu email.";
     } else if (!school.trim()) {
       return "Pick your school from the list.";
     }
-    if (!DATE_PATTERN.test(graduationDate))
-      return "Graduation date must be MM/DD/YYYY.";
     if (!/^\d{10}$/.test(phoneNumber)) return "Phone number must be 10 digits.";
     if (password.length < 8) return "Password must be at least 8 characters.";
     return null;
@@ -79,7 +66,7 @@ export function useSignup() {
         name: name.trim(),
         email: email.trim(),
         school: school.trim(),
-        graduationDate,
+        graduationDate: graduationDate.trim() ? graduationDate : undefined,
         phoneNumber: Number(phoneNumber),
         password,
       });

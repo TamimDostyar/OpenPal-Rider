@@ -42,6 +42,7 @@ export function HomeScreen() {
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
   const [feedScope, setFeedScope] = useState<"all" | "offering" | "looking">("all");
+  const [announcementExpanded, setAnnouncementExpanded] = useState(false);
   const { colorScheme } = useColorScheme();
   const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
 
@@ -164,10 +165,22 @@ export function HomeScreen() {
 
       {announcement ? (
         <View className="mx-5 mb-3 rounded-2xl border border-line bg-cream px-4 py-3">
-          <Text className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-2">
-            Announcement
-          </Text>
-          <Text className="mt-1 text-sm text-ink">{announcement}</Text>
+          <View className="items-center gap-2">
+            <Text className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-coral-dk">
+              Announcement
+            </Text>
+            {announcementExpanded ? (
+              <Text className="text-center text-sm leading-5 text-ink">{announcement}</Text>
+            ) : null}
+            <Pressable
+              onPress={() => setAnnouncementExpanded((value) => !value)}
+              className="rounded-full border border-coral-dk bg-cream-2 px-2.5 py-1"
+            >
+              <Text className="text-[11px] font-semibold text-coral-dk">
+                {announcementExpanded ? "Hide" : "Read"}
+              </Text>
+            </Pressable>
+          </View>
         </View>
       ) : null}
 

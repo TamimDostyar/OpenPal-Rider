@@ -11,7 +11,7 @@ import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { useSignup } from "@/hooks/useSignup";
 import type { RootStackParamList } from "@/navigation/types";
-
+import { useWelcome } from "@/hooks/useWelcome";
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export function SignupScreen() {
@@ -32,7 +32,7 @@ export function SignupScreen() {
     submitting,
     submit,
   } = useSignup();
-
+  const { goToSignup, goToLogin } = useWelcome();
   
   return (
     <Screen>
@@ -102,7 +102,7 @@ export function SignupScreen() {
             value={fields.graduationDate}
             onChange={setGraduationDate}
             placeholder="MM/DD/YYYY"
-            hint="Example: 05/01/2026"
+            hint="Example: 05/01/2026 (Optional)"
           />
           <TextField
             label="Phone number"
@@ -123,10 +123,16 @@ export function SignupScreen() {
 
         <View className="gap-3 py-6">
           <Button
-            label="Send verification code"
+            label="Send Verification Code"
             variant="ink"
             onPress={submit}
             loading={submitting}
+          />
+
+          <Button
+            label="Login Instead"
+            variant="sage"
+            onPress={goToLogin}
           />
           <Text className="text-center text-xs leading-5 text-muted">
             By creating an account, you agree to our{" "}
