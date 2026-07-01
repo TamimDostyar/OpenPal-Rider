@@ -40,6 +40,7 @@ export function HomeScreen() {
     hasData
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
+  const [feedScope, setFeedScope] = useState<"all" | "offering" | "looking">("all");
   const { colorScheme } = useColorScheme();
   const refreshTint = colorScheme === "dark" ? "#F4F4F6" : "#0A0A0A";
 
@@ -133,6 +134,14 @@ export function HomeScreen() {
       isOwner: !!myEmail && post.email.toLowerCase() === myEmail.toLowerCase(),
     });
 
+  const offeringCount = posts.filter((post) => post.postType !== "PASSENGER").length;
+  const lookingCount = posts.filter((post) => post.postType === "PASSENGER").length;
+  const visiblePosts = posts.filter((post) => {
+    if (feedScope === "offering") return post.postType !== "PASSENGER";
+    if (feedScope === "looking") return post.postType === "PASSENGER";
+    return true;
+  });
+
   return (
     <Screen className="px-0">
       <View className="flex-row items-end justify-between gap-3 px-5 pb-4 pt-2">
@@ -151,6 +160,31 @@ export function HomeScreen() {
           <Text className="text-sm font-semibold text-cream">Post</Text>
         </Pressable>
       </View>
+
+      {__DEV__ ? (
+        <View className="mx-5 mb-3 rounded-2xl border border-line bg-cream p-1">
+          <View className="flex-row gap-1">
+            {[
+              { key: "all", label: "All", count: posts.length },
+              { key: "offering", label: "Offering", count: offeringCount },
+              { key: "looking", label: "Looking", count: lookingCount },
+            ].map((tab) => {
+              const active = feedScope === tab.key;
+              return (
+                <Pressable
+                  key={tab.key}
+                  onPress={() => setFeedScope(tab.key as "all" | "offering" | "looking")}
+                  className={`flex-1 rounded-xl px-3 py-2 ${active ? "bg-ink" : "bg-cream"}`}
+                >
+                  <Text className={`text-center text-xs font-semibold ${active ? "text-cream" : "text-ink"}`}>
+                    {tab.label} ({tab.count})
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
 
       {filters ? (
         <View className="mx-5 mb-3 flex-row items-center justify-between rounded-full border border-line bg-cream-2 px-4 py-2">
@@ -177,7 +211,7 @@ export function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={posts}
+          data={visiblePosts}
           keyExtractor={(post) => post.id}
           renderItem={({ item }) => (
             <View>
@@ -213,12 +247,22 @@ export function HomeScreen() {
           ListEmptyComponent={
             <View className="items-center gap-2 pt-12">
               <Text className="text-base font-semibold text-ink">
-                {filters ? "No rides match your filters." : "No rides yet."}
+                {filters
+                  ? "No rides match your filters."
+                  : feedScope === "offering"
+                    ? "No offering rides yet."
+                    : feedScope === "looking"
+                      ? "No ride requests yet."
+                      : "No rides yet."}
               </Text>
               <Text className="text-center text-sm text-muted">
                 {filters
                   ? "Loosen the filters or clear them."
-                  : "Be the first to post a ride for your school."}
+                  : feedScope === "offering"
+                    ? "Try switching to all posts or create an offer."
+                    : feedScope === "looking"
+                      ? "Try switching to all posts or post a ride request."
+                      : "Be the first to post a ride for your school."}
               </Text>
             </View>
           }
