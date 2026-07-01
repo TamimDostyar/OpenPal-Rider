@@ -37,7 +37,8 @@ export function HomeScreen() {
     bookPost,
     blockUser,
     applyFilters,
-    hasData
+    hasData,
+    announcement,
   } = useFeed();
   const [booking, setBooking] = useState<string | null>(null);
   const [feedScope, setFeedScope] = useState<"all" | "offering" | "looking">("all");
@@ -160,6 +161,15 @@ export function HomeScreen() {
           <Text className="text-sm font-semibold text-cream">Post</Text>
         </Pressable>
       </View>
+
+      {announcement ? (
+        <View className="mx-5 mb-3 rounded-2xl border border-line bg-cream px-4 py-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-2">
+            Announcement
+          </Text>
+          <Text className="mt-1 text-sm text-ink">{announcement}</Text>
+        </View>
+      ) : null}
 
       {__DEV__ ? (
         <View className="mx-5 mb-3 rounded-2xl border border-line bg-cream p-1">
