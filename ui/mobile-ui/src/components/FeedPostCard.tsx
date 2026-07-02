@@ -158,13 +158,34 @@ export function FeedPostCard({
       >
       {/* Status strip */}
       <View className="mb-3 flex-row items-start gap-2">
-        <View className="flex-1 flex-row items-center gap-2">
-          <View className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
-          <Text className={`text-[11px] font-semibold uppercase tracking-wider ${accentText}`}>
-            {tagLabel}
-          </Text>
-          <View className="flex-1" />
-          <Text className="text-[11px] text-muted">{relativeTime(post.createdAt)}</Text>
+        <View className="flex-1">
+          <View className="flex-row items-center gap-2">
+            <View className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
+            <Text className={`text-[11px] font-semibold uppercase tracking-wider ${accentText}`}>
+              {tagLabel}
+            </Text>
+            <View className="flex-1" />
+            <Text className="text-[11px] text-muted">{relativeTime(post.createdAt)}</Text>
+          </View>
+          <Pressable
+            onPress={onViewProfile ? () => onViewProfile(post) : undefined}
+            disabled={!onViewProfile}
+            hitSlop={6}
+            className="mt-2 flex-row items-center gap-2"
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-cream-2">
+              <Text className="text-xs font-semibold text-ink">{initial}</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="shrink text-[13px] font-semibold text-ink" numberOfLines={1}>
+                {displayName}
+              </Text>
+              <Text className="text-[11px] text-muted" numberOfLines={1}>
+                @{post.username}
+                {onViewProfile ? "  ›" : ""}
+              </Text>
+            </View>
+          </Pressable>
         </View>
         <CountdownCircle iso={post.departureTime} accent={isPassenger} />
       </View>
@@ -219,30 +240,8 @@ export function FeedPostCard({
       ) : null}
       </Pressable>
 
-      {/* Footer: poster + actions */}
-      <View className="flex-row items-center gap-3 border-t border-line-2 pt-3">
-        <Pressable
-          onPress={onViewProfile ? () => onViewProfile(post) : undefined}
-          disabled={!onViewProfile}
-          hitSlop={6}
-          className="flex-1 flex-row items-center gap-3"
-        >
-          <View className="h-8 w-8 items-center justify-center rounded-full bg-cream-2">
-            <Text className="text-xs font-semibold text-ink">{initial}</Text>
-          </View>
-          <View className="flex-1">
-            <View className="flex-row items-center gap-1.5">
-              <Text className="shrink text-[13px] font-semibold text-ink" numberOfLines={1}>
-                {displayName}
-              </Text>
-            </View>
-            <Text className="text-[11px] text-muted" numberOfLines={1}>
-              @{post.username}
-              {onViewProfile ? "  ›" : ""}
-            </Text>
-          </View>
-        </Pressable>
-
+      {/* Footer: actions */}
+      <View className="flex-row items-center justify-center gap-3 border-t border-line-2 pt-3">
         {isOwner && onDelete ? (
           <Pressable onPress={() => onDelete(post.id)} hitSlop={8} className="px-2 py-1">
             <Text className="text-xs font-semibold text-coral">Delete</Text>
@@ -253,7 +252,7 @@ export function FeedPostCard({
               <Pressable
                 onPress={() => onMessage(post)}
                 hitSlop={8}
-                className="rounded-full border border-line px-3 py-1.5"
+                className="min-w-[116px] flex-1 items-center justify-center rounded-full border border-line px-3 py-2"
               >
                 <Text className="text-xs font-semibold text-ink">Message</Text>
               </Pressable>
@@ -261,7 +260,7 @@ export function FeedPostCard({
             {onBook && !soldOut ? (
               <Pressable
                 onPress={() => onBook(post)}
-                className="rounded-full bg-ink px-3 py-1.5"
+                className="min-w-[116px] flex-1 items-center justify-center rounded-full bg-ink px-3 py-2"
               >
                 <Text className="text-xs font-semibold text-cream">
                   {isPassenger ? "Offer ride" : "Book"}
@@ -274,7 +273,7 @@ export function FeedPostCard({
                 hitSlop={8}
                 accessibilityLabel="More options"
                 accessibilityHint="Report or block this person"
-                className="h-8 w-8 items-center justify-center rounded-full"
+                className="h-9 w-9 items-center justify-center rounded-full"
               >
                 <Text className="text-base leading-none text-muted">⋯</Text>
               </Pressable>

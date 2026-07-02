@@ -3,6 +3,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useRef, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   Text,
   TextInput,
@@ -72,83 +74,96 @@ export function ConversationScreen() {
 
   return (
     <Screen className="px-0">
-      <View className="flex-row items-center gap-3 px-4 pb-3 pt-2">
-        <Pressable onPress={() => navigation.goBack()} className="py-2">
-          <Text className="text-sm font-semibold text-muted">‹ Back</Text>
-        </Pressable>
-        <Text className="flex-1 text-base font-semibold text-ink" numberOfLines={1}>
-          {displayName}
-        </Text>
-      </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
+      >
+        <View className="flex-1">
+          <View className="flex-row items-center gap-3 px-4 pb-3 pt-2">
+            <Pressable onPress={() => navigation.goBack()} className="py-2">
+              <Text className="text-sm font-semibold text-muted">‹ Back</Text>
+            </Pressable>
+            <Text className="flex-1 text-base font-semibold text-ink" numberOfLines={1}>
+              {displayName}
+            </Text>
+          </View>
 
-      {error ? (
-        <View className="px-6 pb-2">
-          <FormError message={error} />
-        </View>
-      ) : null}
-
-      {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <FlatList
-          ref={listRef}
-          data={messages}
-          keyExtractor={(m) => m.id}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12, gap: 6 }}
-          onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
-          renderItem={({ item }) => {
-            const mine =
-              !!myEmail && item.senderEmail.toLowerCase() === myEmail.toLowerCase();
-            return (
-              <View className={`flex-row ${mine ? "justify-end" : "justify-start"}`}>
-                <View
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${
-                    mine ? "bg-ink" : "bg-cream border border-line"
-                  }`}
-                >
-                  <Text className={`text-sm ${mine ? "text-cream" : "text-ink"}`}>
-                    {item.text}
-                  </Text>
-                  <Text
-                    className={`mt-0.5 text-[10px] ${
-                      mine ? "text-cream/70" : "text-muted"
-                    }`}
-                  >
-                    {formatTime(item.createdAt)}
-                  </Text>
-                </View>
-              </View>
-            );
-          }}
-          ListEmptyComponent={
-            <View className="items-center pt-12">
-              <Text className="text-sm text-muted">No messages yet. Say hi.</Text>
+          {error ? (
+            <View className="px-6 pb-2">
+              <FormError message={error} />
             </View>
-          }
-        />
-      )}
+          ) : null}
 
-      <View className="flex-row items-center gap-2 border-t border-line bg-cream px-3 py-2">
-        <TextInput
-          className="flex-1 rounded-2xl bg-cream-2 px-4 py-2 text-base text-ink"
-          placeholder="Message"
-          placeholderTextColor="#6B7076"
-          value={draft}
-          onChangeText={setDraft}
-          multiline
-        />
-        <Pressable
-          onPress={onSend}
-          disabled={sending || !draft.trim()}
-          className={`rounded-full px-4 py-2 ${
-            sending || !draft.trim() ? "bg-line" : "bg-coral"
-          }`}
-        >
-          <Text className="text-sm font-semibold text-white">Send</Text>
-        </Pressable>
-      </View>
+          {loading ? (
+            <View className="flex-1 items-center justify-center">
+              <Spinner />
+            </View>
+          ) : (
+            <FlatList
+              ref={listRef}
+              data={messages}
+              keyExtractor={(m) => m.id}
+              style={{ flex: 1 }}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20, gap: 6 }}
+              onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
+              renderItem={({ item }) => {
+                const mine =
+                  !!myEmail && item.senderEmail.toLowerCase() === myEmail.toLowerCase();
+                return (
+                  <View className={`flex-row ${mine ? "justify-end" : "justify-start"}`}>
+                    <View
+                      className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${
+                        mine ? "bg-ink" : "bg-cream border border-line"
+                      }`}
+                    >
+                      <Text className={`text-sm ${mine ? "text-cream" : "text-ink"}`}>
+                        {item.text}
+                      </Text>
+                      <Text
+                        className={`mt-0.5 text-[10px] ${
+                          mine ? "text-cream/70" : "text-muted"
+                        }`}
+                      >
+                        {formatTime(item.createdAt)}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              }}
+              ListEmptyComponent={
+                <View className="items-center pt-12">
+                  <Text className="text-sm text-muted">No messages yet. Say hi.</Text>
+                </View>
+              }
+            />
+          )}
+
+          <View className="flex-row items-end gap-1.5 border-t border-line bg-cream px-2.5 py-2.5">
+            <TextInput
+              className="max-h-[120px] flex-1 rounded-2xl bg-cream-2 px-3 py-2.5 text-base text-ink"
+              placeholder="Message"
+              placeholderTextColor="#6B7076"
+              value={draft}
+              onChangeText={setDraft}
+              multiline
+              scrollEnabled
+              textAlignVertical="top"
+              blurOnSubmit={false}
+            />
+            <Pressable
+              onPress={onSend}
+              disabled={sending || !draft.trim()}
+              className={`min-h-[40px] items-center justify-center rounded-full px-3.5 py-2 ${
+                sending || !draft.trim() ? "bg-line" : "bg-coral"
+              }`}
+            >
+              <Text className="text-sm font-semibold text-white">Send</Text>
+            </Pressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
