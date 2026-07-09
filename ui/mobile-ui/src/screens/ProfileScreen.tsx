@@ -103,10 +103,6 @@ async function fetchProfile(token: string): Promise<LoadState> {
     };
   } catch (e) {
     if (e instanceof ApiError) {
-      // Only 401/403 mean "this token no longer works." A 404 means the
-      // endpoint itself wasn't found on the server (most often: backend
-      // not rebuilt to include /api/profile/me) — that's a server-side
-      // problem, not an expired session.
       if (e.status === 401 || e.status === 403) {
         return { kind: "session-expired", message: e.message || "Your session expired." };
       }
@@ -366,7 +362,7 @@ export function ProfileScreen() {
         </View>
 
         <Pressable onPress={openBugReport} className="mt-2 border-t border-line pt-4">
-          <Text className="text-sm font-semibold text-ink-2">Report an issue / bug or share what you think should be added →</Text>
+          <Text className="text-sm font-semibold text-ink-2">Report issues / bugs or a feedback →</Text>
           <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
         </Pressable>
 

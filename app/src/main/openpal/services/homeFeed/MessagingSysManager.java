@@ -21,10 +21,12 @@ import openpal.services.security.AuthSupport.AuthFailure;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
 import openpal.database.blocksDB.BlockRepository;
+import openpal.database.deviceDB.DeviceTokenDB;
+import openpal.database.deviceDB.DeviceTokenRepository;
 import openpal.database.homeFeedDB.MessagingSysDB;
 import openpal.database.homeFeedDB.MessagingSysRepository;
 import openpal.services.EmailService;
-
+import openpal.services.notification.PushNotificationService;
 @Component
 public class MessagingSysManager {
 
@@ -36,17 +38,24 @@ public class MessagingSysManager {
     private final AuthSupport auth;
     private final EmailService emailService;
 
+    private final DeviceTokenRepository deviceTokenRepo;
+    private final PushNotificationService pushService;
+
     @Autowired
     public MessagingSysManager(MessagingSysRepository messageRepo,
-                               ProfileRepository profileRepo,
-                               BlockRepository blockRepo,
-                               AuthSupport auth,
-                               EmailService emailService) {
+                            ProfileRepository profileRepo,
+                            BlockRepository blockRepo,
+                            AuthSupport auth,
+                            EmailService emailService,
+                            DeviceTokenRepository deviceTokenRepo,
+                            PushNotificationService pushService) {
         this.messageRepo = messageRepo;
         this.profileRepo = profileRepo;
         this.blockRepo = blockRepo;
         this.auth = auth;
         this.emailService = emailService;
+        this.deviceTokenRepo = deviceTokenRepo;
+        this.pushService = pushService;
     }
 
     public ResponseEntity<Map<String, Object>> sendMessage(String authHeader, MessagingSys request) {
@@ -95,7 +104,14 @@ public class MessagingSysManager {
                 text
         ));
         emailService.sendNewDirectMessage(recipient.getEmail(), sender.getUsername(), text);
-
+        for (DeviceTokenDB dt : deviceTokenRepo.findByUserEmail(recipient.getEmail())) {
+            pushService.send(
+                dt.getToken(),
+                sender.getUsername(),
+                text,
+                Map.of("senderUsername", sender.getUsername())
+            );
+        }
         Map<String, Object> body = new HashMap<>();
         body.put("message", "message sent");
         body.put("data", MessagingSysResponse.from(saved, sender.getName(), recipient.getName()));
