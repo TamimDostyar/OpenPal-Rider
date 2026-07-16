@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 
 import type { FeedPostResponse } from "@/api/types";
+import { parseLocalDateTime } from "@/utils/datetime";
 
 interface FeedPostCardProps {
   post: FeedPostResponse;
@@ -15,14 +16,7 @@ interface FeedPostCardProps {
 }
 
 function formatDeparture(value: any): string {
-  let d: Date;
-  
-  if (Array.isArray(value)) {
-    d = new Date(value[0], value[1] - 1, value[2], value[3], value[4]);
-  } else {
-    d = new Date(typeof value === "number" ? value * 1000 : value);
-  }
-
+  const d = parseLocalDateTime(value);
   if (Number.isNaN(d.getTime())) return String(value);
   return d.toLocaleString(undefined, {
     weekday: "long", month: "long", day: "numeric",
@@ -53,15 +47,8 @@ interface Countdown {
   past: boolean;
 }
 
-function parseDepTime(value: any): Date {
-  if (Array.isArray(value)) {
-    return new Date(value[0], value[1] - 1, value[2], value[3] ?? 0, value[4] ?? 0);
-  }
-  return new Date(typeof value === "number" ? value * 1000 : value);
-}
-
 function countdownTo(iso: any): Countdown | null {
-  const target = parseDepTime(iso).getTime();
+  const target = parseLocalDateTime(iso).getTime();
   if (Number.isNaN(target)) return null;
   const diffMs = target - Date.now();
 

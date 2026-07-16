@@ -29,6 +29,7 @@ import { Spinner } from "@/components/Spinner";
 import { useVehicle } from "@/hooks/useVehicle";
 import type { RootStackParamList } from "@/navigation/types";
 import { useTheme, type ThemeMode } from "@/theme/ThemeContext";
+import { parseLocalDateTime } from "@/utils/datetime";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -426,7 +427,7 @@ function PostRow({ post, onPress }: { post: FeedPostResponse; onPress: () => voi
   const dot = isPassenger ? "bg-passenger" : "bg-driver";
   const accent = isPassenger ? "text-passenger" : "text-driver";
   const tag = isPassenger ? "Looking" : "Offering";
-  const when = new Date(post.departureTime).toLocaleString(undefined, {
+  const when = parseLocalDateTime(post.departureTime).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",

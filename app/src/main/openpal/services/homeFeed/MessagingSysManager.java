@@ -21,8 +21,6 @@ import openpal.services.security.AuthSupport.AuthFailure;
 import openpal.database.account_mgt.CreateProfileDB;
 import openpal.database.account_mgt.ProfileRepository;
 import openpal.database.blocksDB.BlockRepository;
-import openpal.database.deviceDB.DeviceTokenDB;
-import openpal.database.deviceDB.DeviceTokenRepository;
 import openpal.database.homeFeedDB.MessagingSysDB;
 import openpal.database.homeFeedDB.MessagingSysRepository;
 import openpal.services.EmailService;
@@ -38,7 +36,6 @@ public class MessagingSysManager {
     private final AuthSupport auth;
     private final EmailService emailService;
 
-    private final DeviceTokenRepository deviceTokenRepo;
     private final PushNotificationService pushService;
 
     @Autowired
@@ -47,14 +44,12 @@ public class MessagingSysManager {
                             BlockRepository blockRepo,
                             AuthSupport auth,
                             EmailService emailService,
-                            DeviceTokenRepository deviceTokenRepo,
                             PushNotificationService pushService) {
         this.messageRepo = messageRepo;
         this.profileRepo = profileRepo;
         this.blockRepo = blockRepo;
         this.auth = auth;
         this.emailService = emailService;
-        this.deviceTokenRepo = deviceTokenRepo;
         this.pushService = pushService;
     }
 
@@ -104,14 +99,12 @@ public class MessagingSysManager {
                 text
         ));
         emailService.sendNewDirectMessage(recipient.getEmail(), sender.getUsername(), text);
-        for (DeviceTokenDB dt : deviceTokenRepo.findByUserEmail(recipient.getEmail())) {
-            pushService.send(
-                dt.getToken(),
-                sender.getUsername(),
-                text,
-                Map.of("senderUsername", sender.getUsername())
-            );
-        }
+        pushService.sendToUser(
+            recipient.getEmail(),
+            sender.getUsername(),
+            text,
+            Map.of("senderUsername", sender.getUsername())
+        );
         Map<String, Object> body = new HashMap<>();
         body.put("message", "message sent");
         body.put("data", MessagingSysResponse.from(saved, sender.getName(), recipient.getName()));

@@ -5,6 +5,8 @@
 import * as SecureStore from "expo-secure-store";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
+import { registerPushToken } from "@/services/notifications";
+
 const TOKEN_KEY = "openpal.rider.jwt";
 
 interface AuthState {
@@ -25,6 +27,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((saved) => setToken(saved))
       .finally(() => setLoading(false));
   }, []);
+
+  // Whenever we have a JWT (fresh sign-in or restored from storage), make sure
+  // this device's push token is registered with the backend. Fire-and-forget:
+  // registerPushToken never throws.
+  useEffect(() => {
+    if (token) {
+      void registerPushToken(token);
+    }
+  }, [token]);
 
   const signIn = async (next: string) => {
     await SecureStore.setItemAsync(TOKEN_KEY, next);

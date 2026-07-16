@@ -341,6 +341,17 @@ announcementNews: async () =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/${category}`),
   },
 
+  devices: {
+    // Registers this device's Expo push token so the backend can notify the
+    // authenticated user. Idempotent server-side (upsert by token).
+    register: (token: string, payload: { token: string; platform: string }) =>
+      request<{ message: string }>("/api/devices/register", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
+  },
+
   blocks: {
     create: (token: string, payload: CreateBlockRequest) =>
       request<CreateBlockEnvelope>("/api/blocks", {
