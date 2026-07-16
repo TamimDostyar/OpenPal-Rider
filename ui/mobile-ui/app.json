@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": false,
       "buildNumber": "2",
-      "bundleIdentifier": "com.dostah01.palrider",
+      "bundleIdentifier": "com.tamimdostyar.openpal",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -21,7 +21,7 @@
         "foregroundImage": "./asset/app-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.dostah01.palrider"
+      "package": "com.tamimdostyar.openpal"
     },
     "splash": {
       "image": "./asset/app-icon.png",

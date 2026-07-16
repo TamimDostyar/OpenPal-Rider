@@ -115,16 +115,6 @@ public class EmailService {
     }
 
     @Async
-    public void sendNewDirectMessage(String recipientEmail, String senderUsername, String preview) {
-        String clipped = preview == null ? "" : (preview.length() > 120
-                ? preview.substring(0, 117) + "..."
-                : preview);
-        send(recipientEmail, "New message from @" + senderUsername,
-            "@" + senderUsername + " sent you a message:\n\n" + clipped
-            + "\n\nReply in OpenPal.");
-    }
-
-    @Async
     public void sendRatingPrompt(String toEmail, String otherPartyUsername,
                                  String origin, String destination) {
         send(toEmail, "Rate your ride with @" + otherPartyUsername,
