@@ -47,6 +47,17 @@
   --c-passenger: 220 38 38;
   --c-passenger-bg: 254 231 231;
   --c-passenger-border: 244 194 194;
+
+  /* Elevation — soft, layered shadows in the Uber/Lyft style: barely-there
+     ambient shadow + a tighter contact shadow, never a single hard drop. */
+  --shadow-xs: 0 1px 2px rgba(10, 10, 10, 0.04);
+  --shadow-sm: 0 1px 2px rgba(10, 10, 10, 0.04), 0 2px 8px rgba(10, 10, 10, 0.04);
+  --shadow-md: 0 2px 4px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.08);
+  --shadow-lg: 0 4px 8px rgba(10, 10, 10, 0.04), 0 16px 40px rgba(10, 10, 10, 0.12);
+  --shadow-xl: 0 8px 16px rgba(10, 10, 10, 0.06), 0 24px 64px rgba(10, 10, 10, 0.16);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 * {
@@ -55,6 +66,7 @@
 
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -63,10 +75,49 @@ body {
   color: rgb(var(--c-ink));
   min-height: 100vh;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
   min-height: 100vh;
+}
+
+::selection {
+  background-color: rgb(var(--c-ink));
+  color: rgb(var(--c-cream));
+}
+
+/* Slim, unobtrusive scrollbars everywhere — Uber/Lyft never show fat OS bars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--c-line)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--c-line));
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Keyboard-only focus ring — visible for a11y, invisible for mouse clicks. */
+:focus-visible {
+  outline: 2px solid rgb(var(--c-ink));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes route-car {
@@ -79,6 +130,72 @@ body {
 .route-car {
   offset-path: path("M 8 62 L 80 18 L 152 62 L 224 18 L 296 62 L 368 18");
   animation: route-car 6s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s var(--ease-out) both;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s var(--ease-out) both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.18s var(--ease-out) both;
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.28s var(--ease-out) both;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--c-cream-2)) 25%,
+    rgb(var(--c-line-2)) 37%,
+    rgb(var(--c-cream-2)) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .route-car,
+  .animate-fade-in,
+  .animate-fade-up,
+  .animate-scale-in,
+  .animate-sheet-up,
+  .skeleton {
+    animation: none !important;
+  }
 }
 
 @media (max-width: 900px) {

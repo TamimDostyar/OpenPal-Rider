@@ -1,16 +1,37 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../access';
-import { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '@/api/client';
+import { errorMessage } from '@/hooks/useApi';
+import { session } from '@/auth/session';
 import { AuthLayout } from '@/components/ui/AuthLayout';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
 
 export const LogIn = () => {
   const navigate = useNavigate();
-  const { email, setEmail, password, setPassword, handleLogin, error, handleForget} = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !password) {
+      setError('Enter your email and password.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const { token } = await api.login({ email: email.trim(), password });
+      session.setToken(token);
+      navigate('/home');
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <AuthLayout
@@ -23,69 +44,55 @@ export const LogIn = () => {
         </p>
       }
     >
-      <div className="flex flex-col gap-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-semibold text-ink">Welcome back!</h2>
-          <p className="mt-2 text-base text-muted">Please enter your details</p>
+      <div className="flex flex-col gap-7">
+        <div>
+          <h2 className="text-[2rem] font-bold leading-tight tracking-tight text-ink">Welcome back.</h2>
+          <p className="mt-2 text-[15px] text-muted">Sign in to see what&apos;s moving on campus.</p>
         </div>
 
-        <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
           <TextField
             label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@school.edu"
+            autoComplete="email"
           />
 
-          <label className="block w-full">
-            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted">
-              Password
-            </span>
-            <div className="relative">
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Your password"
-                className="w-full rounded-2xl border border-line bg-cream px-4 py-3.5 pr-11 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-ink"
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
-              >
-                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
-              </button>
-            </div>
-          </label>
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Your password"
+            autoComplete="current-password"
+          />
 
-          <div className="flex items-center justify-between gap-3">
-            <label className="flex cursor-pointer items-center gap-2 text-[13px] font-medium text-ink">
-              <input type="checkbox" className="h-4 w-4 rounded border-line accent-ink" />
-              Remember for 30 days
-            </label>
-            <Link to="/forgot-password" className="text-[13px] font-semibold text-coral-dk no-underline hover:underline">
+          <div className="flex items-center justify-end -mt-1">
+            <Link
+              to="/forgot-password"
+              className="text-[13px] font-semibold text-coral-dk no-underline hover:underline"
+            >
               Forgot password?
             </Link>
           </div>
 
-          <Button
-            type="button"
-            onClick={() => handleLogin().then((ok) => { if (ok) navigate('/home'); })}
-          >
-            Log In
-          </Button>
+          {error ? (
+            <p className="animate-fade-in rounded-xl bg-passenger-bg px-3.5 py-2.5 text-sm font-medium text-passenger">
+              {error}
+            </p>
+          ) : null}
 
-          {error ? <p className="text-center text-sm text-coral">{error}</p> : null}
+          <Button type="submit" size="lg" loading={busy} className="mt-1">
+            {busy ? 'Logging in…' : 'Log In'}
+          </Button>
         </form>
 
         <p className="text-center text-xs leading-5 text-muted">
           By continuing, you agree to our{' '}
-          <span className="cursor-pointer font-semibold text-ink underline">Terms &amp; Conditions</span>{' '}
-          and{' '}
-          <span className="cursor-pointer font-semibold text-ink underline">Privacy Policy</span>.
+          <span className="font-semibold text-ink underline">Terms &amp; Conditions</span> and{' '}
+          <span className="font-semibold text-ink underline">Privacy Policy</span>.
         </p>
       </div>
     </AuthLayout>

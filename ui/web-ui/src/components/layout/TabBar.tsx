@@ -17,7 +17,7 @@ const TABS: { key: TabKey; label: string; icon: string }[] = [
 
 export function TabBar({ active, onChange, unreadMessages = 0 }: TabBarProps) {
   return (
-    <nav className="flex items-stretch border-t border-line bg-cream px-2 pb-4 pt-2.5">
+    <nav className="flex items-stretch gap-1 border-t border-line bg-cream/90 px-2 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md">
       {TABS.map((tab) => {
         const isActive = tab.key === active;
         const showBadge = tab.key === 'messages' && unreadMessages > 0;
@@ -27,22 +27,30 @@ export function TabBar({ active, onChange, unreadMessages = 0 }: TabBarProps) {
             key={tab.key}
             type="button"
             onClick={() => onChange(tab.key)}
-            className="flex flex-1 flex-col items-center gap-1 border-0 bg-transparent p-0 cursor-pointer"
+            aria-current={isActive ? 'page' : undefined}
+            className="group flex flex-1 flex-col items-center gap-1 rounded-2xl border-0 bg-transparent py-1.5 cursor-pointer transition-transform duration-150 ease-out active:scale-95"
           >
-            <span className="relative flex h-7 w-7 items-center justify-center">
+            <span
+              className={[
+                'relative flex h-8 w-11 items-center justify-center rounded-full transition-colors duration-200 ease-out',
+                isActive ? 'bg-ink/8' : 'group-hover:bg-ink/5',
+              ].join(' ')}
+            >
               <img
                 src={tab.icon}
                 alt=""
                 aria-hidden
-                className={`h-6 w-6 transition-opacity ${isActive ? 'opacity-100' : 'opacity-40'}`}
+                className={`h-5 w-5 transition-opacity duration-200 ${isActive ? 'opacity-100' : 'opacity-45'}`}
               />
               {showBadge ? (
-                <span className="absolute -right-3 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-coral px-1 text-[10px] font-semibold text-white">
+                <span className="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-coral px-1 text-[10px] font-semibold text-white ring-2 ring-cream">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               ) : null}
             </span>
-            <span className={`text-[12px] font-semibold ${isActive ? 'text-ink' : 'text-muted'}`}>
+            <span
+              className={`text-[11px] font-semibold transition-colors duration-200 ${isActive ? 'text-ink' : 'text-muted'}`}
+            >
               {tab.label}
             </span>
           </button>

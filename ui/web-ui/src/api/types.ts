@@ -1,0 +1,329 @@
+// API contract types — mirrors the backend DTOs (same contract the mobile app uses).
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+  school: string;
+  graduationDate?: string | null;
+  phoneNumber: number;
+  password: string;
+}
+
+export interface CreateUserResponse {
+  email: string;
+  message: string;
+}
+
+export interface VerifyEmailRequest {
+  email: string;
+  code: string;
+}
+
+export interface VerifyEmailResponse {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  school: string;
+  graduationDate?: string | null;
+  emailVerified: boolean;
+  message: string;
+}
+
+export interface ResendCodeResponse {
+  message: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+  username?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  resetToken?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+export type ScrapeCategory = 'news' | 'gym-hours' | 'cafe-hours' | 'library';
+
+export interface ScrapeItem {
+  text: string;
+  link: string | null;
+  image: string | null;
+}
+
+export interface MenuDish {
+  name: string;
+  price: string;
+  dietary: string[];
+}
+
+export interface MenuStation {
+  name: string;
+  items: MenuDish[];
+}
+
+export interface MenuDaypart {
+  label: string;
+  start: string;
+  end: string;
+  stations: MenuStation[];
+}
+
+export interface University {
+  name: string;
+  url: string;
+}
+
+export interface UniversitiesResponse {
+  count: number;
+  universities: University[];
+}
+
+export type PostType = 'DRIVER' | 'PASSENGER';
+
+export interface CreateFeedPostRequest {
+  postType?: PostType;
+  origin: string;
+  destination: string;
+  price: number;
+  seats: number;
+  departureTime: string;
+  vehicleInfo?: string;
+  description?: string;
+  recurringDays?: string;
+}
+
+export interface FeedPostResponse {
+  id: string;
+  postType?: PostType;
+  username: string;
+  email: string;
+  name: string | null;
+  school: string | null;
+  driverVerified: boolean | null;
+  origin: string;
+  destination: string;
+  price: number;
+  seats: number;
+  departureTime: string;
+  vehicleInfo: string | null;
+  description: string | null;
+  recurringDays: string | null;
+  createdAt: string;
+}
+
+export interface CreatePostEnvelope {
+  message: string;
+  post: FeedPostResponse;
+}
+
+export interface FeedSearchParams {
+  destination?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  maxPrice?: number;
+  minSeats?: number;
+}
+
+export interface MyProfile {
+  username: string;
+  name: string | null;
+  email: string;
+  school: string | null;
+  bio: string | null;
+  driverVerified: boolean;
+}
+
+export interface VehicleInfo {
+  licensePlate: string | null;
+  make: string | null;
+  model: string | null;
+  color: string | null;
+  driverVerified: boolean;
+}
+
+export interface VehicleUpdateRequest {
+  licensePlate: string;
+  make: string;
+  model: string;
+  color: string;
+}
+
+export interface VehicleUpdateResponse {
+  message: string;
+  driverVerified: boolean;
+}
+
+export type BookingStatus =
+  | 'REQUESTED'
+  | 'ACCEPTED'
+  | 'DECLINED'
+  | 'CANCELLED'
+  | 'COMPLETED';
+
+export interface BookingResponse {
+  id: string;
+  postId: string;
+  riderUsername: string;
+  riderEmail: string;
+  driverUsername: string;
+  driverEmail: string;
+  seatsRequested: number;
+  status: BookingStatus;
+  createdAt: string;
+  updatedAt: string;
+  origin: string | null;
+  destination: string | null;
+  departureTime: string | null;
+  postType: PostType | null;
+}
+
+export interface BookingEnvelope {
+  message: string;
+  booking: BookingResponse;
+}
+
+export interface CreateBookingRequest {
+  postId: string;
+  seatsRequested: number;
+}
+
+export interface DirectMessageResponse {
+  id: string;
+  senderUsername: string;
+  senderName: string | null;
+  senderEmail: string;
+  recipientUsername: string;
+  recipientName: string | null;
+  recipientEmail: string;
+  bookingId: string | null;
+  text: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface SendMessageRequest {
+  recipientUsername: string;
+  text: string;
+  bookingId?: string;
+}
+
+export interface SendMessageEnvelope {
+  message: string;
+  data: DirectMessageResponse;
+}
+
+export interface ConversationSummary {
+  otherUsername: string;
+  otherName: string | null;
+  otherEmail: string;
+  lastMessage: DirectMessageResponse;
+  unreadCount: number;
+}
+
+export interface RatingResponse {
+  id: string;
+  bookingId: string;
+  raterUsername: string;
+  ratedUsername: string;
+  stars: number;
+  text: string | null;
+  createdAt: string;
+}
+
+export interface CreateRatingRequest {
+  bookingId: string;
+  stars: number;
+  text?: string;
+}
+
+export interface CreateRatingEnvelope {
+  message: string;
+  rating: RatingResponse;
+}
+
+export interface UserRatingsResponse {
+  username: string;
+  average: number;
+  count: number;
+  ratings: RatingResponse[];
+}
+
+export type ReportTargetType = 'USER' | 'POST';
+export type ReportStatus = 'OPEN' | 'REVIEWED' | 'DISMISSED' | 'ACTIONED';
+
+export interface CreateReportRequest {
+  targetType: ReportTargetType;
+  targetUsername?: string;
+  targetPostId?: string;
+  reason: string;
+  text?: string;
+}
+
+export interface ReportResponse {
+  id: string;
+  reporterUsername: string;
+  targetType: ReportTargetType;
+  targetId: string;
+  reason: string;
+  text: string | null;
+  status: ReportStatus;
+  createdAt: string;
+}
+
+export interface CreateReportEnvelope {
+  message: string;
+  report: ReportResponse;
+}
+
+export interface CreateBlockRequest {
+  username: string;
+  reason?: string;
+}
+
+export interface BlockResponse {
+  id: string;
+  blockedUsername: string;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface CreateBlockEnvelope {
+  message: string;
+  block?: BlockResponse;
+}
+
+export interface LegalSection {
+  title: string;
+  body: string;
+}
+
+export interface LegalDocument {
+  title: string;
+  lastUpdated: string;
+  intro?: string;
+  sections: LegalSection[];
+  footer?: string;
+}
+
+export interface AnnouncementItem {
+  id?: string;
+  announcement?: string | null;
+  allDay?: string | null;
+  localTime?: string | null;
+}

@@ -1,9 +1,34 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '@/api/client';
+import { errorMessage } from '@/hooks/useApi';
 import { AuthLayout } from '@/components/ui/AuthLayout';
-import { useAuth } from '../access';
+import { Button } from '@/components/ui/Button';
+import { TextField } from '@/components/ui/TextField';
 
 export const ForgotPW = () => {
-  const { email, setEmail, error, message, handleForget } = useAuth();
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const handleForget = async () => {
+    if (!email.trim()) {
+      setError('Enter your email.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const response = await api.forgotPassword(email.trim());
+      setMessage(response.message || 'Check your email for a reset token.');
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <AuthLayout
       footer={
@@ -12,41 +37,53 @@ export const ForgotPW = () => {
         </Link>
       }
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-7">
         <div>
-          <h2 className="text-3xl font-semibold leading-tight text-ink">Reset your password.</h2>
-          <p className="mt-3 text-base leading-relaxed text-ink-2">
+          <h2 className="text-[2rem] font-bold leading-tight tracking-tight text-ink">
+            Reset your password.
+          </h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
             Enter your email and we&apos;ll issue a one-time reset token.
           </p>
         </div>
 
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2"
-        />
+        <div className="flex flex-col gap-4">
+          <TextField
+            label="Email"
+            type="email"
+            placeholder="you@school.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+          />
 
-        <button
-          onClick={handleForget}
-          className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors"
-        >
-          Get a code
-        </button>
+          {error ? (
+            <p className="animate-fade-in rounded-xl bg-passenger-bg px-3.5 py-2.5 text-sm font-medium text-passenger">
+              {error}
+            </p>
+          ) : null}
+          {message ? (
+            <p className="animate-fade-in rounded-xl bg-driver-bg px-3.5 py-2.5 text-sm font-medium text-driver">
+              {message}
+            </p>
+          ) : null}
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        {message && <p className="text-sm text-green-600">{message}</p>}
+          <Button onClick={handleForget} size="lg" loading={busy}>
+            {busy ? 'Sending…' : 'Get a code'}
+          </Button>
 
-        {message && (
-          <Link
-            to="/verify-email"
-            className="w-full bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors text-center"
-          >
-            I have a token
-          </Link>
-        )}
+          {message ? (
+            <Link
+              to="/reset-password"
+              className="text-center text-sm font-semibold text-ink underline"
+            >
+              I have a token — reset my password
+            </Link>
+          ) : null}
+        </div>
       </div>
     </AuthLayout>
   );
 };
+
+export default ForgotPW;

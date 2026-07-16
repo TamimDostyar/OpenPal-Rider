@@ -1,7 +1,4 @@
 export { default as appIcon } from './app-icon.png';
-export { default as icon } from './icon.png';
-export { default as hero } from './hero.png';
-export { default as heroAuth } from './hero-auth.svg';
 export { default as logoMark } from './logo-mark.svg';
 export { default as socialIcons } from './social-icons.svg';
 export { default as tabFeed } from './icons/tab-feed.svg';
