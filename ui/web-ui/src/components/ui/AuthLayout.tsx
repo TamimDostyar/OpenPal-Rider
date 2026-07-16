@@ -7,12 +7,6 @@ interface AuthLayoutProps {
   footer?: ReactNode;
 }
 
-const STATS = [
-  { value: '4.9', label: 'avg. rating' },
-  { value: '12k+', label: 'rides shared' },
-  { value: '100%', label: '.edu verified' },
-];
-
 export function AuthLayout({ children, footer }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen">
@@ -50,17 +44,7 @@ export function AuthLayout({ children, footer }: AuthLayoutProps) {
           <AuthRoutePath />
         </div>
 
-        <div className="relative z-10 flex items-center gap-6">
-          {STATS.map((stat, i) => (
-            <div key={stat.label} className="flex items-center gap-6">
-              {i > 0 ? <span className="h-8 w-px bg-cream/10" /> : null}
-              <div>
-                <p className="text-lg font-bold text-cream">{stat.value}</p>
-                <p className="text-xs text-cream/50">{stat.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="relative z-10 text-xs text-cream/50">Verified .edu · real names · real reviews</p>
       </div>
 
       <div className="flex flex-1 flex-col bg-cream">
