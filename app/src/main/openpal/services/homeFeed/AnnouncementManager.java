@@ -39,10 +39,11 @@ public class AnnouncementManager {
 
         announcementRepo.save(entity);
 
+        System.out.println("[AnnouncementManager] announcement saved; broadcasting push");
         // Broadcast the new announcement to every registered device. Async and
         // best-effort, so a push failure never affects saving the announcement.
         pushService.sendToAll(
-            "📢 New announcement",
+            "New announcement",
             dto.getAnnouncement(),
             Map.of("type", "announcement")
         );

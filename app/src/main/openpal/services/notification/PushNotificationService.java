@@ -73,7 +73,9 @@ public class PushNotificationService {
      */
     @Async
     public void sendToAll(String title, String body, Map<String, String> data) {
-        sendInBatches(deviceTokenRepo.findAllTokens(), title, body, data);
+        List<String> tokens = deviceTokenRepo.findAllTokens();
+        System.out.println("[PushNotificationService] sendToAll broadcasting to " + tokens.size() + " token(s)");
+        sendInBatches(tokens, title, body, data);
     }
 
     private void sendInBatches(List<String> tokens, String title, String body, Map<String, String> data) {
@@ -91,6 +93,7 @@ public class PushNotificationService {
                     "to", token,
                     "title", title,
                     "body", body,
+                    "sound", "default",
                     "data", data
             ));
         }
