@@ -31,7 +31,7 @@ type ListKind = 'mine' | 'incoming';
 
 interface BookingsTabProps {
   me: MyProfile | null;
-  onOpenChat: (username: string) => void;
+  onOpenChat: (username: string, name?: string | null) => void;
 }
 
 export function BookingsTab({ me, onOpenChat }: BookingsTabProps) {

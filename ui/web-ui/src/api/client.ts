@@ -107,6 +107,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!response.ok) {
     const message = (data as { error?: string }).error ?? 'Something went wrong.';
+    // The backend rejected the stored token (expired/invalid/revoked) — clear
+    // it and let the app return to /login instead of leaving the user stuck
+    // on a screen that can never load.
+    if (options.auth && (response.status === 401 || response.status === 403)) {
+      session.expire();
+    }
     throw new ApiError(message, response.status);
   }
 
@@ -282,8 +288,6 @@ export const api = {
     mine: () => request<BlockResponse[]>('/api/blocks', { auth: true }),
   },
 
-  // Public campus info scraped from the school's own site, keyed by the
-  // school name the user registered with (e.g. "Luther College").
   schools: {
     byCategory: (school: string, category: ScrapeCategory) =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/${category}`),

@@ -10,10 +10,15 @@ import { BookingsTab } from '@/components/home/tabs/BookingsTab';
 import { MessagesTab } from '@/components/home/tabs/MessagesTab';
 import { ProfileTab } from '@/components/home/tabs/ProfileTab';
 
+interface ChatTarget {
+  username: string;
+  name?: string | null;
+}
+
 export const MainHome = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabKey>('home');
-  const [activeChat, setActiveChat] = useState<string | null>(null);
+  const [activeChat, setActiveChat] = useState<ChatTarget | null>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
@@ -22,8 +27,8 @@ export const MainHome = () => {
 
   const { data: me, reload: reloadMe } = useApiData(() => api.profile.me());
 
-  const openChat = useCallback((username: string) => {
-    setActiveChat(username);
+  const openChat = useCallback((username: string, name?: string | null) => {
+    setActiveChat({ username, name });
     setActiveTab('messages');
   }, []);
 
@@ -47,7 +52,8 @@ export const MainHome = () => {
         {activeTab === 'messages' && (
           <MessagesTab
             me={me}
-            activeChat={activeChat}
+            activeChatUsername={activeChat?.username ?? null}
+            activeChatName={activeChat?.name ?? null}
             onOpenChat={openChat}
             onCloseChat={() => setActiveChat(null)}
             onUnreadChange={setUnreadMessages}

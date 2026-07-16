@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/api/client';
-import type { MyProfile } from '@/api/types';
+import type { DirectMessageResponse, MyProfile } from '@/api/types';
 import { errorMessage, useApiData } from '@/hooks/useApi';
 import { formatTime, initialsOf, relativeTime } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -8,15 +8,30 @@ import { tabMessages } from '@/assets';
 
 interface MessagesTabProps {
   me: MyProfile | null;
-  activeChat: string | null;
-  onOpenChat: (username: string) => void;
+  activeChatUsername: string | null;
+  activeChatName?: string | null;
+  onOpenChat: (username: string, name?: string | null) => void;
   onCloseChat: () => void;
   onUnreadChange?: (count: number) => void;
 }
 
-export function MessagesTab({ me, activeChat, onOpenChat, onCloseChat, onUnreadChange }: MessagesTabProps) {
-  if (activeChat) {
-    return <ChatThread me={me} otherUsername={activeChat} onBack={onCloseChat} />;
+export function MessagesTab({
+  me,
+  activeChatUsername,
+  activeChatName,
+  onOpenChat,
+  onCloseChat,
+  onUnreadChange,
+}: MessagesTabProps) {
+  if (activeChatUsername) {
+    return (
+      <ChatThread
+        me={me}
+        otherUsername={activeChatUsername}
+        initialOtherName={activeChatName}
+        onBack={onCloseChat}
+      />
+    );
   }
   return <ConversationList onOpenChat={onOpenChat} onUnreadChange={onUnreadChange} />;
 }
@@ -41,7 +56,7 @@ function ConversationList({
   onOpenChat,
   onUnreadChange,
 }: {
-  onOpenChat: (username: string) => void;
+  onOpenChat: (username: string, name?: string | null) => void;
   onUnreadChange?: (count: number) => void;
 }) {
   const { data: conversations, loading, error } = useApiData(() => api.messages.conversations());
@@ -76,12 +91,12 @@ function ConversationList({
             <button
               key={conversation.otherUsername}
               type="button"
-              onClick={() => onOpenChat(conversation.otherUsername)}
+              onClick={() => onOpenChat(conversation.otherUsername, conversation.otherName)}
               className="animate-fade-up flex w-full items-center gap-3 rounded-3xl border border-line bg-cream p-4 text-left shadow-[var(--shadow-xs)] transition-all duration-150 ease-out hover:shadow-[var(--shadow-sm)] active:scale-[0.99] cursor-pointer"
               style={{ animationDelay: `${Math.min(i, 6) * 40}ms` }}
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cream-2 to-line/60 ring-1 ring-line">
-                <span className="text-base font-bold text-ink">{displayName[0]?.toUpperCase()}</span>
+                <span className="text-base font-bold text-ink">{initialsOf(displayName)}</span>
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
@@ -107,13 +122,24 @@ function ConversationList({
   );
 }
 
+/** Pulls the other person's display name off whichever message mentions them, once the thread loads. */
+function nameFromMessages(messages: DirectMessageResponse[] | null, otherUsername: string): string | null {
+  const found = messages?.find(
+    (m) => m.senderUsername === otherUsername || m.recipientUsername === otherUsername,
+  );
+  if (!found) return null;
+  return found.senderUsername === otherUsername ? found.senderName : found.recipientName;
+}
+
 function ChatThread({
   me,
   otherUsername,
+  initialOtherName,
   onBack,
 }: {
   me: MyProfile | null;
   otherUsername: string;
+  initialOtherName?: string | null;
   onBack: () => void;
 }) {
   const { data: messages, loading, error, reload } = useApiData(
@@ -124,6 +150,11 @@ function ChatThread({
   const [sendError, setSendError] = useState('');
   const [busy, setBusy] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  const displayName = useMemo(
+    () => initialOtherName || nameFromMessages(messages, otherUsername) || otherUsername,
+    [initialOtherName, messages, otherUsername],
+  );
 
   // Light polling keeps the thread reasonably fresh without websockets.
   useEffect(() => {
@@ -163,10 +194,10 @@ function ChatThread({
           ←
         </button>
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-cream-2 to-line/60 ring-1 ring-line">
-          <span className="text-sm font-bold text-ink">{initialsOf(otherUsername)}</span>
+          <span className="text-sm font-bold text-ink">{initialsOf(displayName)}</span>
         </div>
         <div>
-          <p className="text-sm font-semibold text-ink">@{otherUsername}</p>
+          <p className="text-sm font-semibold text-ink">{displayName}</p>
         </div>
       </header>
 
@@ -180,7 +211,7 @@ function ChatThread({
         ) : null}
         {error ? <EmptyState title="Couldn't load messages" body={error} /> : null}
         {!loading && !error && (messages?.length ?? 0) === 0 ? (
-          <EmptyState title="Say hello" body={`Start the conversation with @${otherUsername}.`} />
+          <EmptyState title="Say hello" body={`Start the conversation with ${displayName}.`} />
         ) : null}
 
         <div className="flex flex-col gap-2">
@@ -217,7 +248,7 @@ function ChatThread({
               void handleSend();
             }
           }}
-          placeholder={`Message @${otherUsername}`}
+          placeholder={`Message ${displayName}`}
           className="flex-1 rounded-full border border-line bg-cream-2 px-4 py-2.5 text-sm text-ink outline-none transition-all duration-150 ease-out placeholder:text-muted focus:border-ink focus:bg-cream focus:ring-4 focus:ring-ink/5"
         />
         <button

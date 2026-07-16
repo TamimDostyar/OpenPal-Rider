@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 interface UserProfileModalProps {
   username: string;
   onClose: () => void;
-  onMessage: (username: string) => void;
+  onMessage: (username: string, name?: string | null) => void;
   onReport: (username: string) => void;
   onBlock: (username: string) => void;
   onOpenPost?: (post: FeedPostResponse) => void;
@@ -96,7 +96,7 @@ export function UserProfileModal({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => onMessage(username)}
+            onClick={() => onMessage(username, primary?.name)}
             className="flex-1 rounded-full bg-ink py-2.5 text-sm font-semibold text-cream shadow-[var(--shadow-xs)] transition-all hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer"
           >
             Message

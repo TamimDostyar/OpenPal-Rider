@@ -21,7 +21,7 @@ import { ListSkeleton } from '@/components/ui/Skeleton';
 
 interface FeedTabProps {
   me: MyProfile | null;
-  onOpenChat: (username: string) => void;
+  onOpenChat: (username: string, name?: string | null) => void;
 }
 
 interface SearchState {
@@ -353,7 +353,7 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
               onOpen={(p) => setDetailTarget(p)}
               onViewProfile={(p) => setProfileUsername(p.username)}
               onBook={(p) => setBookTarget(p)}
-              onMessage={(p) => onOpenChat(p.username)}
+              onMessage={(p) => onOpenChat(p.username, p.name)}
               onDelete={handleDelete}
               onReport={(p) => setReportTarget({ kind: 'post', post: p })}
               onBlock={handleBlock}
@@ -395,7 +395,7 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
           }}
           onMessage={(p) => {
             setDetailTarget(null);
-            onOpenChat(p.username);
+            onOpenChat(p.username, p.name);
           }}
           onReport={(p) => {
             setDetailTarget(null);
@@ -414,9 +414,9 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
         <UserProfileModal
           username={profileUsername}
           onClose={() => setProfileUsername(null)}
-          onMessage={(username) => {
+          onMessage={(username, name) => {
             setProfileUsername(null);
-            onOpenChat(username);
+            onOpenChat(username, name);
           }}
           onReport={(username) => {
             setProfileUsername(null);
