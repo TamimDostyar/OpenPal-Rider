@@ -29,6 +29,7 @@ import { Spinner } from "@/components/Spinner";
 import { useVehicle } from "@/hooks/useVehicle";
 import type { RootStackParamList } from "@/navigation/types";
 import { useTheme, type ThemeMode } from "@/theme/ThemeContext";
+import { parseLocalDateTime } from "@/utils/datetime";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -36,8 +37,6 @@ const BUG_REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSe3zd3k3IRQ-rh_Y12asBzfg4OK1nXxY_6eUa6CdP-KQ1fWxQ/viewform?usp=publish-editor";
 const BIO_MAX = 200;
 
-// The official OpenPal links surfaced on every profile. Read-only — they just
-// open in the browser.
 const OPENPAL_LINKS: { label: string; caption: string; url: string }[] = [
   {
     label: "OpenPal on the web",
@@ -105,10 +104,6 @@ async function fetchProfile(token: string): Promise<LoadState> {
     };
   } catch (e) {
     if (e instanceof ApiError) {
-      // Only 401/403 mean "this token no longer works." A 404 means the
-      // endpoint itself wasn't found on the server (most often: backend
-      // not rebuilt to include /api/profile/me) — that's a server-side
-      // problem, not an expired session.
       if (e.status === 401 || e.status === 403) {
         return { kind: "session-expired", message: e.message || "Your session expired." };
       }
@@ -368,7 +363,7 @@ export function ProfileScreen() {
         </View>
 
         <Pressable onPress={openBugReport} className="mt-2 border-t border-line pt-4">
-          <Text className="text-sm font-semibold text-ink-2">Report an issue / bug →</Text>
+          <Text className="text-sm font-semibold text-ink-2">Report issues / bugs or a feedback →</Text>
           <Text className="text-xs text-muted">Opens a Google Form in your browser.</Text>
         </Pressable>
 
@@ -432,7 +427,7 @@ function PostRow({ post, onPress }: { post: FeedPostResponse; onPress: () => voi
   const dot = isPassenger ? "bg-passenger" : "bg-driver";
   const accent = isPassenger ? "text-passenger" : "text-driver";
   const tag = isPassenger ? "Looking" : "Offering";
-  const when = new Date(post.departureTime).toLocaleString(undefined, {
+  const when = parseLocalDateTime(post.departureTime).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",

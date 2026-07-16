@@ -16,7 +16,8 @@ export function Screen({ children, className }: ScreenProps) {
     <SafeAreaView className="flex-1 bg-cream">
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
         <View className={`flex-1 px-6 ${className ?? ""}`}>{children}</View>
       </KeyboardAvoidingView>

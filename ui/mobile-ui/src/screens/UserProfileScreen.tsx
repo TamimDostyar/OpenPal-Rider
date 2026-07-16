@@ -11,6 +11,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { FormError } from "@/components/FormError";
 import { Screen } from "@/components/Screen";
 import type { RootStackParamList } from "@/navigation/types";
+import { parseLocalDateTime } from "@/utils/datetime";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, "UserProfile">;
@@ -221,7 +222,7 @@ function PostRow({ post }: { post: FeedPostResponse }) {
   const dot = isPassenger ? "bg-passenger" : "bg-driver";
   const accent = isPassenger ? "text-passenger" : "text-driver";
   const tag = isPassenger ? "Looking" : "Offering";
-  const when = new Date(post.departureTime).toLocaleString(undefined, {
+  const when = parseLocalDateTime(post.departureTime).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",

@@ -188,10 +188,6 @@ public class FeedPostsManager {
         return ResponseEntity.ok(body);
     }
 
-    /**
-     * Emails whose posts must be hidden from this caller — anyone they've
-     * blocked, and anyone who has blocked them. Returned lowercased.
-     */
     private Set<String> hiddenEmails(CreateProfileDB caller) {
         Set<String> hidden = new java.util.HashSet<>();
         for (String e : blockRepo.blockedEmailsBy(caller.getEmail())) hidden.add(e.toLowerCase());

@@ -123,6 +123,13 @@ export function BookingsTab({ me, onOpenChat }: BookingsTabProps) {
 
         {(bookings ?? []).map((booking, i) => {
           const other = otherUsername(booking);
+          // Who decides an offer depends on who initiated it, not on the tab
+          // being viewed:
+          //  - DRIVER post  → rider initiated (booking request), driver decides.
+          //  - PASSENGER post → driver initiated (ride offer), rider decides.
+          const passengerPost = booking.postType === 'PASSENGER';
+          const callerIsDriver = kind === 'incoming';
+          const callerIsAcceptor = (kind === 'mine' && passengerPost) || (kind === 'incoming' && !passengerPost);
           return (
             <article
               key={booking.id}
@@ -161,50 +168,58 @@ export function BookingsTab({ me, onOpenChat }: BookingsTabProps) {
                 <div>
                   <p className="text-[13px] font-semibold text-ink">@{other}</p>
                   <p className="text-[11px] text-muted">
-                    {kind === 'mine' ? 'You requested this ride' : 'Requested a seat with you'}
+                    {kind === 'incoming'
+                      ? passengerPost
+                        ? `You offered to drive @${booking.riderUsername}`
+                        : `@${booking.riderUsername} requested ${booking.seatsRequested} seat${booking.seatsRequested === 1 ? '' : 's'}`
+                      : passengerPost
+                        ? `@${booking.driverUsername} offered to drive you`
+                        : `Driver @${booking.driverUsername} · ${booking.seatsRequested} seat${booking.seatsRequested === 1 ? '' : 's'}`}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {kind === 'incoming' && booking.status === 'REQUESTED' ? (
-                  <>
+                {booking.status === 'REQUESTED' ? (
+                  callerIsAcceptor ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => runAction(() => api.bookings.accept(booking.id), 'Booking accepted.')}
+                        className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream shadow-[var(--shadow-xs)] transition-all duration-150 hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => runAction(() => api.bookings.decline(booking.id), 'Booking declined.')}
+                        className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-ink transition-colors hover:border-ink cursor-pointer"
+                      >
+                        Decline
+                      </button>
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => runAction(() => api.bookings.accept(booking.id), 'Booking accepted.')}
-                      className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream shadow-[var(--shadow-xs)] transition-all duration-150 hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => runAction(() => api.bookings.decline(booking.id), 'Booking declined.')}
+                      onClick={() => runAction(() => api.bookings.cancel(booking.id), 'Request cancelled.')}
                       className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-ink transition-colors hover:border-ink cursor-pointer"
                     >
-                      Decline
+                      Cancel
                     </button>
-                  </>
-                ) : null}
-
-                {kind === 'mine' && booking.status === 'REQUESTED' ? (
-                  <button
-                    type="button"
-                    onClick={() => runAction(() => api.bookings.cancel(booking.id), 'Request cancelled.')}
-                    className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-ink transition-colors hover:border-ink cursor-pointer"
-                  >
-                    Cancel request
-                  </button>
+                  )
                 ) : null}
 
                 {booking.status === 'ACCEPTED' ? (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => runAction(() => api.bookings.complete(booking.id), 'Ride marked complete.')}
-                      className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream shadow-[var(--shadow-xs)] transition-all duration-150 hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer"
-                    >
-                      Mark complete
-                    </button>
+                    {callerIsDriver ? (
+                      <button
+                        type="button"
+                        onClick={() => runAction(() => api.bookings.complete(booking.id), 'Ride marked complete.')}
+                        className="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream shadow-[var(--shadow-xs)] transition-all duration-150 hover:shadow-[var(--shadow-sm)] active:scale-95 cursor-pointer"
+                      >
+                        Mark complete
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => runAction(() => api.bookings.cancel(booking.id), 'Booking cancelled.')}
@@ -215,7 +230,7 @@ export function BookingsTab({ me, onOpenChat }: BookingsTabProps) {
                   </>
                 ) : null}
 
-                {booking.status === 'COMPLETED' ? (
+                {booking.status === 'COMPLETED' && !callerIsDriver ? (
                   <button
                     type="button"
                     onClick={() => setRateTarget(booking)}

@@ -10,6 +10,8 @@ import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
+import { api } from "@/api/client";
+
 const PUSH_TOKEN_KEY = "openpal.rider.pushToken";
 const ANDROID_CHANNEL_ID = "default";
 
@@ -93,4 +95,35 @@ export async function requestNotificationPermission(): Promise<PermissionResult>
   const pushToken = tokenResponse.data;
   await SecureStore.setItemAsync(PUSH_TOKEN_KEY, pushToken);
   return { status: finalStatus, pushToken };
+}
+
+function currentPlatform(): string {
+  if (Platform.OS === "ios") return "ios";
+  if (Platform.OS === "android") return "android";
+  return "web";
+}
+
+/**
+ * Sends this device's Expo push token to the backend so the authenticated user
+ * can receive notifications. Call whenever we have a JWT (e.g. right after
+ * sign-in). Best-effort: never throws — a failure just means we retry on the
+ * next launch, with the token still cached in SecureStore.
+ */
+export async function registerPushToken(authToken: string): Promise<void> {
+  try {
+    let pushToken = await getStoredPushToken();
+    // No cached token yet, but permission may already be granted from a prior
+    // session — fetch it without prompting (requestNotificationPermission is a
+    // no-op on the prompt when already granted).
+    if (!pushToken && (await getCurrentPermissionStatus()) === "granted") {
+      pushToken = (await requestNotificationPermission()).pushToken;
+    }
+    if (!pushToken) return;
+    await api.devices.register(authToken, {
+      token: pushToken,
+      platform: currentPlatform(),
+    });
+  } catch (e) {
+    console.warn("registerPushToken failed:", e);
+  }
 }

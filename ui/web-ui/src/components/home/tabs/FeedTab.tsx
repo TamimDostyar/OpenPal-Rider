@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { api } from '@/api/client';
 import type { FeedPostResponse, MyProfile } from '@/api/types';
 import { errorMessage, useApiData } from '@/hooks/useApi';
-import { iconSearch, iconCampus } from '@/assets';
+import { parseLocalDateTime } from '@/lib/datetime';
+import { iconSearch } from '@/assets';
 import { FeedPostCard } from '@/components/feed/FeedPostCard';
 import { CreatePostModal } from '@/components/feed/CreatePostModal';
+import { PostDetailModal } from '@/components/feed/PostDetailModal';
+import { UserProfileModal } from '@/components/profile/UserProfileModal';
+import { CampusToday } from '@/components/campus/CampusToday';
+import type { CampusUtil } from '@/components/campus/campusUtils';
+import { CampusUtilityModal } from '@/components/campus/CampusUtilityModal';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
@@ -20,24 +26,39 @@ interface FeedTabProps {
 
 interface SearchState {
   destination: string;
+  dateFrom: string;
+  dateTo: string;
   maxPrice: string;
   minSeats: string;
 }
 
-const EMPTY_SEARCH: SearchState = { destination: '', maxPrice: '', minSeats: '' };
+const EMPTY_SEARCH: SearchState = { destination: '', dateFrom: '', dateTo: '', maxPrice: '', minSeats: '' };
+
+type FeedScope = 'all' | 'offering' | 'looking';
+type ReportTarget = { kind: 'post'; post: FeedPostResponse } | { kind: 'user'; username: string };
+
+const ACTIVE_BOOKING_STATES = new Set(['REQUESTED', 'ACCEPTED', 'COMPLETED']);
 
 export function FeedTab({ me, onOpenChat }: FeedTabProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState<SearchState>(EMPTY_SEARCH);
   const [activeSearch, setActiveSearch] = useState<SearchState | null>(null);
+  const [feedScope, setFeedScope] = useState<FeedScope>('all');
+  const [announcementExpanded, setAnnouncementExpanded] = useState(false);
+
   const [createOpen, setCreateOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<FeedPostResponse | null>(null);
+  const [detailTarget, setDetailTarget] = useState<FeedPostResponse | null>(null);
   const [bookTarget, setBookTarget] = useState<FeedPostResponse | null>(null);
-  const [reportTarget, setReportTarget] = useState<FeedPostResponse | null>(null);
+  const [reportTarget, setReportTarget] = useState<ReportTarget | null>(null);
+  const [profileUsername, setProfileUsername] = useState<string | null>(null);
+  const [campusUtil, setCampusUtil] = useState<CampusUtil | null>(null);
+
   const [notice, setNotice] = useState('');
   const [actionError, setActionError] = useState('');
 
   const {
-    data: posts,
+    data: rawPosts,
     loading,
     error,
     reload,
@@ -45,6 +66,8 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
     if (activeSearch) {
       return api.feed.search({
         destination: activeSearch.destination || undefined,
+        dateFrom: activeSearch.dateFrom || undefined,
+        dateTo: activeSearch.dateTo || undefined,
         maxPrice: activeSearch.maxPrice ? Number(activeSearch.maxPrice) : undefined,
         minSeats: activeSearch.minSeats ? Number(activeSearch.minSeats) : undefined,
       });
@@ -52,8 +75,42 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
     return api.feed.list();
   }, [activeSearch]);
 
+  const { data: myBookings } = useApiData(() => api.bookings.mine());
   const { data: announcements } = useApiData(() => api.announcements());
-  const latestAnnouncement = announcements?.success?.find((a) => a.announcement)?.announcement;
+  const latestAnnouncement = announcements?.success?.find((a) => a.announcement)?.announcement ?? null;
+
+  const { data: newsCheck } = useApiData(
+    () => (me?.school ? api.schools.byCategory(me.school, 'news') : Promise.resolve(null)),
+    [me?.school],
+  );
+  const hasData = (newsCheck?.length ?? 0) > 0;
+
+  // Departed rides and rides already actively booked by me are noise, not signal.
+  const bookedPostIds = useMemo(
+    () => new Set((myBookings ?? []).filter((b) => ACTIVE_BOOKING_STATES.has(b.status)).map((b) => b.postId)),
+    [myBookings],
+  );
+
+  const posts = useMemo(() => {
+    // Filtering out already-departed rides is a one-way, monotonic cutoff —
+    // reading the clock here can't produce a visible inconsistency.
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    return (rawPosts ?? [])
+      .filter((post) => {
+        if (bookedPostIds.has(post.id) && post.username !== me?.username) return false;
+        return parseLocalDateTime(post.departureTime).getTime() >= now || post.username === me?.username;
+      })
+      .sort((a, b) => parseLocalDateTime(a.departureTime).getTime() - parseLocalDateTime(b.departureTime).getTime());
+  }, [rawPosts, bookedPostIds, me?.username]);
+
+  const offeringCount = posts.filter((p) => p.postType !== 'PASSENGER').length;
+  const lookingCount = posts.filter((p) => p.postType === 'PASSENGER').length;
+  const visiblePosts = posts.filter((post) => {
+    if (feedScope === 'offering') return post.postType !== 'PASSENGER';
+    if (feedScope === 'looking') return post.postType === 'PASSENGER';
+    return true;
+  });
 
   const flash = (message: string) => {
     setNotice(message);
@@ -71,6 +128,7 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
     try {
       await api.feed.delete(post.id);
       flash('Post deleted.');
+      setDetailTarget(null);
       void reload();
     } catch (err) {
       fail(err);
@@ -82,6 +140,20 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
     try {
       await api.blocks.create({ username: post.username });
       flash(`Blocked @${post.username}.`);
+      setDetailTarget(null);
+      setProfileUsername(null);
+      void reload();
+    } catch (err) {
+      fail(err);
+    }
+  };
+
+  const handleBlockUsername = async (username: string) => {
+    if (!window.confirm(`Block @${username}? You won't see their posts or messages.`)) return;
+    try {
+      await api.blocks.create({ username });
+      flash(`Blocked @${username}.`);
+      setProfileUsername(null);
       void reload();
     } catch (err) {
       fail(err);
@@ -131,11 +203,25 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
           }}
         >
           <TextField
-            label="Destination"
+            label="Destination contains"
             placeholder="Where to?"
             value={search.destination}
             onChange={(e) => setSearch({ ...search, destination: e.target.value })}
           />
+          <div className="flex gap-3">
+            <TextField
+              label="Earliest departure"
+              type="datetime-local"
+              value={search.dateFrom}
+              onChange={(e) => setSearch({ ...search, dateFrom: e.target.value })}
+            />
+            <TextField
+              label="Latest departure"
+              type="datetime-local"
+              value={search.dateTo}
+              onChange={(e) => setSearch({ ...search, dateTo: e.target.value })}
+            />
+          </div>
           <div className="flex gap-3">
             <TextField
               label="Max price ($)"
@@ -175,19 +261,47 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
         </form>
       ) : null}
 
-      <div className="mx-5 mb-5 rounded-3xl border border-line bg-gradient-to-br from-cream-2 to-cream p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream shadow-[var(--shadow-xs)]">
-            <img src={iconCampus} alt="" aria-hidden className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-sage">Campus today</p>
-            <p className="mt-1 text-sm font-semibold text-ink">{me?.school ?? 'Your campus'}</p>
-            <p className="mt-2 text-xs leading-5 text-ink-2">
-              {latestAnnouncement ?? 'No announcements right now — check back later.'}
-            </p>
+      {latestAnnouncement ? (
+        <div className="mx-5 mb-4 rounded-2xl border border-line bg-cream px-4 py-3">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-coral-dk">Announcement</p>
+            {announcementExpanded ? (
+              <p className="text-sm leading-5 text-ink">{latestAnnouncement}</p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setAnnouncementExpanded((v) => !v)}
+              className="rounded-full border border-coral-dk bg-cream-2 px-3 py-1 text-[11px] font-semibold text-coral-dk transition-colors hover:bg-passenger-bg cursor-pointer"
+            >
+              {announcementExpanded ? 'Hide' : 'Read'}
+            </button>
           </div>
         </div>
+      ) : null}
+
+      {!activeSearch ? (
+        <CampusToday school={me?.school ?? null} hasData={hasData} onOpen={setCampusUtil} />
+      ) : null}
+
+      <div className="mx-5 mb-4 grid grid-cols-3 gap-1 rounded-2xl border border-line bg-cream-2 p-1">
+        {(
+          [
+            { key: 'all', label: 'All', count: posts.length },
+            { key: 'offering', label: 'Offering', count: offeringCount },
+            { key: 'looking', label: 'Looking', count: lookingCount },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setFeedScope(tab.key)}
+            className={`rounded-xl py-2 text-xs font-semibold cursor-pointer transition-all duration-150 ease-out ${
+              feedScope === tab.key ? 'bg-cream text-ink shadow-[var(--shadow-sm)]' : 'text-muted hover:text-ink'
+            }`}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
       </div>
 
       {notice ? (
@@ -203,17 +317,24 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
 
       <div className="flex flex-col gap-2.5 px-5 pb-8">
         {loading ? <ListSkeleton /> : null}
-        {error ? (
-          <EmptyState title="Couldn't load rides" body={error} />
-        ) : null}
-        {!loading && !error && (posts?.length ?? 0) === 0 ? (
+        {error ? <EmptyState title="Couldn't load rides" body={error} /> : null}
+        {!loading && !error && visiblePosts.length === 0 ? (
           <EmptyState
-            icon={iconCampus}
-            title={activeSearch ? 'No rides match your search' : 'No rides yet'}
+            title={
+              activeSearch
+                ? 'No rides match your search'
+                : feedScope === 'offering'
+                  ? 'No offering rides yet'
+                  : feedScope === 'looking'
+                    ? 'No ride requests yet'
+                    : 'No rides yet'
+            }
             body={
               activeSearch
-                ? 'Try widening your price or seat filters.'
-                : 'Be the first to post a ride on your campus.'
+                ? 'Try widening your filters.'
+                : feedScope !== 'all'
+                  ? 'Switch to all posts, or create one yourself.'
+                  : 'Be the first to post a ride on your campus.'
             }
             action={
               !activeSearch ? (
@@ -224,15 +345,17 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
             }
           />
         ) : null}
-        {(posts ?? []).map((post, i) => (
+        {visiblePosts.map((post, i) => (
           <div key={post.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 6) * 40}ms` }}>
             <FeedPostCard
               post={post}
               isOwn={me?.username === post.username}
+              onOpen={(p) => setDetailTarget(p)}
+              onViewProfile={(p) => setProfileUsername(p.username)}
               onBook={(p) => setBookTarget(p)}
               onMessage={(p) => onOpenChat(p.username)}
               onDelete={handleDelete}
-              onReport={(p) => setReportTarget(p)}
+              onReport={(p) => setReportTarget({ kind: 'post', post: p })}
               onBlock={handleBlock}
             />
           </div>
@@ -249,6 +372,74 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
         />
       ) : null}
 
+      {editTarget ? (
+        <CreatePostModal
+          editingPost={editTarget}
+          onClose={() => setEditTarget(null)}
+          onCreated={() => {
+            flash('Post updated.');
+            setDetailTarget(null);
+            void reload();
+          }}
+        />
+      ) : null}
+
+      {detailTarget ? (
+        <PostDetailModal
+          post={detailTarget}
+          isOwner={me?.username === detailTarget.username}
+          onClose={() => setDetailTarget(null)}
+          onBook={(p) => {
+            setDetailTarget(null);
+            setBookTarget(p);
+          }}
+          onMessage={(p) => {
+            setDetailTarget(null);
+            onOpenChat(p.username);
+          }}
+          onReport={(p) => {
+            setDetailTarget(null);
+            setReportTarget({ kind: 'post', post: p });
+          }}
+          onBlock={handleBlock}
+          onEdit={(p) => {
+            setDetailTarget(null);
+            setEditTarget(p);
+          }}
+          onViewProfile={(p) => setProfileUsername(p.username)}
+        />
+      ) : null}
+
+      {profileUsername ? (
+        <UserProfileModal
+          username={profileUsername}
+          onClose={() => setProfileUsername(null)}
+          onMessage={(username) => {
+            setProfileUsername(null);
+            onOpenChat(username);
+          }}
+          onReport={(username) => {
+            setProfileUsername(null);
+            setReportTarget({ kind: 'user', username });
+          }}
+          onBlock={handleBlockUsername}
+          onOpenPost={(p) => {
+            setProfileUsername(null);
+            setDetailTarget(p);
+          }}
+        />
+      ) : null}
+
+      {campusUtil ? (
+        <CampusUtilityModal
+          category={campusUtil.category}
+          title={campusUtil.label}
+          subtitle={campusUtil.subtitle}
+          school={me?.school ?? ''}
+          onClose={() => setCampusUtil(null)}
+        />
+      ) : null}
+
       {bookTarget ? (
         <BookModal
           post={bookTarget}
@@ -262,7 +453,7 @@ export function FeedTab({ me, onOpenChat }: FeedTabProps) {
 
       {reportTarget ? (
         <ReportModal
-          post={reportTarget}
+          target={reportTarget}
           onClose={() => setReportTarget(null)}
           onReported={() => flash('Report submitted. Our team will review it.')}
         />
@@ -333,11 +524,11 @@ function BookModal({
 }
 
 function ReportModal({
-  post,
+  target,
   onClose,
   onReported,
 }: {
-  post: FeedPostResponse;
+  target: ReportTarget;
   onClose: () => void;
   onReported: () => void;
 }) {
@@ -345,6 +536,7 @@ function ReportModal({
   const [text, setText] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const username = target.kind === 'post' ? target.post.username : target.username;
 
   const handleReport = async () => {
     if (!reason.trim()) {
@@ -355,8 +547,9 @@ function ReportModal({
     setError('');
     try {
       await api.reports.create({
-        targetType: 'POST',
-        targetPostId: post.id,
+        targetType: target.kind === 'post' ? 'POST' : 'USER',
+        targetUsername: target.kind === 'user' ? target.username : undefined,
+        targetPostId: target.kind === 'post' ? target.post.id : undefined,
         reason: reason.trim(),
         text: text.trim() || undefined,
       });
@@ -369,11 +562,16 @@ function ReportModal({
   };
 
   return (
-    <Modal title="Report post" onClose={onClose}>
+    <Modal title={target.kind === 'post' ? 'Report post' : 'Report user'} onClose={onClose}>
       <div className="flex flex-col gap-5">
         <p className="text-sm text-ink-2">
-          Reporting <span className="font-semibold">@{post.username}</span>&apos;s post from{' '}
-          {post.origin} to {post.destination}.
+          Reporting <span className="font-semibold">@{username}</span>
+          {target.kind === 'post' ? (
+            <>
+              &apos;s post from {target.post.origin} to {target.post.destination}
+            </>
+          ) : null}
+          .
         </p>
         <TextField
           label="Reason"

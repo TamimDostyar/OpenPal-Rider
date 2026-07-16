@@ -59,6 +59,9 @@ export interface ResetPasswordResponse {
 }
 
 export type ScrapeCategory = 'news' | 'gym-hours' | 'cafe-hours' | 'library';
+// What the "Campus today" strip shows. "dining" is a composite card backed by
+// the café hours + today's grouped menu rather than a single scrape endpoint.
+export type CampusCategory = 'news' | 'gym-hours' | 'dining' | 'library';
 
 export interface ScrapeItem {
   text: string;
@@ -106,6 +109,12 @@ export interface CreateFeedPostRequest {
   vehicleInfo?: string;
   description?: string;
   recurringDays?: string;
+  originLat?: number;
+  originLng?: number;
+  originPlaceId?: string;
+  destLat?: number;
+  destLng?: number;
+  destPlaceId?: string;
 }
 
 export interface FeedPostResponse {
@@ -117,7 +126,13 @@ export interface FeedPostResponse {
   school: string | null;
   driverVerified: boolean | null;
   origin: string;
+  originLat: number | null;
+  originLng: number | null;
+  originPlaceId: string | null;
   destination: string;
+  destLat: number | null;
+  destLng: number | null;
+  destPlaceId: string | null;
   price: number;
   seats: number;
   departureTime: string;

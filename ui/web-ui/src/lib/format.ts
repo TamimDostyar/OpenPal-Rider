@@ -1,7 +1,9 @@
-export function formatDeparture(iso: string | null | undefined): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+import { parseLocalDateTime, type DateTimeValue } from './datetime';
+
+export function formatDeparture(value: DateTimeValue): string {
+  if (value == null) return '';
+  const d = parseLocalDateTime(value);
+  if (Number.isNaN(d.getTime())) return String(value);
   return d.toLocaleString(undefined, {
     weekday: 'short',
     month: 'short',
@@ -11,16 +13,29 @@ export function formatDeparture(iso: string | null | undefined): string {
   });
 }
 
-export function formatTime(iso: string | null | undefined): string {
-  if (!iso) return '';
-  const d = new Date(iso);
+export function formatDepartureLong(value: DateTimeValue): string {
+  if (value == null) return '';
+  const d = parseLocalDateTime(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+export function formatTime(value: DateTimeValue): string {
+  if (value == null) return '';
+  const d = parseLocalDateTime(value);
   if (Number.isNaN(d.getTime())) return '';
   return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
-export function relativeTime(iso: string | null | undefined): string {
-  if (!iso) return '';
-  const then = new Date(iso).getTime();
+export function relativeTime(value: DateTimeValue): string {
+  if (value == null) return '';
+  const then = parseLocalDateTime(value).getTime();
   if (Number.isNaN(then)) return '';
   const seconds = Math.max(1, Math.floor((Date.now() - then) / 1000));
   if (seconds < 60) return `${seconds}s`;

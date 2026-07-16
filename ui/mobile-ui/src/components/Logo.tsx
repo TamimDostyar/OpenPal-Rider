@@ -1,10 +1,6 @@
-/**
- * Brand mark composed of two overlapping circles and the buddyride wordmark.
- * Accepts an ink or cream tone for use on light and dark backgrounds.
- */
 import React from "react";
 import { Text, View } from "react-native";
-
+import { Image } from 'react-native';
 interface LogoProps {
   tone?: "ink" | "cream";
 }
@@ -14,10 +10,13 @@ export function Logo({ tone = "ink" }: LogoProps) {
   return (
     <View className="flex-row items-center gap-2">
       <View className="h-7 w-11">
-        <View className="absolute left-0 top-0 h-7 w-7 rounded-full bg-coral" />
-        <View className="absolute left-4 top-0 h-7 w-7 rounded-full bg-ink/80" />
+        <Image 
+          source={require('../../asset/iconWelcome.png')} 
+            style={{ height: '100%', width: '100%', alignSelf:'center'}}
+          resizeMode="contain"
+        />
       </View>
-      <Text className={`text-2xl font-semibold ${textColor}`}>buddyride</Text>
+      <Text className={`text-2xl font-semibold ${textColor}`}>PalRiders</Text>
     </View>
   );
 }

@@ -23,8 +23,7 @@ import openpal.database.account_mgt.ProfileRepository;
 import openpal.database.blocksDB.BlockRepository;
 import openpal.database.homeFeedDB.MessagingSysDB;
 import openpal.database.homeFeedDB.MessagingSysRepository;
-import openpal.services.EmailService;
-
+import openpal.services.notification.PushNotificationService;
 @Component
 public class MessagingSysManager {
 
@@ -34,19 +33,20 @@ public class MessagingSysManager {
     private final ProfileRepository profileRepo;
     private final BlockRepository blockRepo;
     private final AuthSupport auth;
-    private final EmailService emailService;
+
+    private final PushNotificationService pushService;
 
     @Autowired
     public MessagingSysManager(MessagingSysRepository messageRepo,
-                               ProfileRepository profileRepo,
-                               BlockRepository blockRepo,
-                               AuthSupport auth,
-                               EmailService emailService) {
+                            ProfileRepository profileRepo,
+                            BlockRepository blockRepo,
+                            AuthSupport auth,
+                            PushNotificationService pushService) {
         this.messageRepo = messageRepo;
         this.profileRepo = profileRepo;
         this.blockRepo = blockRepo;
         this.auth = auth;
-        this.emailService = emailService;
+        this.pushService = pushService;
     }
 
     public ResponseEntity<Map<String, Object>> sendMessage(String authHeader, MessagingSys request) {
@@ -94,8 +94,19 @@ public class MessagingSysManager {
                 request.getBookingId(),
                 text
         ));
-        emailService.sendNewDirectMessage(recipient.getEmail(), sender.getUsername(), text);
-
+        // Direct messages notify by push only — no email. (Other flows, e.g.
+        // bookings and blocks, still email via EmailService.)
+        // Show the sender's full name (incl. last name) as the notification title,
+        // falling back to the username if a profile has no name set.
+        String senderDisplayName = (sender.getName() != null && !sender.getName().isBlank())
+                ? sender.getName()
+                : sender.getUsername();
+        pushService.sendToUser(
+            recipient.getEmail(),
+            senderDisplayName,
+            text,
+            Map.of("senderUsername", sender.getUsername())
+        );
         Map<String, Object> body = new HashMap<>();
         body.put("message", "message sent");
         body.put("data", MessagingSysResponse.from(saved, sender.getName(), recipient.getName()));

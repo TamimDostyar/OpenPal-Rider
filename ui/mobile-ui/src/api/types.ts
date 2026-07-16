@@ -2,7 +2,7 @@ export interface CreateUserRequest {
   name: string;
   email: string;
   school: string;
-  graduationDate: string;
+  graduationDate?: string | null;
   phoneNumber: number;
   password: string;
 }
@@ -28,7 +28,7 @@ export interface VerifyEmailResponse {
   username: string;
   email: string;
   school: string;
-  graduationDate: string;
+  graduationDate?: string | null;
   PhoneNumber: number;
   emailVerified: boolean;
   message: string;

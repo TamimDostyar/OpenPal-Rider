@@ -13,8 +13,8 @@ interface UseFeedResult {
   myEmail: string | null;
   school: string | null;
   filters: FeedSearchParams | null;
-  hasData: boolean,
-  announcement: String | null
+  hasData: boolean;
+  announcement: string | null;
   refresh: () => Promise<void>;
   applyFilters: (filters: FeedSearchParams | null) => void;
   deletePost: (id: string) => Promise<void>;
@@ -54,24 +54,28 @@ export function useFeed(): UseFeedResult {
   const [error, setError] = useState<string | null>(null);
   const [school, setSchool] = useState<string | null>(null);
   const [hasData, setHasData] = useState(false);
-  const [announcement, setAnnouncement] = useState<String | null>(null);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
   const myEmail = token ? emailFromToken(token) : null;
 
   useEffect(() => {
-    if (!token){
+    if (!token) {
       setAnnouncement(null);
       return;
-
     }
+
     async function fetchAnnouncements() {
-      const announcement = await getAnnouncementNews();
-      const data = announcement.success;
-      const currentNews = data[0];
-      setAnnouncement(currentNews["announcement"]);
+      try {
+        const announcement = await getAnnouncementNews();
+        const data = announcement.success;
+        const currentNews = data[0];
+        setAnnouncement(currentNews?.announcement ?? null);
+      } catch {
+        setAnnouncement(null);
+      }
     }
 
-    fetchAnnouncements();
-  }, [])
+    void fetchAnnouncements();
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -108,6 +112,12 @@ export function useFeed(): UseFeedResult {
     [signOut],
   );
 
+  const applyFilters = useCallback(
+    (next: FeedSearchParams | null) => {
+      setFilters(next);
+    },
+    [setFilters],
+  );
   const load = useCallback(
     async (mode: "initial" | "refresh") => {
       if (!token) return;
@@ -122,9 +132,6 @@ export function useFeed(): UseFeedResult {
         if (feedResult.status === "rejected") throw feedResult.reason;
         const next = feedResult.value;
 
-        // Build the set of post ids the user has actively booked. If the
-        // bookings call fails (network blip, 5xx), fall back to whatever we
-        // already had so the feed doesn't suddenly show ghosts.
         const bookedIds =
           bookingsResult.status === "fulfilled"
             ? new Set(
@@ -135,31 +142,26 @@ export function useFeed(): UseFeedResult {
             : bookedPostIds;
         setBookedPostIds(bookedIds);
 
-
-
-        const searchBasedOnTimePosted = () => {
         const now = new Date();
-        const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDay()).getTime();
-        
+        const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
         const filtered = next.filter((post) => {
           if (myEmail && post.email.toLowerCase() === myEmail.toLowerCase()) return false;
           if (bookedIds.has(post.id)) return false;
           return true;
         });
 
-        return filtered.map((post) => {
+      const sorted = filtered
+        .map((post) => {
           const [year, month, day] = post.departureTime;
           const departMS = new Date(Number(year), Number(month) - 1, Number(day)).getTime();
           const difference = (todayMs - departMS) / (1000 * 60 * 60 * 24);
-          return {...post, difference};
-        }
-      )
+          return { ...post, difference };
+        })
+        .filter((post) => post.difference <= 0)
+        .sort((a, b) => b.difference - a.difference);
 
-              
-      }
-      const sorted = searchBasedOnTimePosted();
-      setPosts(sorted);
-
+        setPosts(sorted);
       } catch (err: unknown) {
         if (err instanceof ApiError) {
           if (await handleAuthFailure(err)) return;
@@ -180,14 +182,6 @@ export function useFeed(): UseFeedResult {
   }, [load]);
 
   const refresh = useCallback(() => load("refresh"), [load]);
-
-  const applyFilters = useCallback(
-    (next: FeedSearchParams | null) => {
-      setFilters(next);
-    },
-    [setFilters],
-  );
-
 
   const deletePost = useCallback(
     async (id: string) => {

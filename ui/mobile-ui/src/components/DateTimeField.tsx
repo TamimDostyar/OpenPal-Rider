@@ -8,6 +8,8 @@ import DateTimePicker, {
 import React, { useState } from "react";
 import { Modal, Platform, Pressable, Text, View } from "react-native";
 
+import { parseLocalDateTime, type DateTimeValue } from "@/utils/datetime";
+
 interface DateTimeFieldProps {
   label: string;
   value: string;
@@ -19,8 +21,9 @@ interface DateTimeFieldProps {
 
 const ACCENT = "#0A0A0A";
 
-function toDate(value: string): Date {
-  const parsed = value ? new Date(value) : new Date();
+function toDate(value: unknown): Date {
+  if (value == null || value === "") return new Date();
+  const parsed = parseLocalDateTime(value as DateTimeValue);
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 

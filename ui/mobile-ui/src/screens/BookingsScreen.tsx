@@ -16,6 +16,7 @@ import { Screen } from "@/components/Screen";
 import { Spinner } from "@/components/Spinner";
 import { useBookings, type BookingScope } from "@/hooks/useBookings";
 import type { RootStackParamList } from "@/navigation/types";
+import { parseLocalDateTime } from "@/utils/datetime";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -37,8 +38,8 @@ const STATUS_COLOR: Record<BookingStatus, string> = {
 
 function formatDeparture(iso: string | null): string {
   if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+  const d = parseLocalDateTime(iso);
+  if (Number.isNaN(d.getTime())) return String(iso);
   return d.toLocaleString(undefined, {
     weekday: "short",
     month: "short",

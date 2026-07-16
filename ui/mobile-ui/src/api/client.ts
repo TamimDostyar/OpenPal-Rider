@@ -122,7 +122,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export const api = {
   health: () => request<{ Success: string }>("/api/"),
-  announcementNews: async () => request<{success: []}>("/api/announcements/read-news"),
+announcementNews: async () =>
+    request<{ success: Array<{ announcement?: string | null }> }>('/api/announcements/read-news'),
   createUser: (payload: CreateUserRequest) =>
     request<CreateUserResponse>("/api/user/create-user", {
       method: "POST",
@@ -338,6 +339,17 @@ export const api = {
 
     byCategory: (school: string, category: ScrapeCategory) =>
       request<ScrapeItem[]>(`/api/schools/${encodeURIComponent(school)}/${category}`),
+  },
+
+  devices: {
+    // Registers this device's Expo push token so the backend can notify the
+    // authenticated user. Idempotent server-side (upsert by token).
+    register: (token: string, payload: { token: string; platform: string }) =>
+      request<{ message: string }>("/api/devices/register", {
+        method: "POST",
+        token,
+        body: payload,
+      }),
   },
 
   blocks: {

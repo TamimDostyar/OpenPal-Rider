@@ -6,6 +6,7 @@ import { session } from '@/auth/session';
 import { AuthLayout } from '@/components/ui/AuthLayout';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
+import { LegalModal, type LegalKind } from '@/components/legal/LegalModal';
 
 export const LogIn = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export const LogIn = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [legalOpen, setLegalOpen] = useState<LegalKind | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -91,10 +93,26 @@ export const LogIn = () => {
 
         <p className="text-center text-xs leading-5 text-muted">
           By continuing, you agree to our{' '}
-          <span className="font-semibold text-ink underline">Terms &amp; Conditions</span> and{' '}
-          <span className="font-semibold text-ink underline">Privacy Policy</span>.
+          <button
+            type="button"
+            onClick={() => setLegalOpen('terms')}
+            className="border-0 bg-transparent p-0 font-semibold text-ink underline cursor-pointer"
+          >
+            Terms &amp; Conditions
+          </button>{' '}
+          and{' '}
+          <button
+            type="button"
+            onClick={() => setLegalOpen('privacy')}
+            className="border-0 bg-transparent p-0 font-semibold text-ink underline cursor-pointer"
+          >
+            Privacy Policy
+          </button>
+          .
         </p>
       </div>
+
+      {legalOpen ? <LegalModal kind={legalOpen} onClose={() => setLegalOpen(null)} /> : null}
     </AuthLayout>
   );
 };
