@@ -1,18 +1,3 @@
-/**
- * Departure times reach the browser in two shapes depending on the backend's
- * JSON serializer: a Jackson array ([2026, 7, 16, 16, 0]) or a zoneless ISO
- * string ("2026-07-16T16:00:00"). Both mean "this wall-clock time where the
- * rider is".
- *
- * `new Date(value)` handles neither reliably: it returns Invalid Date for the
- * array form, and treats an offset-less ISO string as UTC in some engines —
- * so a near-term ride can wrongly read as already departed depending on the
- * viewer's timezone relative to the server's.
- *
- * These helpers parse either shape into the browser's local timezone so the
- * displayed time and countdown are always relative to where the user is.
- */
-
 // "2026-07-16T16:00:00" / "2026-07-16 16:00" (no trailing Z or +hh:mm offset).
 const ZONELESS_ISO = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?$/;
 
